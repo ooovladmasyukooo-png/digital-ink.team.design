@@ -1,0 +1,20 @@
+:root {
+  --bg: #0a0a0b;
+  --bg-1: #0d0d0f;
+  --bg-2: #131316;
+  --bg-3: #1a1a1e;
+  --line: #232328;
+  --line-2: #2d2d33;
+  --txt: #e8e8ea;
+  --txt-2: #a1a1a8;
+  --txt-3: #6b6b73;
+  --txt-4: #46464d;
+  --red: #ef4444;
+  --red-2: #dc2626;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --blue: #3b82f6;
+  --purple: #a855f7;
+  --radius: 14px;
+  --radius-sm: 10px;
+}

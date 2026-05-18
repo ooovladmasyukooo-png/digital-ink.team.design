@@ -1,0 +1,18 @@
+.prj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; }
+.prj-card { display: flex; align-items: center; gap: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg-1); cursor: pointer; }
+.prj-card:hover { border-color: var(--line-2); background: var(--bg-2); }
+.prj-thumb { position: relative; display: grid; width: 64px; height: 64px; flex-shrink: 0; place-items: center; overflow: hidden; border-radius: 12px; font-size: 24px; font-weight: 600; }
+.prj-thumb-overlay { position: absolute; inset: 0; background: linear-gradient(135deg, transparent, rgb(0 0 0 / 40%)); }
+.prj-status { position: absolute; right: 3px; bottom: 3px; width: 12px; height: 12px; border: 2.5px solid var(--bg-1); border-radius: 999px; }
+.prj-status.active { background: var(--green); }
+.prj-status.paused { background: var(--amber); }
+.prj-status.archived { background: var(--txt-4); }
+.prj-body { flex: 1; min-width: 0; }
+.prj-name { margin-bottom: 4px; font-size: 15px; font-weight: 600; }
+.prj-loc { display: flex; align-items: center; gap: 5px; color: var(--txt-3); font-size: 12px; }
+.prj-foot { margin-top: 2px; color: var(--txt-4); font-size: 11px; }
+.prj-metrics { display: flex; flex-shrink: 0; align-items: center; gap: 6px; }
+.prj-pill { display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg-2); color: var(--txt-3); font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 500; }
+.prj-pill.has { border-color: oklch(0.4 0.12 160 / 50%); background: oklch(0.28 0.08 160 / 40%); color: #34d399; }
+.prj-pill.has-purple { border-color: oklch(0.42 0.14 300 / 50%); background: oklch(0.3 0.1 300 / 40%); color: #c084fc; }
+.prj-pill svg { width: 13px; height: 13px; }

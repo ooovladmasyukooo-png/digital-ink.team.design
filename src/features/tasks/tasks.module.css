@@ -1,0 +1,1963 @@
+/* ─── shell ──────────────────────────────────────────────────── */
+
+.ts-shell {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.ts-shell :global(.tb) {
+  height: 48px;
+  min-height: 48px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ts-shell :global(.tb-l) {
+  flex-wrap: nowrap;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.ts-shell :global(.tb-tab) {
+  height: 48px;
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+.ts-main {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  padding: 0;
+}
+
+/* ─── board + sheet (task-manager layout) ────────────────────── */
+
+.ts-board {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1280px;
+  padding: 22px 32px 48px;
+  margin: 0 auto;
+}
+
+.ts-board-date {
+  padding-bottom: 56px;
+}
+
+.ts-board-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--bg-2) 86%, transparent), transparent),
+    var(--bg-1);
+}
+
+.ts-board-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ts-board-kicker {
+  color: var(--txt);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.ts-board-sub {
+  overflow: hidden;
+  color: var(--txt-4);
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-board-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+}
+
+.ts-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-2) 80%, transparent);
+  color: var(--txt-2);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 600;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease,
+    transform 0.12s ease;
+}
+
+.ts-action-btn:hover {
+  border-color: var(--line-2);
+  background: var(--bg-3);
+  color: var(--txt);
+  transform: translateY(-1px);
+}
+
+.ts-action-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+}
+
+.ts-action-btn.primary {
+  border-color: color-mix(in srgb, var(--red) 42%, var(--line-2));
+  background: color-mix(in srgb, var(--red) 16%, var(--bg-2));
+  color: var(--txt);
+}
+
+.ts-sheet-v2 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── секції (як заголовки груп у «Команді») ─────────────────── */
+
+.ts-sec {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ts-sec-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.ts-sec-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 1 auto;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: opacity 0.12s ease;
+}
+
+.ts-sec-head:hover { opacity: 0.92; }
+
+.ts-sec-chev {
+  display: flex;
+  align-items: center;
+  color: var(--txt-4);
+}
+
+.ts-sec-label {
+  flex-shrink: 0;
+  color: var(--txt-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ts-sec-meta {
+  padding: 2px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--txt-4);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.ts-sec-count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--bg-3);
+  color: var(--txt-2);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ts-sec-head.ts-sec-overdue .ts-sec-label {
+  color: #f87171;
+}
+
+.ts-sec-head.ts-sec-overdue .ts-sec-count {
+  border: 1px solid oklch(0.42 0.14 25 / 35%);
+  background: oklch(0.28 0.09 25 / 35%);
+  color: #fca5a5;
+}
+
+/* У режимі «За датами» заголовки «Сьогодні» / «Завтра» — спокійніші, акцент на рядках задач */
+.ts-board-date .ts-sec-head.ts-sec-muted .ts-sec-label,
+.ts-board-date .ts-sec-head.ts-sec-muted .ts-sec-meta {
+  color: var(--txt-4);
+  font-weight: 500;
+}
+
+.ts-board-date .ts-sec-head.ts-sec-muted .ts-sec-chev {
+  color: var(--txt-4);
+}
+
+.ts-board-date .ts-sec-head.ts-sec-muted .ts-sec-count {
+  border-color: color-mix(in srgb, var(--line) 58%, transparent);
+  background: color-mix(in srgb, var(--bg-2) 72%, transparent);
+  color: var(--txt-4);
+}
+
+.ts-sec-toolbar-add {
+  box-sizing: border-box;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--txt-4);
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.14s ease,
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.ts-sec-toolbar-with-add:hover .ts-sec-toolbar-add,
+.ts-sec-toolbar-add:focus-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ts-sec-toolbar-add:hover {
+  border-color: var(--line);
+  background: var(--bg-3);
+  color: var(--txt-3);
+}
+
+.ts-sec-toolbar-add:active {
+  background: var(--bg-2);
+}
+
+/* ─── список карток у секції ─────────────────────────────────── */
+
+.ts-sec-cards {
+  display: flex;
+  overflow: visible;
+  flex-direction: column;
+  gap: 0;
+}
+
+.ts-list-head {
+  display: grid;
+  grid-template-columns: 28px minmax(100px, 122px) minmax(180px, 1.45fr) minmax(128px, 0.9fr) 96px 86px 64px;
+  gap: 12px;
+  align-items: center;
+  padding: 0 14px 8px;
+  color: var(--txt-4);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.ts-list-head > span {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-card-wrap {
+  overflow: visible;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+  border-radius: 0;
+  background: transparent;
+  transition:
+    background 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.ts-card-wrap:hover {
+  border-bottom-color: color-mix(in srgb, var(--line-2) 70%, transparent);
+  background: color-mix(in srgb, var(--bg-2) 40%, transparent);
+}
+
+.ts-card-wrap.wrap-on {
+  border-bottom-color: color-mix(in srgb, var(--red) 28%, var(--line));
+  background: color-mix(in srgb, var(--red) 5.5%, transparent);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--red) 75%, transparent);
+}
+
+.ts-card-wrap.wrap-overdue {
+  border-bottom-color: color-mix(in srgb, #f87171 20%, var(--line));
+}
+
+.ts-card {
+  display: grid;
+  grid-template-columns: 28px minmax(100px, 122px) minmax(180px, 1.45fr) minmax(128px, 0.9fr) 96px 86px 64px;
+  gap: 12px;
+  align-items: center;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.ts-card-exp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--txt-4);
+  cursor: pointer;
+  opacity: 0.45;
+  transition: opacity 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.ts-card-done {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.ts-board-date .ts-card-done {
+  width: 24px;
+}
+
+.ts-card-done-check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #34d399;
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+.ts-board-date .ts-card-wrap:hover .ts-card-done-check,
+.ts-board-date .ts-card-wrap:focus-within .ts-card-done-check {
+  opacity: 1;
+}
+
+.ts-board-date .ts-card-done-check:focus-visible {
+  opacity: 1;
+}
+
+.ts-board-date .ts-card-wrap.wrap-overdue .ts-card-done-check {
+  box-shadow: 0 0 0 2px color-mix(in srgb, #f87171 65%, transparent);
+  border-radius: 999px;
+}
+
+.ts-card-wrap:hover .ts-card-exp,
+.ts-card-exp.has-subs {
+  opacity: 1;
+}
+
+.ts-board-date .ts-card-exp-ph {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.ts-board-date button.ts-card-exp {
+  width: 20px;
+  height: 20px;
+}
+
+.ts-card-exp:hover {
+  background: var(--bg-3);
+  color: var(--txt-2);
+}
+
+.ts-card-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.ts-card-row1 {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.ts-card-row2 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding-left: 2px;
+}
+
+.ts-card-status {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  align-self: center;
+}
+
+.ts-card-status .ts-cell-pick,
+.ts-card-status .ts-st-badge {
+  vertical-align: middle;
+}
+
+.ts-card-title {
+  overflow: hidden;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt);
+  cursor: pointer;
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: -0.024em;
+  line-height: 1.35;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.1s ease;
+}
+
+.ts-card-title:hover {
+  color: var(--txt);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--txt-3) 28%, transparent);
+  text-underline-offset: 4px;
+  opacity: 1;
+}
+
+.ts-card-av {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.ts-card-av :global(.av),
+.ts-card-av :global(.av-img) {
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+  border-radius: 9px;
+  font-size: 9px;
+}
+
+.ts-card-proj {
+  box-sizing: border-box;
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  align-self: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--txt-4);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ts-card-pri,
+.ts-card-dl {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  align-self: center;
+}
+
+.ts-card-pri .ts-pri-pill {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: unset;
+  padding: 0;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ts-card-pri .ts-pri-pill.pp-urgent {
+  background: transparent;
+  color: #f87171;
+}
+
+.ts-card-pri .ts-pri-pill.pp-high {
+  background: transparent;
+  color: #fbbf24;
+}
+
+.ts-card-pri .ts-pri-pill.pp-normal {
+  background: transparent;
+  color: var(--txt-3);
+}
+
+.ts-card-pri .ts-pri-pill.pp-low {
+  background: transparent;
+  color: var(--txt-4);
+}
+
+.ts-card-pri .ts-pri-pill:hover {
+  filter: none;
+  opacity: 0.82;
+}
+
+.ts-card-dl .ts-dl-btn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: unset;
+  padding: 0;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ts-card-dl .ts-dl-btn:hover {
+  border: 0;
+  background: transparent;
+  color: var(--txt-2);
+}
+
+.ts-dl-chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: unset;
+  padding: 0;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt-3);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.ts-dl-chip.overdue {
+  border: 0;
+  background: transparent;
+  color: #f87171;
+  font-weight: 600;
+}
+
+.ts-add-card {
+  display: grid;
+  grid-template-columns: 28px minmax(96px, 120px) minmax(180px, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-height: 50px;
+  padding: 8px 14px;
+  border: 1px dashed var(--line-2);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--bg-2) 55%, transparent);
+}
+
+.ts-add-status {
+  width: fit-content;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--bg-3);
+  color: var(--txt-3);
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.ts-add-input-v2 {
+  min-width: 0;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt);
+  font-size: 13px;
+  outline: none;
+}
+
+.ts-add-input-v2::placeholder {
+  color: var(--txt-4);
+}
+
+.ts-add-card-date {
+  grid-template-columns:
+    20px 24px 26px minmax(140px, 1fr) 92px 74px 36px minmax(104px, 132px);
+  gap: 10px 12px;
+}
+
+.ts-board-date .ts-add-card.ts-add-card-date {
+  margin: 0;
+  min-height: 46px;
+  padding: 8px 14px;
+  border: 0;
+  border-top: 1px dashed color-mix(in srgb, var(--line) 52%, transparent);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--bg-2) 28%, transparent);
+}
+
+.ts-add-ph-exp {
+  grid-column: 1;
+}
+
+.ts-add-ph-done {
+  grid-column: 2;
+}
+
+.ts-add-card-date .ts-add-status {
+  grid-column: 3;
+}
+
+.ts-add-card-date .ts-add-input-v2 {
+  grid-column: 4;
+}
+
+.ts-new-btn-v2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: 1px dashed transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--txt-4);
+  cursor: pointer;
+  font-size: 12.5px;
+  text-align: left;
+  transition:
+    color 0.12s ease,
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.ts-new-btn-v2:hover {
+  border-color: var(--line-2);
+  background: color-mix(in srgb, var(--bg-2) 50%, transparent);
+  color: var(--txt-2);
+}
+
+.ts-title-empty { color: var(--txt-4); font-style: italic; font-weight: 500; }
+
+/* ─── inline pickers ─────────────────────────────────────────── */
+
+.ts-cell-pick {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ts-pick-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 148px;
+  padding: 5px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--bg-3);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 60%);
+}
+
+.ts-pick-opt {
+  padding: 4px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  text-align: left;
+  transition: filter 0.1s ease;
+}
+
+.ts-pick-opt:hover { filter: brightness(1.18); }
+.ts-pick-opt.pick-on { outline: 2px solid color-mix(in srgb, currentColor 45%, transparent); outline-offset: 1px; }
+
+/* ─── deadline cell ──────────────────────────────────────────── */
+
+.ts-dl-btn {
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  transition: color 0.1s ease;
+}
+
+.ts-dl-btn:hover { color: var(--txt-2); }
+.ts-dl-btn.overdue { color: #f87171; font-weight: 600; }
+
+.ts-dl-btn.dl-today:not(.overdue) {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.ts-dl-input {
+  box-sizing: border-box;
+  width: 108px;
+  padding: 2px 6px;
+  border: 1px solid var(--line-2);
+  border-radius: 5px;
+  background: var(--bg-3);
+  color: var(--txt);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11.5px;
+  outline: none;
+  color-scheme: dark;
+}
+
+/* ─── status badge ───────────────────────────────────────────── */
+
+.ts-st-badge-wrap {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.ts-st-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.1s ease;
+}
+
+.ts-st-badge:hover { filter: brightness(1.12); }
+
+.ts-st-badge-inline {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 0 10px 0 7px;
+  border-radius: 999px;
+  border: 0;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.ts-st-glyph {
+  flex-shrink: 0;
+}
+
+.ts-pick-opt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+}
+
+.sb-todo {
+  background: var(--bg-3);
+  color: var(--txt-3);
+}
+
+.sb-progress {
+  background: color-mix(in srgb, var(--amber) 14%, var(--bg-2));
+  color: #fbbf24;
+}
+
+.sb-review {
+  background: color-mix(in srgb, var(--blue) 14%, var(--bg-2));
+  color: #60a5fa;
+}
+
+.sb-done {
+  background: color-mix(in srgb, var(--green) 12%, var(--bg-2));
+  color: #34d399;
+}
+
+/* У рядку задачі — статус текстом + іконка, без «таблетки» */
+.ts-card .ts-st-badge-inline {
+  min-height: unset;
+  padding: 0;
+  gap: 6px;
+  border-radius: 0;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.ts-card .ts-st-badge-inline:hover {
+  filter: none;
+  opacity: 0.88;
+}
+
+.ts-card .ts-st-badge-inline.sb-todo {
+  background: transparent;
+  color: var(--txt-3);
+}
+
+.ts-card .ts-st-badge-inline.sb-progress {
+  background: transparent;
+  color: #fbbf24;
+}
+
+.ts-card .ts-st-badge-inline.sb-review {
+  background: transparent;
+  color: #60a5fa;
+}
+
+.ts-card .ts-st-badge-inline.sb-done {
+  background: transparent;
+  color: #34d399;
+}
+
+.ts-title-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ts-title {
+  overflow: hidden;
+  min-width: 0;
+  color: var(--txt);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-sub-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: fit-content;
+  max-width: 100%;
+  color: var(--txt-4);
+  font-size: 11px;
+}
+
+.ts-sub-bar {
+  width: 36px;
+  height: 3px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg-3);
+}
+
+.ts-sub-bar .ts-sub-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--green) 80%, var(--txt-4));
+}
+
+/* ─── priority pill ──────────────────────────────────────────── */
+
+.ts-pri-wrap {
+  display: flex;
+  align-items: center;
+}
+
+.ts-pri-pill {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.1s ease;
+}
+
+.ts-pri-pill:hover { filter: brightness(1.12); }
+
+.pp-urgent {
+  background: color-mix(in srgb, #f87171 14%, var(--bg-2));
+  color: #f87171;
+}
+
+.pp-high {
+  background: color-mix(in srgb, #fbbf24 12%, var(--bg-2));
+  color: #fbbf24;
+}
+
+.pp-normal {
+  background: var(--bg-3);
+  color: var(--txt-3);
+}
+
+.pp-low {
+  background: transparent;
+  color: var(--txt-4);
+}
+
+/* ─── deadline col wrapper ───────────────────────────────────── */
+.ts-dl { display: flex; align-items: center; }
+
+/* ─── project ────────────────────────────────────────────────── */
+
+.ts-proj {
+  overflow: hidden;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.ts-proj-inner {
+  overflow: hidden;
+  color: var(--txt-4);
+  font-size: 12px;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── avatar ─────────────────────────────────────────────────── */
+
+.ts-av {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ts-av :global(.av),
+.ts-av :global(.av-img) {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--bg);
+  border-radius: 999px;
+  font-size: 8px;
+}
+
+/* ─── inline subtasks ────────────────────────────────────────── */
+
+.ts-subs {
+  padding: 8px 14px 10px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+  background: color-mix(in srgb, var(--bg-2) 28%, transparent);
+}
+
+.ts-sub-r {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 34px;
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 8px;
+  transition: background 0.1s ease;
+}
+
+.ts-sub-r:hover {
+  background: color-mix(in srgb, var(--bg-3) 38%, transparent);
+}
+
+.ts-sub-indent {
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.ts-sub-check {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  border-radius: 4px;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+.ts-sub-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--txt-2);
+  line-height: 1.4;
+}
+
+.ts-sub-done {
+  color: var(--txt-4);
+  text-decoration: line-through;
+}
+
+.ts-sub-draft {
+  flex: 1;
+  min-width: 0;
+  height: auto;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt-3);
+  font-size: 13px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.ts-sub-draft::placeholder { color: var(--txt-4); }
+
+/* ─── підзадачі (режим «За датами») ─────────────────────────── */
+
+.ts-subs-date {
+  padding: 0;
+  border-top: 1px solid color-mix(in srgb, var(--line) 48%, transparent);
+  background: color-mix(in srgb, var(--bg-2) 20%, transparent);
+}
+
+.ts-sub-date-row {
+  display: grid;
+  grid-template-columns:
+    20px 24px 26px minmax(140px, 1fr) 92px 74px 36px minmax(104px, 132px);
+  gap: 10px 12px;
+  align-items: center;
+  padding: 7px 14px;
+}
+
+.ts-sub-date-row + .ts-sub-date-row {
+  border-top: 1px solid color-mix(in srgb, var(--line) 36%, transparent);
+}
+
+.ts-sub-date-gutter {
+  display: block;
+}
+
+.ts-sub-date-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.ts-sub-date-check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin: 0;
+  border-radius: 999px;
+  accent-color: #34d399;
+  cursor: pointer;
+}
+
+.ts-sub-date-check-ph {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.ts-sub-date-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 450;
+  color: var(--txt-3);
+  line-height: 1.35;
+}
+
+.ts-sub-date-text.ts-sub-done {
+  color: var(--txt-4);
+  text-decoration: line-through;
+}
+
+.ts-sub-date-skip {
+  display: block;
+}
+
+.ts-sub-draft-date {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt-4);
+  font-size: 12.5px;
+  line-height: 1.35;
+  outline: none;
+}
+
+.ts-sub-draft-date::placeholder {
+  color: var(--txt-4);
+  opacity: 0.88;
+}
+
+/* ─── new task row ───────────────────────────────────────────── */
+
+.ts-add-row {
+  height: 36px;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+}
+
+.ts-add-input {
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt);
+  font-size: 13px;
+  font-weight: 400;
+  outline: none;
+}
+
+.ts-add-input::placeholder { color: var(--txt-4); }
+
+.ts-new-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 16px 8px 46px;
+  border: 0;
+  background: transparent;
+  color: var(--txt-4);
+  cursor: pointer;
+  font-size: 12.5px;
+  text-align: left;
+  transition: color 0.12s ease;
+}
+
+.ts-new-btn:hover { color: var(--txt-2); }
+
+.ts-new-plus {
+  font-size: 15px;
+  line-height: 1;
+  color: var(--txt-4);
+}
+
+/* ─── ClickUp-подібний список (вкладка «За датами») ─────────── */
+
+.ts-list-head-clickup {
+  grid-template-columns:
+    20px 24px 26px minmax(140px, 1fr) 92px 74px 36px minmax(104px, 132px);
+  gap: 10px 12px;
+  align-items: center;
+  padding: 10px 14px;
+  margin-bottom: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--line) 58%, transparent);
+  background: color-mix(in srgb, var(--bg-2) 52%, transparent);
+  color: var(--txt-3);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 1;
+}
+
+.ts-board-date .ts-list-head-clickup > span:nth-child(8) {
+  justify-self: end;
+  text-align: right;
+}
+
+.ts-board-date .ts-sec {
+  gap: 12px;
+}
+
+.ts-board-date .ts-sheet-v2 {
+  gap: 28px;
+}
+
+.ts-board-date .ts-sec-cards {
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--bg-1) 96%, var(--bg));
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--line) 28%, transparent),
+    0 12px 36px -28px rgb(0 0 0 / 55%);
+}
+
+.ts-board-date .ts-sec-head .ts-sec-label {
+  text-transform: none;
+  letter-spacing: -0.02em;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--txt-2);
+}
+
+.ts-board-date .ts-sec-head.ts-sec-overdue .ts-sec-label {
+  color: #f87171;
+}
+
+.ts-board-date .ts-sec-head[data-sec="today"] .ts-sec-label {
+  color: #fbbf24;
+}
+
+.ts-board-date .ts-sec-head[data-sec="today"] .ts-sec-chev {
+  color: color-mix(in srgb, #fbbf24 50%, var(--txt-4));
+}
+
+.ts-board-date .ts-sec-head[data-sec="today"] .ts-sec-count {
+  border-color: color-mix(in srgb, #fbbf24 45%, transparent);
+  background: color-mix(in srgb, #fbbf24 16%, var(--bg-2));
+  color: #fde68a;
+}
+
+.ts-board-date .ts-sec-head[data-sec="today"] .ts-sec-meta {
+  color: var(--txt-4);
+  font-weight: 500;
+}
+
+.ts-board-date .ts-sec-count {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border: 1px solid color-mix(in srgb, var(--line) 62%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bg-3) 88%, transparent);
+  color: var(--txt-3);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.ts-board-date .ts-sec-head.ts-sec-overdue .ts-sec-count {
+  border-color: oklch(0.42 0.14 25 / 42%);
+  background: oklch(0.28 0.09 25 / 42%);
+  color: #fca5a5;
+}
+
+.ts-board-date .ts-sec-head.ts-sec-muted .ts-sec-count {
+  border-color: color-mix(in srgb, var(--line) 58%, transparent);
+  background: color-mix(in srgb, var(--bg-2) 72%, transparent);
+  color: var(--txt-4);
+}
+
+.ts-board-date .ts-sec-meta {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--txt-4);
+}
+
+.ts-board-date .ts-card-wrap {
+  border-bottom: 0;
+}
+
+.ts-board-date .ts-card-wrap + .ts-card-wrap {
+  border-top: 1px solid color-mix(in srgb, var(--line) 42%, transparent);
+}
+
+.ts-board-date .ts-card-wrap:hover {
+  border-radius: 0;
+  background: color-mix(in srgb, var(--bg-2) 44%, transparent);
+}
+
+.ts-board-date .ts-card-wrap.wrap-on {
+  border-radius: 0;
+  background: color-mix(in srgb, var(--red) 5%, transparent);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--red) 72%, transparent);
+}
+
+.ts-board-date .ts-card-wrap.wrap-overdue {
+  border-bottom: 0;
+}
+
+.ts-board-date .ts-card {
+  grid-template-columns:
+    20px 24px 26px minmax(140px, 1fr) 92px 74px 36px minmax(104px, 132px);
+  gap: 10px 12px;
+  align-items: center;
+  min-height: 42px;
+  padding: 8px 14px;
+}
+
+.ts-board-date .ts-card-title {
+  font-weight: 500;
+  font-size: 13.5px;
+  letter-spacing: -0.018em;
+}
+
+.ts-board-date .ts-card-title-cell {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.ts-board-date .ts-card-title-cell .ts-card-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-sub-frac {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--line) 55%, transparent);
+  background: color-mix(in srgb, var(--bg-3) 90%, transparent);
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+}
+
+.ts-board-date .ts-card-status {
+  justify-self: center;
+}
+
+.ts-board-date .ts-card-pri {
+  justify-self: start;
+}
+
+.ts-board-date .ts-card-dl {
+  justify-self: start;
+}
+
+.ts-board-date .ts-card-av {
+  justify-self: center;
+}
+
+.ts-board-date .ts-card-proj {
+  justify-self: end;
+  max-width: 100%;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: 1.25;
+  text-align: right;
+  opacity: 0.72;
+}
+
+.ts-board-date .ts-card-av :global(.av),
+.ts-board-date .ts-card-av :global(.av-img) {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--line) 45%, transparent);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.ts-st-compact {
+  gap: 0;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+}
+
+.ts-board-date .ts-st-compact {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.ts-pri-clickup {
+  gap: 5px;
+  justify-content: flex-start;
+}
+
+.ts-board-date .ts-pri-clickup {
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ts-pri-flag {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  opacity: 0.92;
+}
+
+.ts-board-date .ts-card-pri .ts-pri-clickup.pp-normal {
+  color: #7dd3fc;
+}
+
+.ts-board-date .ts-card-pri .ts-pri-clickup.pp-low {
+  color: var(--txt-4);
+}
+
+.ts-add-row-clickup {
+  display: grid;
+  grid-template-columns:
+    20px 24px 26px minmax(140px, 1fr) 92px 74px 36px minmax(104px, 132px);
+  gap: 10px 12px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 10px 14px;
+  border: 0;
+  border-top: 1px solid color-mix(in srgb, var(--line) 42%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--txt-4);
+  cursor: pointer;
+  font-size: 12.5px;
+  font-weight: 450;
+  text-align: left;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.ts-board-date .ts-add-row-clickup:hover {
+  background: color-mix(in srgb, var(--bg-2) 38%, transparent);
+  color: var(--txt-2);
+}
+
+.ts-add-row-inner {
+  grid-column: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.ts-add-row-plus {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+  opacity: 0.65;
+}
+
+.ts-board-date .ts-card .ts-st-badge-inline.ts-st-compact.sb-todo,
+.ts-board-date .ts-card .ts-st-badge-inline.ts-st-compact.sb-progress,
+.ts-board-date .ts-card .ts-st-badge-inline.ts-st-compact.sb-review,
+.ts-board-date .ts-card .ts-st-badge-inline.ts-st-compact.sb-done {
+  background: transparent;
+}
+
+@media (max-width: 980px) {
+  .ts-board {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .ts-list-head {
+    display: none;
+  }
+
+  .ts-list-head-clickup {
+    display: none;
+  }
+
+  .ts-board-date .ts-sec-cards {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: none;
+  }
+
+  .ts-board-date .ts-card,
+  .ts-board-date .ts-add-row-clickup,
+  .ts-board-date .ts-add-card-date {
+    min-width: min(660px, max(100%, 520px));
+  }
+
+  .ts-board-date .ts-card-done-check {
+    opacity: 1;
+  }
+
+  .ts-card {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    gap: 8px 10px;
+    align-items: center;
+  }
+
+  .ts-card-status,
+  .ts-card-proj,
+  .ts-card-pri,
+  .ts-card-dl {
+    grid-column: 2 / 4;
+  }
+
+  .ts-card-status { grid-row: 2; }
+  .ts-card-proj { grid-row: 3; }
+  .ts-card-pri { grid-row: 4; }
+  .ts-card-dl { grid-row: 5; }
+
+  .ts-card-status,
+  .ts-card-pri,
+  .ts-card-dl {
+    display: inline-flex;
+    width: fit-content;
+  }
+
+  .ts-card-title {
+    grid-column: 2 / 3;
+    grid-row: 1;
+  }
+
+  .ts-card-av {
+    grid-column: 3 / 4;
+    grid-row: 1 / 2;
+  }
+
+  .ts-card-proj {
+    width: fit-content;
+  }
+
+  .ts-add-card {
+    grid-template-columns: 28px minmax(0, 1fr);
+  }
+
+  .ts-add-status {
+    display: none;
+  }
+
+  .ts-add-row-clickup {
+    display: flex;
+    padding: 10px 12px;
+  }
+
+  .ts-add-row-inner {
+    grid-column: unset;
+    padding-left: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ts-board-head {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .ts-board-actions {
+    width: 100%;
+  }
+
+  .ts-action-btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 560px) {
+  .ts-board {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+}
+
+/* backdrop + drawer */
+.ts-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 230;
+  background: rgb(0 0 0 / 42%);
+  backdrop-filter: blur(4px);
+}
+
+.ts-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 240;
+  box-sizing: border-box;
+  display: flex;
+  width: min(440px, 33.333vw);
+  min-width: min(100vw, 300px);
+  height: 100%;
+  flex-direction: column;
+  border-left: 1px solid var(--line-2);
+  background: var(--bg-1);
+  box-shadow: -24px 0 48px -20px rgb(0 0 0 / 65%);
+  animation: ts-slide 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes ts-slide {
+  from {
+    transform: translateX(100%);
+    opacity: 0.96;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 640px) {
+  .ts-drawer {
+    width: 100%;
+    min-width: 100%;
+    border-left: 0;
+  }
+}
+
+.ts-dr-h {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--bg-1);
+}
+
+.ts-dr-eyebrow {
+  color: var(--txt-4);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.ts-dr-close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-2);
+  color: var(--txt-3);
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.ts-dr-close:hover {
+  border-color: var(--line-2);
+  background: var(--bg-3);
+  color: var(--txt);
+}
+
+.ts-dr-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 18px 36px;
+}
+
+.ts-dr-title {
+  display: block;
+  width: 100%;
+  margin: 0 0 18px;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--txt);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  outline: none;
+  resize: vertical;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.ts-dr-title:hover {
+  border-color: var(--line);
+}
+
+.ts-dr-title:focus {
+  border-color: rgb(239 68 68 / 55%);
+  background: var(--bg-3);
+}
+
+.ts-dr-title::placeholder {
+  color: var(--txt-4);
+}
+
+.ts-dr-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+@media (max-width: 480px) {
+  .ts-dr-meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ts-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.ts-field-k {
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ts-field-in {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--txt);
+  font-size: 12.5px;
+  outline: none;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.ts-field-in:hover {
+  border-color: var(--line-2);
+}
+
+.ts-field-in:focus {
+  border-color: rgb(239 68 68 / 45%);
+  background: var(--bg-3);
+}
+
+select.ts-field-in {
+  cursor: pointer;
+}
+
+.ts-field-in optgroup {
+  background: var(--bg-1);
+}
+
+.ts-field-full {
+  grid-column: 1 / -1;
+}
+
+.ts-desc-wrap {
+  margin-bottom: 22px;
+}
+
+.ts-desc-label {
+  margin-bottom: 8px;
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ts-desc {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 140px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+  color: var(--txt-2);
+  font-size: 13px;
+  line-height: 1.55;
+  outline: none;
+  resize: vertical;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.ts-desc:hover {
+  border-color: var(--line-2);
+}
+
+.ts-desc:focus {
+  border-color: rgb(239 68 68 / 45%);
+  background: var(--bg-3);
+}
+
+.ts-desc::placeholder {
+  color: var(--txt-4);
+}
+
+.ts-sub-wrap {
+  padding: 14px 14px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--bg-2);
+}
+
+.ts-sub-t {
+  margin-bottom: 12px;
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ts-sub-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ts-sub-li {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.ts-sub-li:last-child {
+  border-bottom: 0;
+}
+
+.ts-sub-ch {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  margin-top: 3px;
+  border-radius: 5px;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+.ts-sub-in {
+  flex: 1;
+  min-width: 0;
+  margin-top: 1px;
+  padding: 6px 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--txt);
+  font-size: 13px;
+  line-height: 1.35;
+  outline: none;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.ts-sub-in:hover {
+  background: color-mix(in srgb, var(--bg-3) 72%, transparent);
+}
+
+.ts-sub-in:focus {
+  border-color: var(--line-2);
+  background: var(--bg-3);
+}
+
+.ts-sub-in.done {
+  border-color: transparent;
+  color: var(--txt-4);
+  text-decoration: line-through;
+}
+
+.ts-add-sub {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+  font-size: 12.5px;
+  text-align: center;
+  transition:
+    border-color 0.12s ease,
+    color 0.12s ease,
+    background 0.12s ease;
+}
+
+.ts-add-sub:hover {
+  border-color: color-mix(in srgb, var(--red) 45%, var(--line));
+  background: color-mix(in srgb, var(--red) 6%, transparent);
+  color: var(--txt);
+}
+
+.ts-empty {
+  display: flex;
+  max-width: 360px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 56px auto;
+  padding: 32px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  background: var(--bg-1);
+  color: var(--txt-3);
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+}

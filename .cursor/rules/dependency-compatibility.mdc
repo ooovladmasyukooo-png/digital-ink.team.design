@@ -1,0 +1,14 @@
+---
+description: Require dependency compatibility checks before adding external libraries
+alwaysApply: true
+---
+
+# Dependency Compatibility
+
+- Do not add legacy or unmaintained packages, especially Tailwind plugins such as `tailwind-scrollbar`, unless the user explicitly approves the exact package after seeing the risk.
+- Before installing any external library, check that it is maintained, compatible with this project's current stack, and does not require legacy peer dependencies.
+- Prefer built-in CSS, browser APIs, React, Vite, and TypeScript capabilities before adding a package.
+- If a package is needed, explain why the native/project-local approach is not enough and choose the smallest maintained dependency.
+- For Tailwind-related needs, do not assume Tailwind is installed. Confirm the project actually uses Tailwind and that the plugin supports the installed Tailwind major version.
+- Never add a dependency only for trivial UI behavior such as scrollbars, spacing, small animations, icons, formatting, or one-off helpers when local code/CSS is sufficient.
+- After adding or changing dependencies, run the project verification command (`npm run build` here) and report any compatibility warnings or peer dependency issues.
