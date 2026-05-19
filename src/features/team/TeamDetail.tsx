@@ -9,13 +9,22 @@ import { ProfileTab } from './tabs/ProfileTab';
 import styles from './team.module.css';
 import type { TeamMember, TeamMemberPatch, TeamSubtabId } from './types';
 
+const memberShortName = (name: string) =>
+  name
+    .split(' ')
+    .map((part, index) => (index === 0 ? `${part[0]}.` : part))
+    .join(' ');
+
 interface TeamDetailProps {
   member: TeamMember;
+  activeMembers: TeamMember[];
+  memberAvatars: Record<string, string>;
   subtab: TeamSubtabId;
   avatarSrc?: string | null;
   teamPhotoSrc?: string | null;
   onBack: () => void;
   onSubtabChange: (tab: TeamSubtabId) => void;
+  onSwitchMember: (memberId: string) => void;
   onSave: (memberId: string, field: keyof TeamMemberPatch, value: string) => void;
   onAvatarChange: (memberId: string, src: string) => void;
   onTeamPhotoChange: (memberId: string, src: string) => void;
@@ -24,11 +33,14 @@ interface TeamDetailProps {
 
 export function TeamDetail({
   member,
+  activeMembers,
+  memberAvatars,
   subtab,
   avatarSrc,
   teamPhotoSrc,
   onBack,
   onSubtabChange,
+  onSwitchMember,
   onSave,
   onAvatarChange,
   onTeamPhotoChange,
@@ -36,10 +48,28 @@ export function TeamDetail({
 }: TeamDetailProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const teamPhotoRef = useRef<HTMLInputElement>(null);
-  const shortName = member.name.split(' ').map((part, index) => (index === 0 ? `${part[0]}.` : part)).join(' ');
+  const shortName = memberShortName(member.name);
 
   const tabs: TopbarTab<TeamSubtabId>[] = [
-    { id: 'profile', label: shortName, icon: <Avatar name={member.name} hue={member.hue} src={avatarSrc} />, n: undefined },
+    {
+      id: 'profile',
+      label: shortName,
+      icon: <Avatar name={member.name} hue={member.hue} src={avatarSrc} />,
+      menu: activeMembers.map((activeMember) => ({
+        id: activeMember.id,
+        label: activeMember.name,
+        searchText: `${activeMember.name} ${activeMember.username} ${activeMember.role}`,
+        icon: (
+          <Avatar
+            name={activeMember.name}
+            hue={activeMember.hue}
+            src={memberAvatars[activeMember.id]}
+          />
+        ),
+        selected: activeMember.id === member.id,
+      })),
+      onMenuSelect: onSwitchMember,
+    },
     { id: 'payouts', label: 'Виплати', icon: Icons.finance },
     { id: 'effectiveness', label: 'Ефективність', icon: Icons.analytics },
     { id: 'settings', label: 'Налаштування', icon: Icons.settings },

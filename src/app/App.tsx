@@ -91,7 +91,7 @@ export function App() {
           onNavigateSubtab={navigateTeamSubtab}
         />
       ) : active === 'tasks' ? (
-        <TasksPage onAddTeam={() => navigateFeature('team')} />
+        <TasksPage />
       ) : (
         featurePages[active]
       )}

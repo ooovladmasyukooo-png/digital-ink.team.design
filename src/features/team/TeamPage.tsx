@@ -71,11 +71,14 @@ export function TeamPage({ selectedMemberId, teamSubtab, onNavigateMember, onNav
   return (
     <TeamDetail
       member={selectedMember}
+      activeMembers={members.filter((item) => item.status === 'active')}
+      memberAvatars={avatars}
       subtab={teamSubtab}
       avatarSrc={avatars[selectedMember.id]}
       teamPhotoSrc={teamPhotos[selectedMember.id]}
       onBack={() => onNavigateMember(null)}
       onSubtabChange={onNavigateSubtab}
+      onSwitchMember={(memberId) => onNavigateMember(memberId)}
       onSave={saveField}
       onAvatarChange={(memberId, src) => setAvatars((current) => ({ ...current, [memberId]: src }))}
       onTeamPhotoChange={(memberId, src) => setTeamPhotos((current) => ({ ...current, [memberId]: src }))}

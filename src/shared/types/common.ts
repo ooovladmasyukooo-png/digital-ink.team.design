@@ -26,9 +26,19 @@ export type SidebarNavEntry =
   | { kind: 'link'; id: FeatureId; label: string; icon: ReactNode; badge?: number }
   | { kind: 'divider'; id: string };
 
+export interface TopbarTabMenuItem {
+  id: string;
+  label: ReactNode;
+  icon?: ReactNode;
+  selected?: boolean;
+  searchText?: string;
+}
+
 export interface TopbarTab<TId extends string = string> {
   id: TId;
   label: ReactNode;
   icon?: ReactNode;
   n?: number;
+  menu?: TopbarTabMenuItem[];
+  onMenuSelect?: (itemId: string) => void;
 }

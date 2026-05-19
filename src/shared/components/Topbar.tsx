@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import type { TopbarTab } from '../types/common';
 import { Avatar } from './Avatar';
 import { Icons } from './Icon';
@@ -47,22 +47,38 @@ export function Topbar<TTabId extends string = string>({
   onTab,
 }: TopbarProps<TTabId>) {
   const [openMenu, setOpenMenu] = useState<'notif' | 'me' | null>(null);
+  const [openTabMenu, setOpenTabMenu] = useState<TTabId | null>(null);
+  const [tabMenuSearch, setTabMenuSearch] = useState('');
+  const tabMenuSearchRef = useRef<HTMLInputElement>(null);
   const [notifications, setNotifications] = useState(notificationsInitial);
   const unread = notifications.filter((notification) => notification.unread).length;
 
   useEffect(() => {
-    if (!openMenu) return;
+    if (!openTabMenu) {
+      setTabMenuSearch('');
+      return;
+    }
+    tabMenuSearchRef.current?.focus();
+  }, [openTabMenu]);
+
+  useEffect(() => {
+    if (!openMenu && !openTabMenu) return;
 
     const handleMouseDown = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (!target.closest('.pop') && !target.closest('[data-pop-trigger]')) {
+      if (
+        !target.closest('.pop') &&
+        !target.closest('[data-pop-trigger]') &&
+        !target.closest('[data-tab-pop-trigger]')
+      ) {
         setOpenMenu(null);
+        setOpenTabMenu(null);
       }
     };
 
     document.addEventListener('mousedown', handleMouseDown);
     return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, [openMenu]);
+  }, [openMenu, openTabMenu]);
 
   return (
     <header className="tb">
@@ -71,18 +87,83 @@ export function Topbar<TTabId extends string = string>({
         {subtitle ? <div className="tb-sub">{subtitle}</div> : null}
         {tabs ? (
           <nav className="tb-tabs" aria-label="Вкладки">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`tb-tab ${activeTab === tab.id ? 'on' : ''}`}
-                onClick={() => onTab?.(tab.id)}
-                type="button"
-              >
-                {tab.icon ? <span className="tb-tab-i">{tab.icon}</span> : null}
-                <span>{tab.label}</span>
-                {tab.n != null ? <span className="tb-tab-n">{tab.n}</span> : null}
-              </button>
-            ))}
+            {tabs.map((tab) => {
+              const hasMenu = Boolean(tab.menu?.length);
+              const isOpen = openTabMenu === tab.id;
+              const searchQuery = isOpen ? tabMenuSearch.trim().toLowerCase() : '';
+              const filteredMenu =
+                !searchQuery || !tab.menu
+                  ? (tab.menu ?? [])
+                  : tab.menu.filter((item) => {
+                      const haystack =
+                        item.searchText ?? (typeof item.label === 'string' ? item.label : '');
+                      return haystack.toLowerCase().includes(searchQuery);
+                    });
+
+              return (
+                <div key={tab.id} className="tb-tab-wrap">
+                  <button
+                    className={`tb-tab ${activeTab === tab.id ? 'on' : ''} ${hasMenu ? 'has-menu' : ''}`}
+                    data-tab-pop-trigger={hasMenu ? '' : undefined}
+                    aria-expanded={hasMenu ? isOpen : undefined}
+                    aria-haspopup={hasMenu ? 'menu' : undefined}
+                    onClick={() => {
+                      if (hasMenu) {
+                        setOpenTabMenu(isOpen ? null : tab.id);
+                        setOpenMenu(null);
+                        return;
+                      }
+                      setOpenTabMenu(null);
+                      onTab?.(tab.id);
+                    }}
+                    type="button"
+                  >
+                    {tab.icon ? <span className="tb-tab-i">{tab.icon}</span> : null}
+                    <span>{tab.label}</span>
+                    {tab.n != null ? <span className="tb-tab-n">{tab.n}</span> : null}
+                    {hasMenu ? <span className="tb-tab-chev">{Icons.chevD}</span> : null}
+                  </button>
+                  {hasMenu && isOpen ? (
+                    <div className="pop pop-tab-menu" role="menu">
+                      <div className="pop-tab-menu-search">
+                        <label className="pop-tab-menu-search-in">
+                          <span className="pop-tab-menu-search-i">{Icons.search}</span>
+                          <input
+                            ref={tabMenuSearchRef}
+                            type="search"
+                            value={tabMenuSearch}
+                            onChange={(event) => setTabMenuSearch(event.target.value)}
+                            placeholder="Пошук..."
+                            aria-label="Пошук учасників"
+                          />
+                        </label>
+                      </div>
+                      <div className="pop-tab-list">
+                        {filteredMenu.length > 0 ? (
+                          filteredMenu.map((item) => (
+                            <button
+                              key={item.id}
+                              className={`pop-row ${item.selected ? 'on' : ''}`}
+                              role="menuitem"
+                              type="button"
+                              onClick={() => {
+                                tab.onMenuSelect?.(item.id);
+                                setOpenTabMenu(null);
+                              }}
+                            >
+                              {item.icon ? <span className="pop-row-i">{item.icon}</span> : null}
+                              <span className="pop-row-t">{item.label}</span>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="pop-tab-empty">Нікого не знайдено</div>
+                        )}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </nav>
         ) : null}
       </div>

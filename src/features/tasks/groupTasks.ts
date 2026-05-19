@@ -107,13 +107,15 @@ export function groupTasksByDate(tasks: Task[], now?: Date): { id: DateGroupId; 
   tasks.forEach((task) => {
     buckets[getDateGroupId(task, n)].push(task);
   });
-  return DATE_GROUP_ORDER.filter((id) => buckets[id].length > 0).map((id) => ({
+  return DATE_GROUP_ORDER.map((id) => ({
     id,
     label: DATE_GROUP_LABELS[id],
     meta: getDateGroupMeta(id, n),
     tasks: buckets[id].slice().sort(sortTasksByPriorityThenDeadline),
   }));
 }
+
+export const DEFAULT_EXPANDED_DATE_GROUPS = new Set<DateGroupId>(['overdue', 'today']);
 
 export function groupTasksByProject(tasks: Task[]): { id: string; label: string; tasks: Task[] }[] {
   const map = new Map<string, Task[]>();
@@ -166,6 +168,41 @@ export function isDeadlineToday(task: Task, now: Date = new Date()): boolean {
   if (!task.deadline || task.status === 'done') return false;
   const t = startOfDay(now);
   return parseYmd(task.deadline).getTime() === t.getTime();
+}
+
+export function ymdFromDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** Дедлайн за замовчуванням для нової задачі в групі за датами */
+export function deadlineForDateGroup(groupId: DateGroupId, now: Date = new Date()): string | null {
+  const today = ymdFromDate(now);
+  if (groupId === 'overdue') {
+    const past = new Date(now);
+    past.setDate(past.getDate() - 1);
+    return ymdFromDate(past);
+  }
+  if (groupId === 'today') return today;
+  if (groupId === 'tomorrow') {
+    const t = new Date(now);
+    t.setDate(t.getDate() + 1);
+    return ymdFromDate(t);
+  }
+  if (groupId === 'no_date') return null;
+  if (groupId === 'later') {
+    const t = new Date(now);
+    t.setDate(t.getDate() + 14);
+    return ymdFromDate(t);
+  }
+  if (groupId === 'this_week') {
+    const t = new Date(now);
+    t.setDate(t.getDate() + 3);
+    return ymdFromDate(t);
+  }
+  return today;
 }
 
 export function sortArchiveTasks(tasks: Task[]): Task[] {

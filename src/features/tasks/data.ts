@@ -1,4 +1,4 @@
-import type { Subtask, Task, TaskAssignee } from './types';
+import type { Subtask, Task, TaskAssignee, TaskPriority } from './types';
 
 export function ymdShift(from: Date, deltaDays: number): string {
   const d = new Date(from);
@@ -11,7 +11,24 @@ export function ymdShift(from: Date, deltaDays: number): string {
 
 const A = (id: string, name: string, hue: number): TaskAssignee => ({ id, name, hue });
 
-const sub = (id: string, title: string, done: boolean): Subtask => ({ id, title, done });
+const sub = (
+  id: string,
+  title: string,
+  done: boolean,
+  extras?: {
+    priority?: TaskPriority;
+    deadline?: string | null;
+    assignee?: TaskAssignee;
+  },
+): Subtask => ({
+  id,
+  title,
+  done,
+  priority: extras?.priority,
+  deadline: extras?.deadline ?? undefined,
+  assigneeId: extras?.assignee?.id,
+  assignee: extras?.assignee,
+});
 
 let sid = 0;
 const nid = () => `t-${++sid}`;
@@ -40,9 +57,10 @@ export function createInitialTasks(): Task[] {
       assignee: daria,
       createdById: andrii.id,
       subtasks: [
-        sub('s1', 'Експорт з CRM', true),
-        sub('s2', 'Слайди з графіками', false),
-        sub('s3', 'Чернетка для керівника', false),
+        sub('s1', 'Експорт з CRM', true, { deadline: ymdShift(now, -3), assignee: andrii }),
+        sub('s2', 'Узгодити цифри з фінансами', false, { deadline: ymdShift(now, 0), assignee: andrii }),
+        sub('s3', 'Repetitio з Андрієм', false, { deadline: ymdShift(now, 1), assignee: andrii }),
+        sub('s4-d', 'Чернетка для керівника', false, { assignee: daria }),
       ],
     },
     {
@@ -117,6 +135,34 @@ export function createInitialTasks(): Task[] {
     },
     {
       id: nid(),
+      title: 'Узгодити KPI з Reinhardt до кінця тижня',
+      description: '',
+      status: 'todo',
+      priority: 'high',
+      deadline: ymdShift(now, 2),
+      projectId: 'p-reinhardt',
+      projectName: 'Reinhardt Group',
+      assigneeId: andrii.id,
+      assignee: andrii,
+      createdById: daria.id,
+      subtasks: [],
+    },
+    {
+      id: nid(),
+      title: 'Звіт по воронці — внутрішній',
+      description: '',
+      status: 'in_progress',
+      priority: 'normal',
+      deadline: ymdShift(now, 4),
+      projectId: 'p-internal',
+      projectName: 'Внутрішні процеси',
+      assigneeId: mira.id,
+      assignee: mira,
+      createdById: andrii.id,
+      subtasks: [],
+    },
+    {
+      id: nid(),
       title: 'Закрити onboarding Mira (документація)',
       description: '',
       status: 'done',
@@ -140,4 +186,12 @@ export const ASSIGNEE_OPTIONS: TaskAssignee[] = [
   A('yaroslav', 'Ярослав Антонюк', 200),
   A('sofia', 'Sofia Beaumont', 60),
   A('mira', 'Mira Halvorsen', 280),
+];
+
+export const DIRECTION_OPTIONS: { id: string; name: string }[] = [
+  { id: 'p-internal', name: 'Внутрішні процеси' },
+  { id: 'p-reinhardt', name: 'Reinhardt Group' },
+  { id: 'p-cold', name: 'Cold launch · Nord' },
+  { id: 'p-mansour', name: 'Mansour Holdings' },
+  { id: 'p-lab', name: 'Creative lab' },
 ];

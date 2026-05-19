@@ -14,12 +14,27 @@ export interface Subtask {
   id: string;
   title: string;
   done: boolean;
+  /** Чернетка під час inline-створення підзадачі */
+  isDraft?: boolean;
+  /** Власний статус; якщо undefined — виводимо з `done`. */
+  status?: TaskStatus;
+  /** Власний пріоритет; якщо undefined — порожній прапорець. */
+  priority?: TaskPriority;
+  /** Власний дедлайн (YYYY-MM-DD) або null. */
+  deadline?: string | null;
+  /** Кому призначена підзадача; якщо undefined — успадковується відповідальний батьківської задачі. */
+  assigneeId?: string;
+  assignee?: TaskAssignee;
+  /** Вкладені підзадачі (рекурсивно, довільна глибина). */
+  subtasks?: Subtask[];
 }
 
 export interface Task {
   id: string;
   title: string;
   description: string;
+  /** Чернетка під час inline-створення (pick-up рядок) */
+  isDraft?: boolean;
   status: TaskStatus;
   priority: TaskPriority;
   /** YYYY-MM-DD, локальна дата */

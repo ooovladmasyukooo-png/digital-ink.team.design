@@ -97,4 +97,18 @@ export const Icons = {
   ),
   download: <Icon d={<><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></>} size={14} />,
   trend: <Icon d={<><path d="M22 7 13.5 15.5 8.5 10.5 2 17" /><path d="M16 7h6v6" /></>} size={14} />,
+  trash: (
+    <Icon
+      d={
+        <>
+          <path d="M3 6h18" />
+          <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+          <path d="M10 11v6M14 11v6" />
+        </>
+      }
+      size={14}
+    />
+  ),
+  chevR: <Icon d={<path d="m9 18 6-6-6-6" />} size={12} />,
 };

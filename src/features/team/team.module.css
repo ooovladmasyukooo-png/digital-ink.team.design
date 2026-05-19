@@ -1,6 +1,7 @@
 .team-shell { display: flex; height: 100vh; flex-direction: column; background: var(--bg); }
-.team-shell :global(.tb) { height: 56px; min-height: 56px; flex-shrink: 0; padding: 0 18px; gap: 10px; }
-.team-shell :global(.tb-l) { flex-wrap: nowrap; overflow: hidden; gap: 12px; }
+.team-shell :global(.tb) { height: 56px; min-height: 56px; flex-shrink: 0; padding: 0 18px; gap: 10px; overflow: visible; }
+.team-shell :global(.tb-l) { flex-wrap: nowrap; overflow: visible; gap: 12px; }
+.team-shell :global(.tb-tabs) { overflow: visible; }
 .team-shell :global(.tb-tab) { height: 56px; padding: 0 7px; font-size: 11.5px; }
 
 .tb-title-row { display: flex; align-items: baseline; gap: 10px; }
