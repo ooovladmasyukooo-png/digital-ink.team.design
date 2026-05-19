@@ -1,22 +1,11 @@
 import { useState } from 'react';
-import { Topbar } from '../../shared/components/Topbar';
-import type { TopbarTab } from '../../shared/types/common';
-import { Icons } from '../../shared/components/Icon';
 import { TeamComingSoon } from '../team/components/TeamComingSoon';
-import { TaskManager } from './components/TaskManager';
-import { useTasksState } from './hooks/useTasksState';
+import { TasksByDateView } from './components/TasksByDateView';
+import { TasksPageHeader } from './components/TasksPageHeader';
 import type { TasksViewTabId } from './types';
 import styles from './tasks.module.css';
 
-const TASK_TABS: TopbarTab<TasksViewTabId>[] = [
-  { id: 'by-date', label: 'За датами', icon: Icons.calendar },
-  { id: 'by-area', label: 'За напрямами', icon: Icons.filter },
-  { id: 'personal', label: 'Особисті', icon: Icons.spark },
-  { id: 'delegated', label: 'Делеговані', icon: Icons.team },
-  { id: 'archive', label: 'Архів', icon: Icons.inbox },
-];
-
-const TASKS_COMING_SOON_SUBTITLE: Record<Exclude<TasksViewTabId, 'by-date'>, string> = {
+const TASKS_TAB_SUBTITLE: Record<Exclude<TasksViewTabId, 'by-date'>, string> = {
   'by-area': 'Групування задач за напрямками з\'явиться незабаром.',
   personal: 'Особисті задачі будуть тут — розділ у розробці.',
   delegated: 'Делеговані задачі будуть тут — розділ у розробці.',
@@ -25,16 +14,15 @@ const TASKS_COMING_SOON_SUBTITLE: Record<Exclude<TasksViewTabId, 'by-date'>, str
 
 export function TasksPage() {
   const [activeTab, setActiveTab] = useState<TasksViewTabId>('by-date');
-  const tasksApi = useTasksState();
 
   return (
     <div className={styles['ts-shell']}>
-      <Topbar tabs={TASK_TABS} activeTab={activeTab} onTab={setActiveTab} />
+      <TasksPageHeader activeTab={activeTab} onTab={setActiveTab} />
       <div className={styles['ts-main']}>
         {activeTab === 'by-date' ? (
-          <TaskManager api={tasksApi} tab={activeTab} />
+          <TasksByDateView />
         ) : (
-          <TeamComingSoon subtitle={TASKS_COMING_SOON_SUBTITLE[activeTab]} />
+          <TeamComingSoon subtitle={TASKS_TAB_SUBTITLE[activeTab]} />
         )}
       </div>
     </div>

@@ -1,103 +1,187 @@
-import { useState } from 'react';
-import { Icons } from '../../../shared/components/Icon';
-import { isTaskOverdue } from '../groupTasks';
-import type { Task } from '../types';
-import type { TasksStateApi } from '../hooks/useTasksState';
-import { countSubtasks } from '../taskTree';
-import { useDoubleDelete } from '../hooks/useDoubleDelete';
-import { AssigneePicker, DeadlinePicker, DirectionPicker, PriorityPicker, StatusPicker } from './TaskPickers';
-import { SubtaskBranch } from './SubtaskBranch';
+import { useRef, useState } from 'react';
+import { cx } from '../../../shared/styles/cx';
+import { PRIORITIES, STATUS_META } from '../constants';
+import { formatTaskDeadline } from '../dateDisplay';
 import styles from '../tasks.module.css';
+import type { Priority, Status, Task, TaskPatch } from '../types';
+import {
+  AssigneeCell,
+  PriorityBadge,
+  ProjectCell,
+  StatusBadge,
+  assigneePickerItems,
+  priorityPickerItems,
+  projectPickerItems,
+  statusPickerItems,
+} from '../taskOptions';
+import { TaskDeadlinePicker } from './TaskDeadlinePicker';
+import { TaskDeleteButton } from './TaskDeleteButton';
+import { TaskPickerPopover } from './TaskPickerPopover';
+
+type PickerField = 'status' | 'priority' | 'deadline' | 'assignee' | 'project' | null;
 
 interface TaskRowProps {
   task: Task;
-  api: TasksStateApi;
+  armedDeleteId: string | null;
+  onArmDelete: (id: string | null) => void;
+  onDelete: (id: string) => void;
+  onUpdate: (id: string, patch: TaskPatch) => void;
+  onOpen: () => void;
 }
 
-export function TaskRow({ task, api }: TaskRowProps) {
-  const savedSubs = task.subtasks.filter((s) => !s.isDraft);
-  const hasSubtasks = savedSubs.length > 0;
-  const [subExpanded, setSubExpanded] = useState(hasSubtasks);
-  const progress = hasSubtasks ? countSubtasks(task.subtasks) : null;
-  const overdue = isTaskOverdue(task);
-  const isDone = task.status === 'done';
-  const { armedId, onDeleteClick } = useDoubleDelete((id) => api.deleteTask(id));
+export function TaskRow({ task, armedDeleteId, onArmDelete, onDelete, onUpdate, onOpen }: TaskRowProps) {
+  const [picker, setPicker] = useState<PickerField>(null);
+  const statusRef = useRef<HTMLButtonElement>(null);
+  const priorityRef = useRef<HTMLButtonElement>(null);
+  const deadlineRef = useRef<HTMLButtonElement>(null);
+  const assigneeRef = useRef<HTMLButtonElement>(null);
+  const projectRef = useRef<HTMLButtonElement>(null);
 
-  const toggleSubs = () => {
-    if (subExpanded) {
-      const draft = task.subtasks.find((s) => s.isDraft);
-      if (draft) api.cancelDraftSubtask(task.id, draft.id);
-      setSubExpanded(false);
-      return;
-    }
-    setSubExpanded(true);
-    if (!task.subtasks.some((s) => s.isDraft)) {
-      api.addSubtask(task.id, null, { draft: true });
+  const anchorFor = (field: Exclude<PickerField, null>) => {
+    switch (field) {
+      case 'status':
+        return statusRef;
+      case 'priority':
+        return priorityRef;
+      case 'deadline':
+        return deadlineRef;
+      case 'assignee':
+        return assigneeRef;
+      case 'project':
+        return projectRef;
     }
   };
 
+  const togglePicker = (field: Exclude<PickerField, null>) => {
+    setPicker((current) => (current === field ? null : field));
+  };
+
   return (
-    <div
-      className={styles['task-block']}
-      data-has-subs={hasSubtasks ? '' : undefined}
-      data-sub-open={subExpanded ? '' : undefined}
-    >
-      <div className={styles['task-row']} data-done={isDone ? '' : undefined}>
-        <div className={styles['col-status']}>
-          <button
-            type="button"
-            className={styles['sub-chev']}
-            onClick={toggleSubs}
-            aria-expanded={subExpanded}
-            aria-label={subExpanded ? 'Згорнути підзадачі' : 'Розгорнути підзадачі'}
-          >
-            <span data-open={subExpanded ? '' : undefined}>{Icons.chevR}</span>
-          </button>
-          <StatusPicker status={task.status} onChange={(s) => api.setTaskStatus(task.id, s)} />
-        </div>
-        <div className={styles['col-title']}>
-          <span className={styles['task-title']}>{task.title}</span>
-          {progress && progress.total > 0 ? (
-            <span className={styles['sub-progress']}>
-              {progress.done}/{progress.total}
-            </span>
-          ) : null}
-        </div>
-        <div className={styles['col-priority']}>
-          <PriorityPicker priority={task.priority} onChange={(p) => api.setTaskPriority(task.id, p)} />
-        </div>
-        <div className={styles['col-deadline']}>
-          <DeadlinePicker
-            deadline={task.deadline}
-            overdue={overdue}
-            onChange={(d) => api.setTaskDeadline(task.id, d)}
-          />
-        </div>
-        <div className={styles['col-assignee']}>
-          <AssigneePicker assignee={task.assignee} onChange={(a) => api.setTaskAssignee(task.id, a)} />
-        </div>
-        <div className={styles['col-direction']}>
-          <DirectionPicker
-            projectId={task.projectId}
-            projectName={task.projectName}
-            onChange={(id, name) => api.setTaskDirection(task.id, id, name)}
-          />
-        </div>
-        <div className={styles['col-delete']}>
-          <button
-            type="button"
-            className={styles['delete-btn']}
-            data-armed={armedId === task.id ? '' : undefined}
-            title={armedId === task.id ? 'Натисніть ще раз для видалення' : 'Подвійне натискання для видалення'}
-            onClick={() => onDeleteClick(task.id)}
-          >
-            {Icons.trash}
-          </button>
-        </div>
+    <div className={styles['ts-row']}>
+      <button
+        ref={statusRef}
+        type="button"
+        className={cx(styles['ts-cell-btn'], styles['ts-cell-status'])}
+        onClick={() => togglePicker('status')}
+        aria-label={`Статус: ${STATUS_META[task.status].label}`}
+      >
+        <StatusBadge status={task.status} />
+      </button>
+
+      <div className={styles['ts-cell-name']}>
+        <button type="button" className={styles['ts-title-btn']} onClick={onOpen} aria-label={`Відкрити: ${task.title}`}>
+          <span className={styles['ts-title-t']}>{task.title}</span>
+        </button>
       </div>
 
-      {subExpanded ? (
-        <SubtaskBranch task={task} subs={task.subtasks} parentSubId={null} depth={0} api={api} />
+      <button
+        ref={priorityRef}
+        type="button"
+        className={cx(styles['ts-cell-btn'], styles['ts-cell-priority'])}
+        onClick={() => togglePicker('priority')}
+        aria-label={
+          task.priority ? `Пріоритет: ${PRIORITIES[task.priority].label}` : 'Пріоритет не встановлено'
+        }
+      >
+        <PriorityBadge priority={task.priority} />
+      </button>
+
+      <button
+        ref={deadlineRef}
+        type="button"
+        className={cx(styles['ts-cell-btn'], styles['ts-cell-deadline'])}
+        onClick={() => togglePicker('deadline')}
+        aria-label="Дедлайн"
+      >
+        {task.deadline ? (
+          <span className={styles['ts-deadline-t']}>{formatTaskDeadline(task.deadline)}</span>
+        ) : (
+          <span className={styles['ts-empty']}>—</span>
+        )}
+      </button>
+
+      <button
+        ref={assigneeRef}
+        type="button"
+        className={cx(styles['ts-cell-btn'], styles['ts-cell-assignee'])}
+        onClick={() => togglePicker('assignee')}
+        aria-label="Відповідальний"
+      >
+        <AssigneeCell assigneeId={task.assigneeId} />
+      </button>
+
+      <button
+        ref={projectRef}
+        type="button"
+        className={cx(styles['ts-cell-btn'], styles['ts-cell-project'])}
+        onClick={() => togglePicker('project')}
+        aria-label="Проєкт"
+      >
+        <ProjectCell projectId={task.projectId} />
+      </button>
+
+      <div className={styles['ts-row-actions']}>
+        <TaskDeleteButton
+          taskId={task.id}
+          armedId={armedDeleteId}
+          onArm={onArmDelete}
+          onDelete={onDelete}
+        />
+      </div>
+
+      {picker === 'deadline' ? (
+        <TaskDeadlinePicker
+          open
+          anchorRef={deadlineRef}
+          valueIso={task.deadline}
+          onClose={() => setPicker(null)}
+          onSelectIso={(iso) => onUpdate(task.id, { deadline: iso })}
+        />
+      ) : null}
+
+      {picker && picker !== 'deadline' ? (
+        <TaskPickerPopover
+          open
+          anchorRef={anchorFor(picker)}
+          searchable={picker === 'assignee' || picker === 'project'}
+          width={
+            picker === 'assignee' || picker === 'project'
+              ? 280
+              : picker === 'priority'
+                ? 200
+                : picker === 'status'
+                  ? 168
+                  : 220
+          }
+          compact={picker === 'status'}
+          clearOption={
+            picker === 'priority'
+              ? {
+                  id: '__none__',
+                  label: 'Clear',
+                  selected: task.priority === null,
+                }
+              : undefined
+          }
+          items={
+            picker === 'status'
+              ? statusPickerItems(task.status)
+              : picker === 'priority'
+                ? priorityPickerItems(task.priority)
+                : picker === 'assignee'
+                  ? assigneePickerItems(task.assigneeId)
+                  : projectPickerItems(task.projectId)
+          }
+          onClose={() => setPicker(null)}
+          onSelect={(id) => {
+            if (picker === 'status') onUpdate(task.id, { status: id as Status });
+            if (picker === 'priority')
+              onUpdate(task.id, { priority: id === '__none__' ? null : (id as Priority) });
+            if (picker === 'assignee')
+              onUpdate(task.id, { assigneeId: id === '__none__' ? null : id });
+            if (picker === 'project') onUpdate(task.id, { projectId: id === '__none__' ? null : id });
+          }}
+        />
       ) : null}
     </div>
   );

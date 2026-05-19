@@ -83,7 +83,37 @@ export const Icons = {
   mail: <Icon d={<><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></>} size={14} />,
   check: <Icon d={<path d="M20 6 9 17l-5-5" />} size={14} />,
   spark: <Icon d={<path d="M12 2 14 9l7 1-5 5 2 7-6-4-6 4 2-7-5-5 7-1Z" />} size={14} />,
-  inbox: <Icon d={<><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6Z" /></>} />,
+  inbox: <Icon d={<><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6Z" /></>} size={14} />,
+  play: (
+    <Icon
+      size={14}
+      sw={0}
+      d={<path d="m8 6.5 9.5 5.5-9.5 5.5V6.5Z" fill="currentColor" stroke="none" />}
+    />
+  ),
+  eye: (
+    <Icon
+      size={14}
+      d={
+        <>
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="2.5" />
+        </>
+      }
+    />
+  ),
+  archive: (
+    <Icon
+      size={14}
+      d={
+        <>
+          <rect x="2" y="4" width="20" height="4" rx="1" />
+          <path d="M4 8v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" />
+          <path d="M10 12h4" />
+        </>
+      }
+    />
+  ),
   sun: (
     <Icon
       d={
@@ -122,4 +152,30 @@ export const Icons = {
     />
   ),
   chevR: <Icon d={<path d="m9 18 6-6-6-6" />} size={12} />,
+  openExternal: (
+    <Icon
+      size={12}
+      d={
+        <>
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+          <path d="m15 3 21 3 21 9" />
+          <path d="M10 14 21 3" />
+        </>
+      }
+    />
+  ),
+  share: (
+    <Icon
+      size={14}
+      d={
+        <>
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <path d="m8.6 13.5 6.8 3.9M15.4 6.6 8.6 10.5" />
+        </>
+      }
+    />
+  ),
+  close: <Icon d={<path d="M18 6 6 18M6 6l12 12" />} size={14} />,
 };
