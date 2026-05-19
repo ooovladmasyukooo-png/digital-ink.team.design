@@ -1,29 +1,29 @@
 import { useEffect, useState } from 'react';
 import { projects as projectCatalog } from './data';
-import { ProjectDetail } from './ProjectDetail';
-import { ProjectList } from './ProjectList';
+import { Project2Detail } from './Project2Detail';
+import { Project2List } from './Project2List';
 import type { ProjectPatch, ProjectSubtabId } from './types';
 
 const SUBTAB_DOC_TITLE: Record<ProjectSubtabId, string> = {
-  profile: 'Профіль',
+  profile: 'Головна',
   payouts: 'Виплати',
   effectiveness: 'Ефективність',
   settings: 'Налаштування',
 };
 
-interface ProjectsPageProps {
+interface Projects2PageProps {
   selectedProjectId: string | null;
   projectSubtab: ProjectSubtabId;
   onNavigateProject: (projectId: string | null, replaceHistory?: boolean, keepSubtab?: boolean) => void;
   onNavigateSubtab: (tab: ProjectSubtabId) => void;
 }
 
-export function ProjectsPage({
+export function Projects2Page({
   selectedProjectId,
   projectSubtab,
   onNavigateProject,
   onNavigateSubtab,
-}: ProjectsPageProps) {
+}: Projects2PageProps) {
   const [removedProjectIds, setRemovedProjectIds] = useState<Set<string>>(() => new Set());
   const [overrides, setOverrides] = useState<Record<string, ProjectPatch>>({});
   const [avatars, setAvatars] = useState<Record<string, string>>({});
@@ -52,7 +52,7 @@ export function ProjectsPage({
     const tabPart = SUBTAB_DOC_TITLE[projectSubtab];
     document.title =
       projectSubtab === 'profile'
-        ? `${selectedProject.name} · Профіль · Проєкти · Aurora CRM`
+        ? `${selectedProject.name} · Головна · Проєкти · Aurora CRM`
         : `${tabPart} · ${selectedProject.name} · Проєкти · Aurora CRM`;
   }, [selectedProject, projectSubtab]);
 
@@ -72,11 +72,11 @@ export function ProjectsPage({
   };
 
   if (!selectedProject) {
-    return <ProjectList projects={items} onSelect={(id) => onNavigateProject(id)} />;
+    return <Project2List projects={items} onSelect={(id) => onNavigateProject(id)} />;
   }
 
   return (
-    <ProjectDetail
+    <Project2Detail
       project={selectedProject}
       activeProjects={items.filter((item) => item.status === 'active')}
       projectAvatars={avatars}

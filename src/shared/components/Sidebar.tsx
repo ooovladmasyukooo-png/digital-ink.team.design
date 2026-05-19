@@ -1,5 +1,6 @@
 import type { FeatureId } from '../types/common';
 import { sidebarNavigation } from '../../app/navigation';
+import { TopbarActions } from './TopbarActions';
 import brandMark from '../../assets/brand-mark.png';
 
 interface SidebarProps {
@@ -34,6 +35,10 @@ export function Sidebar({ active, onChange }: SidebarProps) {
           ),
         )}
       </nav>
+
+      <div className="sb-foot">
+        <TopbarActions layout="sidebar" />
+      </div>
     </aside>
   );
 }

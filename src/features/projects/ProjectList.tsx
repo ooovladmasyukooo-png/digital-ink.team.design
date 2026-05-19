@@ -1,46 +1,46 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon, Icons } from '../../shared/components/Icon';
+import { Topbar } from '../../shared/components/Topbar';
 import { cx } from '../../shared/styles/cx';
-import { MemberCard } from './components/MemberCard';
-import { TeamListHeader } from './components/TeamListHeader';
-import { TEAM_ROLE_OPTIONS } from './roleOptions';
-import styles from './team.module.css';
-import type { TeamMember } from './types';
+import { ProjectCard } from './components/ProjectCard';
+import { PROJECT_STYLE_OPTIONS } from './roleOptions';
+import styles from './projects.module.css';
+import type { Project } from './types';
 
-interface TeamListProps {
-  members: TeamMember[];
+interface ProjectListProps {
+  projects: Project[];
   onSelect: (id: string) => void;
 }
 
-export function TeamList({ members, onSelect }: TeamListProps) {
+export function ProjectList({ projects, onSelect }: ProjectListProps) {
   const [filter, setFilter] = useState<string>('all');
   const [roleOpen, setRoleOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
-  const [invitePosition, setInvitePosition] = useState(TEAM_ROLE_OPTIONS[0] ?? '');
+  const [invitePosition, setInvitePosition] = useState(PROJECT_STYLE_OPTIONS[0] ?? '');
   const emailRef = useRef<HTMLInputElement>(null);
 
   const roles = useMemo(() => {
     const roleCounts = new Map<string, number>();
-    members.forEach((member) => roleCounts.set(member.role, (roleCounts.get(member.role) ?? 0) + 1));
+    projects.forEach((project) => roleCounts.set(project.role, (roleCounts.get(project.role) ?? 0) + 1));
     return Array.from(roleCounts, ([role, n]) => ({ role, n }));
-  }, [members]);
+  }, [projects]);
 
-  const filtered = members.filter((member) => {
-    if (filter !== 'all' && member.role !== filter) return false;
-    const searchText = `${member.name} ${member.username}`.toLowerCase();
+  const filtered = projects.filter((project) => {
+    if (filter !== 'all' && project.role !== filter) return false;
+    const searchText = `${project.name} ${project.username}`.toLowerCase();
     return !query || searchText.includes(query.toLowerCase());
   });
 
-  const activeMembers = filtered.filter((member) => member.status === 'active');
-  const inactiveMembers = filtered.filter((member) => member.status !== 'active');
+  const activeProjects = filtered.filter((project) => project.status === 'active');
+  const inactiveProjects = filtered.filter((project) => project.status !== 'active');
 
   const closeInvite = useCallback(() => {
     setInviteOpen(false);
     setInviteEmail('');
-    setInvitePosition(TEAM_ROLE_OPTIONS[0] ?? '');
+    setInvitePosition(PROJECT_STYLE_OPTIONS[0] ?? '');
   }, []);
 
   useEffect(() => {
@@ -88,9 +88,9 @@ export function TeamList({ members, onSelect }: TeamListProps) {
           <div className={styles['invite-head']}>
             <div className={styles['invite-head-text']}>
               <h2 id="invite-dialog-title" className={styles['invite-title']}>
-                Запросити в команду
+                Додати проєкт
               </h2>
-              <p className={styles['invite-sub']}>Вкажіть пошту та позицію спеціаліста — ми надішлемо запрошення.</p>
+              <p className={styles['invite-sub']}>Вкажіть контакт студії або майстра — ми надішлемо запрошення в CRM.</p>
             </div>
             <button type="button" className="icon-btn sm" aria-label="Закрити" onClick={closeInvite}>
               <Icon d={<path d="M18 6 6 18M6 6l12 12" />} size={14} sw={1.8} />
@@ -116,7 +116,7 @@ export function TeamList({ members, onSelect }: TeamListProps) {
               </div>
               <div className={styles['invite-row']}>
                 <label className={styles['invite-l']} htmlFor="invite-position">
-                  Позиція спеціаліста
+                  Стиль / напрям
                 </label>
                 <div className={`${styles['field-v-wrap']} ${styles['select-wrap']}`}>
                   <select
@@ -126,7 +126,7 @@ export function TeamList({ members, onSelect }: TeamListProps) {
                     onChange={(event) => setInvitePosition(event.target.value)}
                     required
                   >
-                    {TEAM_ROLE_OPTIONS.map((role) => (
+                    {PROJECT_STYLE_OPTIONS.map((role) => (
                       <option key={role} value={role}>
                         {role}
                       </option>
@@ -155,31 +155,24 @@ export function TeamList({ members, onSelect }: TeamListProps) {
   return (
     <>
       <div className={styles['team-shell']}>
-        <TeamListHeader
-          count={members.length}
-          action={
-            <button className="red-out-btn" type="button" onClick={() => setInviteOpen(true)}>
-              {Icons.plus} Запросити
-            </button>
-          }
-        />
+        <Topbar title={<span className={styles['tb-title-row']}>Проєкти<span className={styles['tb-title-n']}>{projects.length}</span></span>} />
         <div className={styles['team-list-page']}>
           <div className={styles['tlp-filter']}>
             <div className={styles['tlp-search']}>
               {Icons.search}
-              <input placeholder="Пошук учасників..." value={query} onChange={(event) => setQuery(event.target.value)} />
+              <input placeholder="Пошук проєктів..." value={query} onChange={(event) => setQuery(event.target.value)} />
             </div>
             <div className={styles['tlp-role-filter']}>
               <button className={cx(styles['tlp-role-btn'], roleOpen && styles.on)} onClick={() => setRoleOpen((open) => !open)} type="button">
                 {Icons.filter}
-                <span>{filter === 'all' ? 'Усі ролі' : filter}</span>
+                <span>{filter === 'all' ? 'Усі стилі' : filter}</span>
                 <span className={styles['team-chip-n']}>{filtered.length}</span>
                 {Icons.chevD}
               </button>
               {roleOpen ? (
                 <div className={styles['tlp-role-menu']}>
                   <button className={cx(styles['tlp-role-option'], filter === 'all' && styles.on)} onClick={() => { setFilter('all'); setRoleOpen(false); }} type="button">
-                    <span>Усі ролі</span><span className={styles['team-chip-n']}>{members.length}</span>
+                    <span>Усі стилі</span><span className={styles['team-chip-n']}>{projects.length}</span>
                   </button>
                   {roles.map((role) => (
                     <button key={role.role} className={cx(styles['tlp-role-option'], filter === role.role && styles.on)} onClick={() => { setFilter(role.role); setRoleOpen(false); }} type="button">
@@ -189,12 +182,15 @@ export function TeamList({ members, onSelect }: TeamListProps) {
                 </div>
               ) : null}
             </div>
+            <button className="red-out-btn" type="button" onClick={() => setInviteOpen(true)}>
+              {Icons.plus} Додати проєкт
+            </button>
           </div>
 
           <div className={styles['tlp-groups']}>
-            {activeMembers.length ? <section className={styles['tlp-group']}><div className={styles['tlp-group-h']}>Активні<span>{activeMembers.length}</span></div><div className={styles['tlp-grid']}>{activeMembers.map((member) => <MemberCard key={member.id} member={member} onSelect={onSelect} />)}</div></section> : null}
-            {inactiveMembers.length ? <section className={styles['tlp-group']}><div className={styles['tlp-group-h']}>Неактивні<span>{inactiveMembers.length}</span></div><div className={styles['tlp-grid']}>{inactiveMembers.map((member) => <MemberCard key={member.id} member={member} onSelect={onSelect} />)}</div></section> : null}
-            {!filtered.length ? <div className={styles['tlp-empty']}><div className={styles['tlp-empty-i']}>{Icons.team}</div><div>Нікого не знайдено</div><div className="muted xs">Спробуй змінити фільтри</div></div> : null}
+            {activeProjects.length ? <section className={styles['tlp-group']}><div className={styles['tlp-group-h']}>Активні<span>{activeProjects.length}</span></div><div className={styles['tlp-grid']}>{activeProjects.map((project) => <ProjectCard key={project.id} project={project} onSelect={onSelect} />)}</div></section> : null}
+            {inactiveProjects.length ? <section className={styles['tlp-group']}><div className={styles['tlp-group-h']}>Неактивні<span>{inactiveProjects.length}</span></div><div className={styles['tlp-grid']}>{inactiveProjects.map((project) => <ProjectCard key={project.id} project={project} onSelect={onSelect} />)}</div></section> : null}
+            {!filtered.length ? <div className={styles['tlp-empty']}><div className={styles['tlp-empty-i']}>{Icons.briefcase}</div><div>Проєктів не знайдено</div><div className="muted xs">Спробуй змінити фільтри</div></div> : null}
           </div>
         </div>
       </div>

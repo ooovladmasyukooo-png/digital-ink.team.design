@@ -3,28 +3,33 @@ import { AnalyticsPage } from '../features/analytics/AnalyticsPage';
 import { CrmPage } from '../features/crm/CrmPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { FinancePage } from '../features/finance/FinancePage';
-import { ProjectsPage } from '../features/projects/ProjectsPage';
-import type { TeamSubtabId } from '../features/team/types';
+import type { ProjectSubtabId } from '../features/projects/types';
+import { Projects2Page } from '../features/projects2/Projects2Page';
 import { TasksPage } from '../features/tasks/TasksPage';
+import type { TeamSubtabId } from '../features/team/types';
 import { TeamPage } from '../features/team/TeamPage';
 import type { FeatureId } from '../shared/types/common';
 import { AppShell } from './AppShell';
-import { parseLocation, pathForFeature, pathForTeamProfile } from './appPaths';
+import {
+  parseLocation,
+  pathForFeature,
+  pathForProject2Profile,
+  pathForTeamProfile,
+} from './appPaths';
 
 const SIDEBAR_TITLE_UK: Record<FeatureId, string> = {
   dashboard: 'Дашборд',
   crm: 'CRM',
-  projects: 'Проєкти',
+  projects2: 'Проєкти',
   analytics: 'Аналітика',
   finance: 'Фінанси',
   team: 'Команда',
   tasks: 'Задачі',
 };
 
-const featurePages: Record<Exclude<FeatureId, 'team' | 'tasks'>, ReactNode> = {
+const featurePages: Record<Exclude<FeatureId, 'team' | 'tasks' | 'projects2'>, ReactNode> = {
   dashboard: <DashboardPage />,
   crm: <CrmPage />,
-  projects: <ProjectsPage />,
   analytics: <AnalyticsPage />,
   finance: <FinancePage />,
 };
@@ -34,12 +39,16 @@ export function App() {
   const [active, setActive] = useState<FeatureId>(() => initial.feature);
   const [teamProfileId, setTeamProfileId] = useState<string | null>(() => initial.teamProfileId);
   const [teamSubtab, setTeamSubtab] = useState<TeamSubtabId>(() => initial.teamSubtab);
+  const [project2ProfileId, setProject2ProfileId] = useState<string | null>(() => initial.project2ProfileId);
+  const [project2Subtab, setProject2Subtab] = useState<ProjectSubtabId>(() => initial.project2Subtab);
 
   const syncFromWindow = useCallback(() => {
     const next = parseLocation(window.location.pathname, window.location.search);
     setActive(next.feature);
     setTeamProfileId(next.teamProfileId);
     setTeamSubtab(next.teamSubtab);
+    setProject2ProfileId(next.project2ProfileId);
+    setProject2Subtab(next.project2Subtab);
   }, []);
 
   useEffect(() => {
@@ -48,7 +57,7 @@ export function App() {
   }, [syncFromWindow]);
 
   useEffect(() => {
-    if (active === 'team') return;
+    if (active === 'team' || active === 'projects2') return;
     document.title =
       active === 'tasks'
         ? 'Задачі · Aurora CRM'
@@ -59,20 +68,25 @@ export function App() {
     setActive(id);
     setTeamProfileId(null);
     setTeamSubtab('profile');
+    setProject2ProfileId(null);
+    setProject2Subtab('profile');
     window.history.pushState({}, '', pathForFeature(id));
     document.title = `${SIDEBAR_TITLE_UK[id]} · Aurora CRM`;
   }, []);
 
-  const navigateTeamMember = useCallback((memberId: string | null, replace = false, keepSubtab = false) => {
-    setTeamProfileId(memberId);
-    const nextSubtab = keepSubtab ? teamSubtab : 'profile';
-    if (!keepSubtab) {
-      setTeamSubtab('profile');
-    }
-    const url = memberId ? pathForTeamProfile(memberId, nextSubtab) : pathForFeature('team');
-    const fn = replace ? window.history.replaceState : window.history.pushState;
-    fn.call(window.history, {}, '', url);
-  }, [teamSubtab]);
+  const navigateTeamMember = useCallback(
+    (memberId: string | null, replace = false, keepSubtab = false) => {
+      setTeamProfileId(memberId);
+      const nextSubtab = keepSubtab ? teamSubtab : 'profile';
+      if (!keepSubtab) {
+        setTeamSubtab('profile');
+      }
+      const url = memberId ? pathForTeamProfile(memberId, nextSubtab) : pathForFeature('team');
+      const fn = replace ? window.history.replaceState : window.history.pushState;
+      fn.call(window.history, {}, '', url);
+    },
+    [teamSubtab],
+  );
 
   const navigateTeamSubtab = useCallback(
     (tab: TeamSubtabId) => {
@@ -84,6 +98,30 @@ export function App() {
     [teamProfileId],
   );
 
+  const navigateProject2 = useCallback(
+    (projectId: string | null, replace = false, keepSubtab = false) => {
+      setProject2ProfileId(projectId);
+      const nextSubtab = keepSubtab ? project2Subtab : 'profile';
+      if (!keepSubtab) {
+        setProject2Subtab('profile');
+      }
+      const url = projectId ? pathForProject2Profile(projectId, nextSubtab) : pathForFeature('projects2');
+      const fn = replace ? window.history.replaceState : window.history.pushState;
+      fn.call(window.history, {}, '', url);
+    },
+    [project2Subtab],
+  );
+
+  const navigateProject2Subtab = useCallback(
+    (tab: ProjectSubtabId) => {
+      setProject2Subtab(tab);
+      if (project2ProfileId) {
+        window.history.pushState({}, '', pathForProject2Profile(project2ProfileId, tab));
+      }
+    },
+    [project2ProfileId],
+  );
+
   return (
     <AppShell active={active} onNavigate={navigateFeature}>
       {active === 'team' ? (
@@ -92,6 +130,13 @@ export function App() {
           teamSubtab={teamSubtab}
           onNavigateMember={navigateTeamMember}
           onNavigateSubtab={navigateTeamSubtab}
+        />
+      ) : active === 'projects2' ? (
+        <Projects2Page
+          selectedProjectId={project2ProfileId}
+          projectSubtab={project2Subtab}
+          onNavigateProject={navigateProject2}
+          onNavigateSubtab={navigateProject2Subtab}
         />
       ) : active === 'tasks' ? (
         <TasksPage />

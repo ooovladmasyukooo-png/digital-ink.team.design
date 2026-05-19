@@ -6,7 +6,7 @@ export const sidebarNavigation: SidebarNavEntry[] = [
   { kind: 'link', id: 'crm', label: 'CRM', icon: Icons.crm, badge: 227 },
   { kind: 'link', id: 'analytics', label: 'Аналітика', icon: Icons.analytics },
   { kind: 'divider', id: 'after-analytics' },
-  { kind: 'link', id: 'projects', label: 'Проєкти', icon: Icons.projects },
+  { kind: 'link', id: 'projects2', label: 'Проєкти', icon: Icons.projects },
   { kind: 'link', id: 'tasks', label: 'Задачі', icon: Icons.tasks },
   { kind: 'divider', id: 'after-tasks' },
   { kind: 'link', id: 'team', label: 'Команда', icon: Icons.team },

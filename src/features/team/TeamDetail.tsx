@@ -1,19 +1,10 @@
 import { useRef } from 'react';
-import { Avatar } from '../../shared/components/Avatar';
-import { Icon, Icons } from '../../shared/components/Icon';
-import { Topbar } from '../../shared/components/Topbar';
-import type { TopbarTab } from '../../shared/types/common';
 import { cx } from '../../shared/styles/cx';
+import { TeamDetailHeader } from './components/TeamDetailHeader';
 import { TeamComingSoon } from './components/TeamComingSoon';
 import { ProfileTab } from './tabs/ProfileTab';
 import styles from './team.module.css';
 import type { TeamMember, TeamMemberPatch, TeamSubtabId } from './types';
-
-const memberShortName = (name: string) =>
-  name
-    .split(' ')
-    .map((part, index) => (index === 0 ? `${part[0]}.` : part))
-    .join(' ');
 
 interface TeamDetailProps {
   member: TeamMember;
@@ -48,32 +39,6 @@ export function TeamDetail({
 }: TeamDetailProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const teamPhotoRef = useRef<HTMLInputElement>(null);
-  const shortName = memberShortName(member.name);
-
-  const tabs: TopbarTab<TeamSubtabId>[] = [
-    {
-      id: 'profile',
-      label: shortName,
-      icon: <Avatar name={member.name} hue={member.hue} src={avatarSrc} />,
-      menu: activeMembers.map((activeMember) => ({
-        id: activeMember.id,
-        label: activeMember.name,
-        searchText: `${activeMember.name} ${activeMember.username} ${activeMember.role}`,
-        icon: (
-          <Avatar
-            name={activeMember.name}
-            hue={activeMember.hue}
-            src={memberAvatars[activeMember.id]}
-          />
-        ),
-        selected: activeMember.id === member.id,
-      })),
-      onMenuSelect: onSwitchMember,
-    },
-    { id: 'payouts', label: 'Виплати', icon: Icons.finance },
-    { id: 'effectiveness', label: 'Ефективність', icon: Icons.analytics },
-    { id: 'settings', label: 'Налаштування', icon: Icons.settings },
-  ];
 
   const pickAvatar = () => {
     fileRef.current?.click();
@@ -112,15 +77,15 @@ export function TeamDetail({
 
   return (
     <div className={styles['team-shell']}>
-      <Topbar
-        title={
-          <button className={styles['back-icn']} onClick={onBack} title="Назад до списку" type="button">
-            <Icon d={<path d="M19 12H5M12 19l-7-7 7-7" />} size={16} />
-          </button>
-        }
-        tabs={tabs}
-        activeTab={subtab}
-        onTab={onSubtabChange}
+      <TeamDetailHeader
+        member={member}
+        activeMembers={activeMembers}
+        memberAvatars={memberAvatars}
+        avatarSrc={avatarSrc}
+        activeSubtab={subtab}
+        onBack={onBack}
+        onSubtabChange={onSubtabChange}
+        onSwitchMember={onSwitchMember}
       />
       <main className={cx(styles['team-main'], styles['team-main-full'], isComingSoonView && styles['team-main-flush'])}>
         <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={handleAvatarFile} />
