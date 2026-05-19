@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
+import { applyTheme, getStoredTheme, type Theme } from '../theme/theme';
 import { Avatar } from './Avatar';
 import { Icons } from './Icon';
 
@@ -90,8 +91,15 @@ export function TopbarActions({ layout = 'topbar' }: TopbarActionsProps) {
   const [notifications, setNotifications] = useState(notificationsInitial);
   const unread = notifications.filter((notification) => notification.unread).length;
   const isSidebar = layout === 'sidebar';
+  const [theme, setTheme] = useState<Theme>(() => getStoredTheme());
   const inboxTriggerRef = useRef<HTMLButtonElement>(null);
   const profileTriggerRef = useRef<HTMLButtonElement>(null);
+
+  const toggleTheme = () => {
+    const next: Theme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    applyTheme(next);
+  };
 
   useEffect(() => {
     if (!openMenu) return;
@@ -188,6 +196,19 @@ export function TopbarActions({ layout = 'topbar' }: TopbarActionsProps) {
     return (
       <>
         <div className="sb-foot-actions">
+          <button
+            type="button"
+            className="sb-item sb-foot-action sb-foot-theme"
+            title={theme === 'dark' ? 'Світла тема' : 'Темна тема'}
+            aria-label={theme === 'dark' ? 'Увімкнути світлу тему' : 'Увімкнути темну тему'}
+            onClick={toggleTheme}
+          >
+            <span className="sb-foot-action-slot" aria-hidden>
+              {theme === 'dark' ? Icons.sun : Icons.moon}
+            </span>
+            <span className="sb-label">{theme === 'dark' ? 'Світла тема' : 'Темна тема'}</span>
+          </button>
+
           <div className="pop-wrap sb-foot-pop">
             <button
               ref={inboxTriggerRef}
@@ -197,9 +218,11 @@ export function TopbarActions({ layout = 'topbar' }: TopbarActionsProps) {
               onClick={() => toggleMenu('inbox')}
               type="button"
             >
-              {Icons.inbox}
+              <span className="sb-foot-action-slot" aria-hidden>
+                {Icons.inbox}
+                {unread > 0 ? <span className="sb-foot-badge" /> : null}
+              </span>
               <span className="sb-label">Вхідні</span>
-              {unread > 0 ? <span className="sb-badge-mini" /> : null}
             </button>
           </div>
 
@@ -212,7 +235,9 @@ export function TopbarActions({ layout = 'topbar' }: TopbarActionsProps) {
               onClick={() => toggleMenu('me')}
               type="button"
             >
-              <Avatar name="Андрій Мельник" hue={20} size="sm" />
+              <span className="sb-foot-action-slot sb-foot-action-slot--avatar" aria-hidden>
+                <Avatar name="Андрій Мельник" hue={20} size="sm" />
+              </span>
               <span className="sb-label">Андрій</span>
             </button>
           </div>

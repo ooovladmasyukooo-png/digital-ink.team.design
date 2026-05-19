@@ -84,6 +84,17 @@ export const Icons = {
   check: <Icon d={<path d="M20 6 9 17l-5-5" />} size={14} />,
   spark: <Icon d={<path d="M12 2 14 9l7 1-5 5 2 7-6-4-6 4 2-7-5-5 7-1Z" />} size={14} />,
   inbox: <Icon d={<><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6Z" /></>} />,
+  sun: (
+    <Icon
+      d={
+        <>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+        </>
+      }
+    />
+  ),
+  moon: <Icon d={<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />} />,
   camera: (
     <Icon
       d={
