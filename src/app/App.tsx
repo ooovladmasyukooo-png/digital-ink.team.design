@@ -63,13 +63,16 @@ export function App() {
     document.title = `${SIDEBAR_TITLE_UK[id]} · Aurora CRM`;
   }, []);
 
-  const navigateTeamMember = useCallback((memberId: string | null, replace = false) => {
+  const navigateTeamMember = useCallback((memberId: string | null, replace = false, keepSubtab = false) => {
     setTeamProfileId(memberId);
-    setTeamSubtab('profile');
-    const url = memberId ? pathForTeamProfile(memberId, 'profile') : pathForFeature('team');
+    const nextSubtab = keepSubtab ? teamSubtab : 'profile';
+    if (!keepSubtab) {
+      setTeamSubtab('profile');
+    }
+    const url = memberId ? pathForTeamProfile(memberId, nextSubtab) : pathForFeature('team');
     const fn = replace ? window.history.replaceState : window.history.pushState;
     fn.call(window.history, {}, '', url);
-  }, []);
+  }, [teamSubtab]);
 
   const navigateTeamSubtab = useCallback(
     (tab: TeamSubtabId) => {

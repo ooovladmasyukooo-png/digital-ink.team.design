@@ -62,6 +62,10 @@ export function Topbar<TTabId extends string = string>({
   }, [openTabMenu]);
 
   useEffect(() => {
+    setOpenTabMenu(null);
+  }, [activeTab]);
+
+  useEffect(() => {
     if (!openMenu && !openTabMenu) return;
 
     const handleMouseDown = (event: MouseEvent) => {
@@ -102,27 +106,54 @@ export function Topbar<TTabId extends string = string>({
 
               return (
                 <div key={tab.id} className="tb-tab-wrap">
-                  <button
-                    className={`tb-tab ${activeTab === tab.id ? 'on' : ''} ${hasMenu ? 'has-menu' : ''}`}
-                    data-tab-pop-trigger={hasMenu ? '' : undefined}
-                    aria-expanded={hasMenu ? isOpen : undefined}
-                    aria-haspopup={hasMenu ? 'menu' : undefined}
-                    onClick={() => {
-                      if (hasMenu) {
-                        setOpenTabMenu(isOpen ? null : tab.id);
-                        setOpenMenu(null);
-                        return;
-                      }
-                      setOpenTabMenu(null);
-                      onTab?.(tab.id);
-                    }}
-                    type="button"
-                  >
-                    {tab.icon ? <span className="tb-tab-i">{tab.icon}</span> : null}
-                    <span>{tab.label}</span>
-                    {tab.n != null ? <span className="tb-tab-n">{tab.n}</span> : null}
-                    {hasMenu ? <span className="tb-tab-chev">{Icons.chevD}</span> : null}
-                  </button>
+                  {hasMenu ? (
+                    <div className={`tb-tab ${activeTab === tab.id ? 'on' : ''} has-menu`}>
+                      <button
+                        className="tb-tab-main"
+                        onClick={() => {
+                          if (activeTab !== tab.id) {
+                            setOpenTabMenu(null);
+                            onTab?.(tab.id);
+                            return;
+                          }
+                          setOpenTabMenu(isOpen ? null : tab.id);
+                          setOpenMenu(null);
+                        }}
+                        type="button"
+                      >
+                        {tab.icon ? <span className="tb-tab-i">{tab.icon}</span> : null}
+                        <span>{tab.label}</span>
+                        {tab.n != null ? <span className="tb-tab-n">{tab.n}</span> : null}
+                      </button>
+                      <button
+                        className="tb-tab-chev-btn"
+                        data-tab-pop-trigger
+                        aria-expanded={isOpen}
+                        aria-haspopup="menu"
+                        aria-label="Обрати учасника"
+                        onClick={() => {
+                          setOpenTabMenu(isOpen ? null : tab.id);
+                          setOpenMenu(null);
+                        }}
+                        type="button"
+                      >
+                        {Icons.chevD}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className={`tb-tab ${activeTab === tab.id ? 'on' : ''}`}
+                      onClick={() => {
+                        setOpenTabMenu(null);
+                        onTab?.(tab.id);
+                      }}
+                      type="button"
+                    >
+                      {tab.icon ? <span className="tb-tab-i">{tab.icon}</span> : null}
+                      <span>{tab.label}</span>
+                      {tab.n != null ? <span className="tb-tab-n">{tab.n}</span> : null}
+                    </button>
+                  )}
                   {hasMenu && isOpen ? (
                     <div className="pop pop-tab-menu" role="menu">
                       <div className="pop-tab-menu-search">

@@ -124,10 +124,36 @@ button {
 .tb-tab .av,
 .tb-tab .av-img { width: 22px; height: 22px; border-radius: 999px; font-size: 9px; }
 .tb-tab-wrap { position: relative; flex-shrink: 0; }
-.tb-tab.has-menu { padding-right: 4px; }
-.tb-tab-chev { display: flex; color: var(--txt-3); opacity: .75; }
-.tb-tab.on .tb-tab-chev { color: var(--txt); opacity: 1; }
-.tb-tab-chev svg { width: 11px; height: 11px; }
+.tb-tab.has-menu { gap: 0; padding: 0; cursor: default; }
+.tb-tab-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 56px;
+  padding: 0 2px 0 8px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.tb-tab-chev-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  padding: 0 6px 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+  opacity: .75;
+}
+.tb-tab:hover .tb-tab-chev-btn,
+.tb-tab.on .tb-tab-chev-btn { color: var(--txt); opacity: 1; }
+.tb-tab-chev-btn svg { width: 11px; height: 11px; }
 .pop.pop-tab-menu { top: calc(100% - 1px); left: 0; right: auto; z-index: 120; width: 220px; }
 .pop-tab-menu-search { padding: 8px 8px 4px; border-bottom: 1px solid var(--line); }
 .pop-tab-menu-search-in { display: flex; align-items: center; gap: 7px; height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg-2); cursor: text; }
