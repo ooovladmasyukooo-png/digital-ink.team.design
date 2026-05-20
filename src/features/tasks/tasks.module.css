@@ -15,17 +15,23 @@
   min-height: 62px;
   border-bottom: 1px solid var(--line);
   background: var(--bg);
+  overflow: visible;
 }
 
 .ts-stacked-top {
   display: flex;
   flex: 0 0 36px;
   align-items: center;
-  justify-content: space-between;
   height: 36px;
   min-height: 36px;
   padding: 0 18px 0 var(--ts-content-x);
-  gap: 16px;
+}
+
+.ts-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .ts-stacked-title {
@@ -37,12 +43,220 @@
   line-height: 1.15;
 }
 
-.ts-stacked-tabs {
+.ts-title-add {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--txt-2);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.ts-title-add:hover {
+  border-color: var(--line-2);
+  background: var(--bg-3);
+  color: var(--txt);
+}
+
+.ts-title-add :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-stacked-tabs-bar {
   display: flex;
   align-items: center;
   flex-shrink: 0;
   height: 26px;
-  padding: 0 var(--ts-rail-x) 0;
+  min-height: 26px;
+  padding: 0 var(--ts-content-x) 0 var(--ts-rail-x);
+  gap: 10px;
+  overflow: visible;
+}
+
+.ts-viewer-wrap {
+  position: relative;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.ts-viewer {
+  display: inline-flex;
+  height: 22px;
+  max-width: 132px;
+  align-items: center;
+  gap: 5px;
+  padding: 0 6px 0 2px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--txt);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ts-viewer:hover,
+.ts-viewer.on {
+  background: var(--bg-3);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+
+.ts-viewer-other {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--red) 35%, var(--line));
+}
+
+.ts-viewer :global(.av-sm),
+.ts-viewer :global(.av-img-sm) {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  font-size: 7px;
+}
+
+.ts-viewer-label {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-viewer-chev {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--txt-3);
+}
+
+.ts-viewer-chev :global(svg) {
+  width: 10px;
+  height: 10px;
+}
+
+.ts-viewer.on .ts-viewer-chev {
+  color: var(--txt);
+}
+
+.ts-viewer-menu.pop-tab-menu {
+  position: fixed;
+  top: auto;
+  right: auto;
+  left: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ts-viewer-search {
+  flex-shrink: 0;
+  padding: 5px 6px 4px;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 50%, transparent);
+}
+
+.ts-viewer-menu :global(.pop-tab-menu-search-in) {
+  height: 28px;
+  padding: 0 8px;
+  gap: 6px;
+}
+
+.ts-viewer-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  gap: 0;
+  padding: 3px 4px 4px;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.ts-viewer-row + .ts-viewer-group,
+.ts-viewer-group + .ts-viewer-group {
+  margin-top: 2px;
+  padding-top: 2px;
+  border-top: 1px dashed color-mix(in oklab, var(--line) 65%, transparent);
+}
+
+.ts-viewer-group-label {
+  padding: 0 6px 1px;
+  color: var(--txt-4);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  text-transform: none;
+}
+
+.ts-viewer-row {
+  gap: 6px;
+  padding: 3px 5px;
+  border-radius: 5px;
+}
+
+.ts-viewer-row :global(.pop-row-t) {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.ts-viewer-row :global(.pop-row-i .av),
+.ts-viewer-row :global(.pop-row-i .av-img) {
+  width: 16px;
+  height: 16px;
+  font-size: 6px;
+}
+
+.ts-viewer-all-i {
+  display: flex;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--bg-3);
+  color: var(--txt-3);
+}
+
+.ts-viewer-all-i :global(svg) {
+  width: 10px;
+  height: 10px;
+}
+
+.ts-viewer-all-on {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--line) 70%, transparent);
+}
+
+.ts-viewer-row-tag {
+  flex-shrink: 0;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--red) 10%, var(--bg-2));
+  color: var(--txt-4);
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-transform: none;
+}
+
+.ts-stacked-tabs {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: 26px;
+  padding: 0;
   gap: 0;
   overflow-x: auto;
   scrollbar-width: none;

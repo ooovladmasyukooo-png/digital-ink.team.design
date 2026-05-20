@@ -24,7 +24,10 @@ export function TasksPersonalView({ workspace }: TasksPersonalViewProps) {
     addTaskForPersonal,
   } = workspace;
 
-  const groups = useMemo(() => buildPersonalGroups(tasks), [tasks]);
+  const groups = useMemo(
+    () => buildPersonalGroups(tasks, workspace.viewerId),
+    [tasks, workspace.viewerId],
+  );
 
   return (
     <div className={cx(styles['ts-by-date'], styles['ts-personal'])}>

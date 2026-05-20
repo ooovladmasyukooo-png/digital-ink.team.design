@@ -1,4 +1,6 @@
+import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { treeRowKey } from './taskTree';
+import { isTasksViewerAll } from './taskViewer';
 import type { ArchiveListItem, Status, Task, TaskPatch, TaskSubtask } from './types';
 
 export function isCompletedStatus(status: Status): boolean {
@@ -141,4 +143,13 @@ export function collectArchiveItems(tasks: Task[]): ArchiveListItem[] {
   }
 
   return items;
+}
+
+export function collectArchiveItemsForViewer(
+  tasks: Task[],
+  viewerId = TASK_CREATOR_ASSIGNEE_ID,
+): ArchiveListItem[] {
+  const items = collectArchiveItems(tasks);
+  if (isTasksViewerAll(viewerId)) return items;
+  return items.filter((item) => item.assigneeIds.includes(viewerId));
 }

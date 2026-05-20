@@ -16,9 +16,12 @@ import {
   tasksDocumentTitle,
   type TasksViewQuery,
 } from './tasksPaths';
+import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { useTasksWorkspace } from './useTasksWorkspace';
 import type { TasksViewTabId } from './types';
 import styles from './tasks.module.css';
+
+const TASKS_VIEWER_STORAGE_KEY = 'tasks-viewer-id';
 
 function readTabFromUrl(): TasksViewTabId {
   return tabIdFromSearch(window.location.search);
@@ -28,10 +31,20 @@ function readSearchFromUrl(): string {
   return window.location.search;
 }
 
+function readViewerFromStorage(): string {
+  try {
+    const stored = sessionStorage.getItem(TASKS_VIEWER_STORAGE_KEY);
+    return stored || TASK_CREATOR_ASSIGNEE_ID;
+  } catch {
+    return TASK_CREATOR_ASSIGNEE_ID;
+  }
+}
+
 export function TasksPage() {
   const [activeTab, setActiveTab] = useState<TasksViewTabId>(readTabFromUrl);
   const [urlSearch, setUrlSearch] = useState(readSearchFromUrl);
-  const workspace = useTasksWorkspace();
+  const [viewerId, setViewerId] = useState(readViewerFromStorage);
+  const workspace = useTasksWorkspace(viewerId);
   const { panelTask, selectedTaskId, openTask, closeDetail } = workspace;
 
   const parsed = parseTasksSearch(urlSearch);
@@ -112,6 +125,16 @@ export function TasksPage() {
     return () => window.removeEventListener('popstate', onPop);
   }, [closeDetail, openTask, workspace.tasks]);
 
+  const onViewerChange = useCallback((memberId: string) => {
+    setViewerId(memberId);
+    try {
+      sessionStorage.setItem(TASKS_VIEWER_STORAGE_KEY, memberId);
+    } catch {
+      /* ignore */
+    }
+    closeDetail();
+  }, [closeDetail]);
+
   const onTab = useCallback(
     (tabId: TasksViewTabId) => {
       setActiveTab(tabId);
@@ -154,6 +177,13 @@ export function TasksPage() {
     [activeTab, openTask, pushTasksUrl],
   );
 
+  const onCreateTask = useCallback(() => {
+    const id = workspace.createTask();
+    const view = TAB_ID_TO_QUERY[activeTab];
+    pushTasksUrl({ view, task: id, full: false });
+    syncTitle(activeTab, 'Нова задача', id);
+  }, [activeTab, pushTasksUrl, syncTitle, workspace]);
+
   useEffect(() => {
     const { taskId, full } = parseTasksSearch(urlSearch);
     if (!taskId) return;
@@ -181,7 +211,13 @@ export function TasksPage() {
 
   return (
     <div className={styles['ts-shell']}>
-      <TasksPageHeader activeTab={activeTab} onTab={onTab} />
+      <TasksPageHeader
+        activeTab={activeTab}
+        viewerId={viewerId}
+        onTab={onTab}
+        onViewerChange={onViewerChange}
+        onCreateTask={onCreateTask}
+      />
       <div className={styles['ts-main']}>
         {activeTab === 'by-date' ? (
           <TasksByDateView workspace={workspaceWithNav} />

@@ -6,12 +6,17 @@ import {
   createNewTaskForMemberStatus,
   createNewTaskForPersonalStatus,
   createNewTaskForProject,
+  TASK_CREATOR_ASSIGNEE_ID,
 } from './constants';
 import { DATE_GROUP_ORDER, groupTasksByDate } from './dateGroups';
 import { buildProjectGroups } from './projectGroups';
 import { allocateTaskId, getTasks, setTasks, subscribeTasks } from './tasksStore';
 import { appendTaskActivity } from './taskActivity';
-import { collectArchiveItems, mergeSubtaskPatchWithCompletion, mergeTaskPatchWithCompletion } from './taskCompletion';
+import {
+  collectArchiveItemsForViewer,
+  mergeSubtaskPatchWithCompletion,
+  mergeTaskPatchWithCompletion,
+} from './taskCompletion';
 import { shouldSpawnRecurring, spawnRecurringTask } from './recurrence';
 import {
   appendSubtaskAtPath,
@@ -24,16 +29,19 @@ import {
 import { collapseTreeBranch, expandTreeBranch, treeRowKey } from './taskTree';
 import type { DateGroupId, Status, Task, TaskPatch, TaskSubtask } from './types';
 
-export function useTasksWorkspace() {
+export function useTasksWorkspace(viewerId = TASK_CREATOR_ASSIGNEE_ID) {
   const tasks = useSyncExternalStore(subscribeTasks, getTasks, getTasks);
   const [armedDeleteId, setArmedDeleteId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [subtaskPath, setSubtaskPath] = useState<string[]>([]);
   const [expandedTreeKeys, setExpandedTreeKeys] = useState<Set<string>>(() => new Set());
 
-  const grouped = useMemo(() => groupTasksByDate(tasks), [tasks]);
-  const projectGroups = useMemo(() => buildProjectGroups(tasks), [tasks]);
-  const archiveGrouped = useMemo(() => groupArchiveItems(collectArchiveItems(tasks)), [tasks]);
+  const grouped = useMemo(() => groupTasksByDate(tasks, new Date(), viewerId), [tasks, viewerId]);
+  const projectGroups = useMemo(() => buildProjectGroups(tasks, viewerId), [tasks, viewerId]);
+  const archiveGrouped = useMemo(
+    () => groupArchiveItems(collectArchiveItemsForViewer(tasks, viewerId)),
+    [tasks, viewerId],
+  );
 
   const closeDetail = useCallback(() => {
     setSelectedTaskId(null);
@@ -140,30 +148,51 @@ export function useTasksWorkspace() {
     });
   }, []);
 
-  const addTask = useCallback((groupId: DateGroupId) => {
-    const id = allocateTaskId();
-    setTasks((prev) => [...prev, createNewTaskForGroup(groupId, id)]);
-  }, []);
+  const addTask = useCallback(
+    (groupId: DateGroupId) => {
+      const id = allocateTaskId();
+      setTasks((prev) => [...prev, createNewTaskForGroup(groupId, id, new Date(), viewerId)]);
+    },
+    [viewerId],
+  );
 
-  const addTaskForProject = useCallback((projectId: string | null) => {
-    const id = allocateTaskId();
-    setTasks((prev) => [...prev, createNewTaskForProject(projectId, id)]);
-  }, []);
+  const addTaskForProject = useCallback(
+    (projectId: string | null) => {
+      const id = allocateTaskId();
+      setTasks((prev) => [...prev, createNewTaskForProject(projectId, id, viewerId)]);
+    },
+    [viewerId],
+  );
 
-  const addTaskForPersonal = useCallback((status: Status) => {
-    const id = allocateTaskId();
-    setTasks((prev) => [...prev, createNewTaskForPersonalStatus(status, id)]);
-  }, []);
+  const addTaskForPersonal = useCallback(
+    (status: Status) => {
+      const id = allocateTaskId();
+      setTasks((prev) => [...prev, createNewTaskForPersonalStatus(status, id, viewerId)]);
+    },
+    [viewerId],
+  );
 
-  const addTaskForDelegated = useCallback((status: Status) => {
-    const id = allocateTaskId();
-    setTasks((prev) => [...prev, createNewTaskForDelegatedStatus(status, id)]);
-  }, []);
+  const addTaskForDelegated = useCallback(
+    (status: Status) => {
+      const id = allocateTaskId();
+      setTasks((prev) => [...prev, createNewTaskForDelegatedStatus(status, id, viewerId)]);
+    },
+    [viewerId],
+  );
 
   const addTaskForMember = useCallback((memberId: string, status: Status) => {
     const id = allocateTaskId();
     setTasks((prev) => [...prev, createNewTaskForMemberStatus(status, id, memberId)]);
   }, []);
+
+  /** Нова порожня задача: відповідальний — поточний користувач, відкривається в drawer. */
+  const createTask = useCallback(() => {
+    const id = allocateTaskId();
+    const task = createNewTaskForProject(null, id, TASK_CREATOR_ASSIGNEE_ID);
+    setTasks((prev) => [...prev, task]);
+    openTask(id, []);
+    return id;
+  }, [openTask]);
 
   const selectedTask = selectedTaskId ? tasks.find((t) => t.id === selectedTaskId) : null;
   const panelSubtask = selectedTask && subtaskPath.length > 0 ? getSubtaskAtPath(selectedTask, subtaskPath) : null;
@@ -213,6 +242,7 @@ export function useTasksWorkspace() {
   const hasAnyArchive = ARCHIVE_GROUP_ORDER.some((g) => archiveGrouped[g].length > 0);
 
   return {
+    viewerId,
     tasks,
     grouped,
     projectGroups,
@@ -239,6 +269,7 @@ export function useTasksWorkspace() {
     addTaskForPersonal,
     addTaskForDelegated,
     addTaskForMember,
+    createTask,
     closeDetail,
     updateDetail,
     setSubtaskPath,

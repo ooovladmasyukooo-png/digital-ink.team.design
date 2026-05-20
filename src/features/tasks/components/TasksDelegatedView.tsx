@@ -24,7 +24,10 @@ export function TasksDelegatedView({ workspace }: TasksDelegatedViewProps) {
     addTaskForDelegated,
   } = workspace;
 
-  const groups = useMemo(() => buildDelegatedGroups(tasks), [tasks]);
+  const groups = useMemo(
+    () => buildDelegatedGroups(tasks, workspace.viewerId),
+    [tasks, workspace.viewerId],
+  );
 
   return (
     <div className={cx(styles['ts-by-date'], styles['ts-delegated'])}>

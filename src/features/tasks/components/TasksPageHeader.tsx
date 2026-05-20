@@ -3,6 +3,7 @@ import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import type { TasksViewTabId } from '../types';
 import styles from '../tasks.module.css';
+import { TasksViewerSwitcher } from './TasksViewerSwitcher';
 
 const TASK_TABS: { id: TasksViewTabId; label: string; icon: ReactNode }[] = [
   { id: 'by-date', label: 'За датами', icon: Icons.calendar },
@@ -14,28 +15,50 @@ const TASK_TABS: { id: TasksViewTabId; label: string; icon: ReactNode }[] = [
 
 interface TasksPageHeaderProps {
   activeTab: TasksViewTabId;
+  viewerId: string;
   onTab: (tabId: TasksViewTabId) => void;
+  onViewerChange: (memberId: string) => void;
+  onCreateTask: () => void;
 }
 
-export function TasksPageHeader({ activeTab, onTab }: TasksPageHeaderProps) {
+export function TasksPageHeader({
+  activeTab,
+  viewerId,
+  onTab,
+  onViewerChange,
+  onCreateTask,
+}: TasksPageHeaderProps) {
   return (
     <header className={styles['ts-stacked-header']}>
       <div className={styles['ts-stacked-top']}>
-        <h1 className={styles['ts-stacked-title']}>Задачі</h1>
-      </div>
-      <nav className={styles['ts-stacked-tabs']} aria-label="Вкладки задач">
-        {TASK_TABS.map((tab) => (
+        <div className={styles['ts-title-row']}>
+          <h1 className={styles['ts-stacked-title']}>Задачі</h1>
           <button
-            key={tab.id}
             type="button"
-            className={cx(styles['ts-tab'], activeTab === tab.id && styles.on)}
-            onClick={() => onTab(tab.id)}
+            className={styles['ts-title-add']}
+            aria-label="Додати задачу"
+            onClick={onCreateTask}
           >
-            <span className={styles['ts-tab-i']}>{tab.icon}</span>
-            <span>{tab.label}</span>
+            {Icons.plus}
           </button>
-        ))}
-      </nav>
+        </div>
+      </div>
+      <div className={styles['ts-stacked-tabs-bar']}>
+        <nav className={styles['ts-stacked-tabs']} aria-label="Вкладки задач">
+          {TASK_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              className={cx(styles['ts-tab'], activeTab === tab.id && styles.on)}
+              onClick={() => onTab(tab.id)}
+            >
+              <span className={styles['ts-tab-i']}>{tab.icon}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </nav>
+        <TasksViewerSwitcher viewerId={viewerId} onViewerChange={onViewerChange} />
+      </div>
     </header>
   );
 }

@@ -1,7 +1,8 @@
 import { projects } from '../projects2/data';
-import { PRIORITIES, STATUS_META } from './constants';
+import { PRIORITIES, STATUS_META, TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { taskForActiveList } from './taskCompletion';
 import { projectById } from './taskOptions';
+import { passesViewerAssigneeFilter } from './taskViewer';
 import type { Priority, Task } from './types';
 
 export const NO_PROJECT_GROUP_ID = '__none__';
@@ -43,11 +44,12 @@ export function projectGroupLabels(projectId: string | null): { label: string; f
 }
 
 /** Групи за проєктом; у групі — від Inbox до Done (без Archive). */
-export function buildProjectGroups(tasks: Task[]): ProjectGroup[] {
+export function buildProjectGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGNEE_ID): ProjectGroup[] {
   const buckets = new Map<string, Task[]>();
 
   for (const task of tasks) {
     if (task.status === 'archive') continue;
+    if (!passesViewerAssigneeFilter(task, viewerId)) continue;
     const key = task.projectId ?? NO_PROJECT_GROUP_ID;
     const list = buckets.get(key) ?? [];
     list.push(task);

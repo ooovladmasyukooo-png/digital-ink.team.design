@@ -1,5 +1,7 @@
+import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { isCompletedStatus } from './taskCompletion';
-import { isPersonalTask } from './personalGroups';
+import { isPersonalTask, isTeamPersonalTask } from './personalGroups';
+import { isTasksViewerAll, passesViewerAssigneeFilter } from './taskViewer';
 import type { DateGroupId, Priority, Task } from './types';
 
 /** Відповідає rank у PRIORITIES (constants.ts): high → low, без пріоритету — в кінці. */
@@ -97,7 +99,11 @@ export function defaultDeadlineForGroup(groupId: DateGroupId, now = new Date()):
   }
 }
 
-export function groupTasksByDate(tasks: Task[], now = new Date()): Record<DateGroupId, Task[]> {
+export function groupTasksByDate(
+  tasks: Task[],
+  now = new Date(),
+  viewerId = TASK_CREATOR_ASSIGNEE_ID,
+): Record<DateGroupId, Task[]> {
   const buckets = Object.fromEntries(DATE_GROUP_ORDER.map((id) => [id, [] as Task[]])) as Record<
     DateGroupId,
     Task[]
@@ -105,7 +111,8 @@ export function groupTasksByDate(tasks: Task[], now = new Date()): Record<DateGr
 
   for (const task of tasks) {
     if (isCompletedStatus(task.status)) continue;
-    if (isPersonalTask(task)) continue;
+    if (isTasksViewerAll(viewerId) ? isTeamPersonalTask(task) : isPersonalTask(task, viewerId)) continue;
+    if (!passesViewerAssigneeFilter(task, viewerId)) continue;
     const group = getTaskDateGroup(task.deadline, now);
     buckets[group].push(task);
   }

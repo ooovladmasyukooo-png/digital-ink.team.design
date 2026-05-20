@@ -42,11 +42,15 @@ export const RECURRENCE_KIND_OPTIONS: { kind: TaskRecurrenceKind; label: string 
 
 export const RECURRENCE_WEEKDAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'] as const;
 
-export function createNewTaskForPersonalStatus(status: Status, id: string): Task {
+export function createNewTaskForPersonalStatus(
+  status: Status,
+  id: string,
+  assigneeId = TASK_CREATOR_ASSIGNEE_ID,
+): Task {
   return {
-    ...createNewTaskForProject(null, id),
+    ...createNewTaskForProject(null, id, assigneeId),
     status,
-    assigneeIds: [TASK_CREATOR_ASSIGNEE_ID],
+    assigneeIds: [assigneeId],
   };
 }
 
@@ -61,15 +65,26 @@ export function createNewTaskForMemberStatus(status: Status, id: string, memberI
 }
 
 /** Делегована: автор — поточний користувач, відповідальний — інший (демо: Дарія). */
-export function createNewTaskForDelegatedStatus(status: Status, id: string): Task {
+export function createNewTaskForDelegatedStatus(
+  status: Status,
+  id: string,
+  creatorId = TASK_CREATOR_ASSIGNEE_ID,
+): Task {
+  const assigneeId = creatorId === TASK_CREATOR_ASSIGNEE_ID ? 'daria' : TASK_CREATOR_ASSIGNEE_ID;
   return {
-    ...createNewTaskForProject(null, id),
+    ...createNewTaskForProject(null, id, assigneeId, creatorId),
     status,
-    assigneeIds: ['daria'],
+    assigneeIds: [assigneeId],
+    creatorId,
   };
 }
 
-export function createNewTaskForProject(projectId: string | null, id: string): Task {
+export function createNewTaskForProject(
+  projectId: string | null,
+  id: string,
+  assigneeId = TASK_CREATOR_ASSIGNEE_ID,
+  creatorId = TASK_CREATOR_ASSIGNEE_ID,
+): Task {
   return {
     id,
     title: 'Нова задача',
@@ -78,8 +93,8 @@ export function createNewTaskForProject(projectId: string | null, id: string): T
     deadline: null,
     completedAt: null,
     recurrenceRule: null,
-    assigneeIds: [TASK_CREATOR_ASSIGNEE_ID],
-    creatorId: TASK_CREATOR_ASSIGNEE_ID,
+    assigneeIds: [assigneeId],
+    creatorId,
     createdAt: new Date().toISOString(),
     projectId,
     description: '',
@@ -90,9 +105,14 @@ export function createNewTaskForProject(projectId: string | null, id: string): T
   };
 }
 
-export function createNewTaskForGroup(groupId: DateGroupId, id: string, now = new Date()): Task {
+export function createNewTaskForGroup(
+  groupId: DateGroupId,
+  id: string,
+  now = new Date(),
+  assigneeId = TASK_CREATOR_ASSIGNEE_ID,
+): Task {
   return {
-    ...createNewTaskForProject(null, id),
+    ...createNewTaskForProject(null, id, assigneeId),
     deadline: defaultDeadlineForGroup(groupId, now),
   };
 }

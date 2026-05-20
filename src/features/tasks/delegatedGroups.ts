@@ -1,5 +1,6 @@
 import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { buildStatusTabGroups, TASK_STATUS_TAB_ORDER } from './statusTaskGroups';
+import { isTasksViewerAll } from './taskViewer';
 import type { Task } from './types';
 
 export { TASK_STATUS_TAB_ORDER as DELEGATED_STATUS_ORDER };
@@ -12,6 +13,15 @@ export function isDelegatedTask(task: Task, userId = TASK_CREATOR_ASSIGNEE_ID): 
   return task.assigneeIds.some((id) => id !== userId);
 }
 
-export function buildDelegatedGroups(tasks: Task[], userId = TASK_CREATOR_ASSIGNEE_ID) {
-  return buildStatusTabGroups(tasks, (task) => isDelegatedTask(task, userId));
+/** Делегована будь-ким: відповідальні не збігаються з автором. */
+export function isTeamDelegatedTask(task: Task): boolean {
+  if (task.status === 'archive') return false;
+  return task.assigneeIds.some((id) => id !== task.creatorId);
+}
+
+export function buildDelegatedGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGNEE_ID) {
+  const match = isTasksViewerAll(viewerId)
+    ? isTeamDelegatedTask
+    : (task: Task) => isDelegatedTask(task, viewerId);
+  return buildStatusTabGroups(tasks, match);
 }
