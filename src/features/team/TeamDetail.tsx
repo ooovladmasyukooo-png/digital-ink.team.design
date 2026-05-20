@@ -21,7 +21,7 @@ interface TeamDetailProps {
   onAvatarChange: (memberId: string, src: string) => void;
   onTeamPhotoChange: (memberId: string, src: string) => void;
   onDeleteMember: (memberId: string) => void;
-  onOpenTask: (taskId: string) => void;
+  onOpenTaskFullPage: (taskId: string) => void;
 }
 
 export function TeamDetail({
@@ -38,7 +38,7 @@ export function TeamDetail({
   onAvatarChange,
   onTeamPhotoChange,
   onDeleteMember,
-  onOpenTask,
+  onOpenTaskFullPage,
 }: TeamDetailProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const teamPhotoRef = useRef<HTMLInputElement>(null);
@@ -113,7 +113,9 @@ export function TeamDetail({
               onDeleteMember={() => onDeleteMember(member.id)}
             />
           ) : null}
-          {subtab === 'tasks' ? <TeamMemberTasksTab memberId={member.id} onOpenTask={onOpenTask} /> : null}
+          {subtab === 'tasks' ? (
+            <TeamMemberTasksTab memberId={member.id} onOpenTaskFullPage={onOpenTaskFullPage} />
+          ) : null}
           {subtab === 'payouts' ? <TeamComingSoon subtitle="Розділ виплат та звітності у розробці." /> : null}
           {subtab === 'effectiveness' ? (
             <TeamComingSoon subtitle="Метрики та аналітика ефективності у розробці." />

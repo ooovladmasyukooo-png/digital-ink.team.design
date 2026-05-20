@@ -135,7 +135,7 @@ export function App() {
           teamSubtab={teamSubtab}
           onNavigateMember={navigateTeamMember}
           onNavigateSubtab={navigateTeamSubtab}
-          onOpenTask={navigateToTask}
+          onOpenTaskFullPage={navigateToTask}
         />
       ) : active === 'projects2' ? (
         <Projects2Page
