@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { STATUS_META } from '../constants';
@@ -49,7 +49,23 @@ export function TaskStatusGroupSection({
   onOpenTask,
   listVariant = 'default',
 }: TaskStatusGroupSectionProps) {
-  const [collapsed, setCollapsed] = useState(status === 'done');
+  const [collapsed, setCollapsed] = useState(status === 'done' || tasks.length === 0);
+  const prevTaskCount = useRef(tasks.length);
+
+  useEffect(() => {
+    if (tasks.length === 0) {
+      setCollapsed(true);
+    } else if (prevTaskCount.current === 0 && status !== 'done') {
+      setCollapsed(false);
+    }
+    prevTaskCount.current = tasks.length;
+  }, [tasks.length, status]);
+
+  const handleAdd = () => {
+    setCollapsed(false);
+    onAdd(status);
+  };
+
   const tone = STATUS_META[status].tone;
   const toneClass = STATUS_GROUP_CLASS[tone];
   const headerVariant =
@@ -80,7 +96,7 @@ export function TaskStatusGroupSection({
           type="button"
           className={styles['ts-group-add']}
           aria-label={`Нова задача: ${label}`}
-          onClick={() => onAdd(status)}
+          onClick={handleAdd}
         >
           {Icons.plus}
         </button>
@@ -112,7 +128,7 @@ export function TaskStatusGroupSection({
             <p className={styles['ts-group-empty']}>Немає задач</p>
           )}
 
-          <button type="button" className={styles['ts-new-row']} onClick={() => onAdd(status)}>
+          <button type="button" className={styles['ts-new-row']} onClick={handleAdd}>
             {Icons.plus}
             <span>Нова задача</span>
           </button>

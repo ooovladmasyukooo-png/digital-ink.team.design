@@ -5,8 +5,6 @@ import { projectById } from './taskOptions';
 import { passesViewerAssigneeFilter } from './taskViewer';
 import type { Priority, Task } from './types';
 
-export const NO_PROJECT_GROUP_ID = '__none__';
-
 const PRIORITY_SORT_RANK: Record<Priority, number> = {
   high: 0,
   medium: 1,
@@ -50,16 +48,15 @@ export function buildProjectGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGN
   for (const task of tasks) {
     if (task.status === 'archive') continue;
     if (!passesViewerAssigneeFilter(task, viewerId)) continue;
-    const key = task.projectId ?? NO_PROJECT_GROUP_ID;
-    const list = buckets.get(key) ?? [];
+    if (!task.projectId) continue;
+    const list = buckets.get(task.projectId) ?? [];
     list.push(task);
-    buckets.set(key, list);
+    buckets.set(task.projectId, list);
   }
 
   const orderedKeys: string[] = [
     ...projects.map((p) => p.id),
-    ...[...buckets.keys()].filter((k) => k !== NO_PROJECT_GROUP_ID && !projects.some((p) => p.id === k)),
-    NO_PROJECT_GROUP_ID,
+    ...[...buckets.keys()].filter((k) => !projects.some((p) => p.id === k)),
   ];
 
   const seen = new Set<string>();
@@ -71,7 +68,7 @@ export function buildProjectGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGN
     const raw = buckets.get(key);
     if (!raw?.length) continue;
 
-    const projectId = key === NO_PROJECT_GROUP_ID ? null : key;
+    const projectId = key;
     const sorted = [...raw].sort(compareTasksByStatusThenPriority).map(taskForActiveList);
 
     const { label, fullLabel } = projectGroupLabels(projectId);
