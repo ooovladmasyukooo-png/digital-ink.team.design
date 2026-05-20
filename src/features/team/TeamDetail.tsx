@@ -3,6 +3,7 @@ import { cx } from '../../shared/styles/cx';
 import { TeamDetailHeader } from './components/TeamDetailHeader';
 import { TeamComingSoon } from './components/TeamComingSoon';
 import { ProfileTab } from './tabs/ProfileTab';
+import { TeamMemberTasksTab } from './tabs/TeamMemberTasksTab';
 import styles from './team.module.css';
 import type { TeamMember, TeamMemberPatch, TeamSubtabId } from './types';
 
@@ -20,6 +21,7 @@ interface TeamDetailProps {
   onAvatarChange: (memberId: string, src: string) => void;
   onTeamPhotoChange: (memberId: string, src: string) => void;
   onDeleteMember: (memberId: string) => void;
+  onOpenTask: (taskId: string) => void;
 }
 
 export function TeamDetail({
@@ -36,6 +38,7 @@ export function TeamDetail({
   onAvatarChange,
   onTeamPhotoChange,
   onDeleteMember,
+  onOpenTask,
 }: TeamDetailProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const teamPhotoRef = useRef<HTMLInputElement>(null);
@@ -73,7 +76,9 @@ export function TeamDetail({
 
   const save = (field: keyof TeamMemberPatch, value: string) => onSave(member.id, field, value);
 
+  const isTasksView = subtab === 'tasks';
   const isComingSoonView = subtab === 'payouts' || subtab === 'effectiveness' || subtab === 'settings';
+  const isFlushMain = isComingSoonView || isTasksView;
 
   return (
     <div className={styles['team-shell']}>
@@ -87,10 +92,16 @@ export function TeamDetail({
         onSubtabChange={onSubtabChange}
         onSwitchMember={onSwitchMember}
       />
-      <main className={cx(styles['team-main'], styles['team-main-full'], isComingSoonView && styles['team-main-flush'])}>
+      <main className={cx(styles['team-main'], styles['team-main-full'], isFlushMain && styles['team-main-flush'])}>
         <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={handleAvatarFile} />
         <input ref={teamPhotoRef} type="file" accept="image/*" className="sr-only" onChange={handleTeamPhotoFile} />
-        <div className={cx(styles['td-body'], styles['td-body-wide'], isComingSoonView && styles['td-body-flush'])}>
+        <div
+          className={cx(
+            styles['td-body'],
+            isTasksView ? styles['td-body-tasks'] : styles['td-body-wide'],
+            isComingSoonView && styles['td-body-flush'],
+          )}
+        >
           {subtab === 'profile' ? (
             <ProfileTab
               member={member}
@@ -102,6 +113,7 @@ export function TeamDetail({
               onDeleteMember={() => onDeleteMember(member.id)}
             />
           ) : null}
+          {subtab === 'tasks' ? <TeamMemberTasksTab memberId={member.id} onOpenTask={onOpenTask} /> : null}
           {subtab === 'payouts' ? <TeamComingSoon subtitle="Розділ виплат та звітності у розробці." /> : null}
           {subtab === 'effectiveness' ? (
             <TeamComingSoon subtitle="Метрики та аналітика ефективності у розробці." />

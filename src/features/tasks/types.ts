@@ -5,6 +5,24 @@ export type Priority = 'high' | 'medium' | 'low';
 
 export type DateGroupId = 'overdue' | 'today' | 'tomorrow' | 'week' | 'later' | 'none';
 
+/** Група в архіві за датою виконання (від найновіших). */
+export type ArchiveGroupId = 'today' | 'yesterday' | 'week' | 'month' | 'earlier';
+
+/** 0 = понеділок … 6 = неділя (як у календарі дедлайну). */
+export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export type TaskRecurrenceKind = 'daily' | 'weekly' | 'monthly';
+
+/** Правило повторення після виконання задачі. */
+export type TaskRecurrenceRule =
+  | { kind: 'daily'; weekdays: Weekday[] }
+  | { kind: 'weekly'; weekday: Weekday }
+  | { kind: 'monthly'; mode: 'dayOfMonth'; day: number }
+  | { kind: 'monthly'; mode: 'everyNDays'; intervalDays: number };
+
+/** Старий формат (лише для міграції збережених даних). */
+export type LegacyTaskRecurrenceRule = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
 export interface TaskCheckItem {
   id: string;
   label: string;
@@ -16,9 +34,13 @@ export interface TaskSubtask {
   title: string;
   status: Status;
   priority: Priority | null;
-  assigneeId: string | null;
+  assigneeIds: string[];
+  /** null — успадковує проєкт головної задачі */
+  projectId: string | null;
   /** YYYY-MM-DD або null */
   deadline: string | null;
+  /** ISO datetime — коли відмічено Done / Archive */
+  completedAt: string | null;
   description: string;
   checkItems: TaskCheckItem[];
   subtasks: TaskSubtask[];
@@ -48,7 +70,15 @@ export interface Task {
   priority: Priority | null;
   /** YYYY-MM-DD або null */
   deadline: string | null;
-  assigneeId: string | null;
+  /** ISO datetime — коли відмічено Done / Archive */
+  completedAt: string | null;
+  /** Після статусу Done автоматично створюється нова копія. */
+  recurrenceRule: TaskRecurrenceRule | null;
+  assigneeIds: string[];
+  /** Хто створив / делегував задачу */
+  creatorId: string;
+  /** ISO datetime — коли задачу створено */
+  createdAt: string;
   projectId: string | null;
   description: string;
   checkItems: TaskCheckItem[];
@@ -64,7 +94,11 @@ export type TaskPatch = Partial<
     | 'status'
     | 'priority'
     | 'deadline'
-    | 'assigneeId'
+    | 'completedAt'
+    | 'recurrenceRule'
+    | 'assigneeIds'
+    | 'creatorId'
+    | 'createdAt'
     | 'projectId'
     | 'description'
     | 'checkItems'
@@ -73,3 +107,23 @@ export type TaskPatch = Partial<
     | 'activityLog'
   >
 >;
+
+/** Рядок у вкладці «Архів» — задача або підзадача. */
+export interface ArchiveListItem {
+  rowKey: string;
+  rootTaskId: string;
+  subtaskPath: string[];
+  isSubtask: boolean;
+  parentTitle: string | null;
+  rootTitle: string;
+  title: string;
+  description: string;
+  status: Status;
+  priority: Priority | null;
+  deadline: string | null;
+  completedAt: string;
+  assigneeIds: string[];
+  /** Хто створив / делегував задачу */
+  creatorId: string;
+  projectId: string | null;
+}

@@ -1,5 +1,5 @@
 export type TeamMemberStatus = 'active' | 'paused';
-export type TeamSubtabId = 'profile' | 'payouts' | 'effectiveness' | 'settings';
+export type TeamSubtabId = 'profile' | 'tasks' | 'payouts' | 'effectiveness' | 'settings';
 
 export interface TeamMember {
   id: string;

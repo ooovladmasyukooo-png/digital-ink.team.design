@@ -63,16 +63,10 @@ export function priorityPickerItems(current: Priority | null): TaskPickerItem[] 
   }));
 }
 
-export function assigneePickerItems(current: string | null): TaskPickerItem[] {
-  const none: TaskPickerItem = {
-    id: '__none__',
-    selected: current === null,
-    searchText: 'без відповідального',
-    label: <span className="muted xs">Без відповідального</span>,
-  };
-  const members = teamMembers.map((m) => ({
+export function assigneePickerItems(current: string[]): TaskPickerItem[] {
+  return teamMembers.map((m) => ({
     id: m.id,
-    selected: current === m.id,
+    selected: current.includes(m.id),
     searchText: m.name,
     label: (
       <span className={styles['ts-pick-person']}>
@@ -81,7 +75,20 @@ export function assigneePickerItems(current: string | null): TaskPickerItem[] {
       </span>
     ),
   }));
-  return [none, ...members];
+}
+
+export function assigneePickerClearOption(current: string[]) {
+  return {
+    id: '__none__',
+    selected: current.length === 0,
+    label: <span className="muted xs">Без відповідальних</span>,
+  };
+}
+
+export function toggleAssigneeIds(current: string[], id: string): string[] {
+  if (id === '__none__') return [];
+  if (current.includes(id)) return current.filter((x) => x !== id);
+  return [...current, id];
 }
 
 export function projectPickerItems(current: string | null): TaskPickerItem[] {
@@ -138,13 +145,22 @@ export function PriorityBadge({ priority }: { priority: Priority | null }) {
   );
 }
 
-export function AssigneeCell({ assigneeId }: { assigneeId: string | null }) {
-  if (!assigneeId) return <span className={styles['ts-empty']}>—</span>;
-  const m = teamById[assigneeId];
-  if (!m) return <span className={styles['ts-empty']}>—</span>;
+export function AssigneeCell({ assigneeIds }: { assigneeIds: string[] }) {
+  const members = assigneeIds.map((id) => teamById[id]).filter(Boolean);
+  if (members.length === 0) return <span className={styles['ts-empty']}>—</span>;
+
+  const title = members.map((m) => m.name).join(', ');
+  const visible = members.slice(0, 3);
+  const extra = members.length - visible.length;
+
   return (
-    <span className={styles['ts-project']} title={m.name}>
-      <Avatar name={m.name} hue={m.hue} size="sm" />
+    <span className={styles['ts-assignees']} title={title}>
+      {visible.map((m) => (
+        <span key={m.id} className={styles['ts-assignees-av']}>
+          <Avatar name={m.name} hue={m.hue} size="sm" />
+        </span>
+      ))}
+      {extra > 0 ? <span className={styles['ts-assignees-more']}>+{extra}</span> : null}
     </span>
   );
 }

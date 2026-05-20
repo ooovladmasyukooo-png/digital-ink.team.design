@@ -152,6 +152,47 @@ export const Icons = {
     />
   ),
   chevR: <Icon d={<path d="m9 18 6-6-6-6" />} size={12} />,
+  /** Іконка гілки підзадач (лічильник у списку). */
+  repeat: (
+    <Icon
+      size={11}
+      sw={1.5}
+      d={
+        <>
+          <path d="M17 2v4h-4" />
+          <path d="M7 22v-4h4" />
+          <path d="M20 12a8 8 0 0 0-14-5.3L3 10" />
+          <path d="M4 12a8 8 0 0 0 14 5.3L21 14" />
+        </>
+      }
+    />
+  ),
+  description: (
+    <Icon
+      size={11}
+      sw={1.5}
+      d={
+        <>
+          <path d="M8 4h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" />
+          <path d="M10 9h6M10 13h6M10 17h4" />
+        </>
+      }
+    />
+  ),
+  subtree: (
+    <Icon
+      size={11}
+      sw={1.5}
+      d={
+        <>
+          <path d="M6 3v12" />
+          <path d="M6 9h4a2 2 0 0 1 2 2v4" />
+          <circle cx="6" cy="3" r="1.25" fill="currentColor" stroke="none" />
+          <circle cx="12" cy="15" r="1.25" fill="currentColor" stroke="none" />
+        </>
+      }
+    />
+  ),
   openExternal: (
     <Icon
       size={12}

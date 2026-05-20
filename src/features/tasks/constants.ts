@@ -1,4 +1,4 @@
-import type { DateGroupId, Priority, Status, Task } from './types';
+import type { DateGroupId, Priority, Status, Task, TaskRecurrenceKind } from './types';
 import { defaultDeadlineForGroup } from './dateGroups';
 
 /** Демо: відповідає поточному користувачу в UI (Андрій Мельник). */
@@ -34,19 +34,65 @@ export const PRIORITY_OPTIONS = (Object.keys(PRIORITIES) as Priority[]).sort(
   (a, b) => PRIORITIES[a].rank - PRIORITIES[b].rank,
 );
 
-export function createNewTaskForGroup(groupId: DateGroupId, id: string, now = new Date()): Task {
+export const RECURRENCE_KIND_OPTIONS: { kind: TaskRecurrenceKind; label: string }[] = [
+  { kind: 'daily', label: 'По днях тижня' },
+  { kind: 'weekly', label: 'Щотижня' },
+  { kind: 'monthly', label: 'Щомісяця' },
+];
+
+export const RECURRENCE_WEEKDAY_LABELS = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'] as const;
+
+export function createNewTaskForPersonalStatus(status: Status, id: string): Task {
+  return {
+    ...createNewTaskForProject(null, id),
+    status,
+    assigneeIds: [TASK_CREATOR_ASSIGNEE_ID],
+  };
+}
+
+/** Задача профілю спеціаліста: відповідальний — обраний учасник команди. */
+export function createNewTaskForMemberStatus(status: Status, id: string, memberId: string): Task {
+  return {
+    ...createNewTaskForProject(null, id),
+    status,
+    assigneeIds: [memberId],
+    creatorId: TASK_CREATOR_ASSIGNEE_ID,
+  };
+}
+
+/** Делегована: автор — поточний користувач, відповідальний — інший (демо: Дарія). */
+export function createNewTaskForDelegatedStatus(status: Status, id: string): Task {
+  return {
+    ...createNewTaskForProject(null, id),
+    status,
+    assigneeIds: ['daria'],
+  };
+}
+
+export function createNewTaskForProject(projectId: string | null, id: string): Task {
   return {
     id,
     title: 'Нова задача',
     status: 'inbox',
     priority: null,
-    deadline: defaultDeadlineForGroup(groupId, now),
-    assigneeId: TASK_CREATOR_ASSIGNEE_ID,
-    projectId: null,
+    deadline: null,
+    completedAt: null,
+    recurrenceRule: null,
+    assigneeIds: [TASK_CREATOR_ASSIGNEE_ID],
+    creatorId: TASK_CREATOR_ASSIGNEE_ID,
+    createdAt: new Date().toISOString(),
+    projectId,
     description: '',
     checkItems: [],
     subtasks: [],
     comments: [],
     activityLog: [],
+  };
+}
+
+export function createNewTaskForGroup(groupId: DateGroupId, id: string, now = new Date()): Task {
+  return {
+    ...createNewTaskForProject(null, id),
+    deadline: defaultDeadlineForGroup(groupId, now),
   };
 }

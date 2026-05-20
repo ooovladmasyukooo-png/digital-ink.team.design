@@ -7,6 +7,7 @@ import type { TeamMember, TeamSubtabId } from '../types';
 
 const DETAIL_TABS: { id: TeamSubtabId; label: string; icon: ReactNode }[] = [
   { id: 'profile', label: 'Головна', icon: Icons.dashboard },
+  { id: 'tasks', label: 'Задачі', icon: Icons.tasks },
   { id: 'payouts', label: 'Виплати', icon: Icons.finance },
   { id: 'effectiveness', label: 'Ефективність', icon: Icons.analytics },
   { id: 'settings', label: 'Налаштування', icon: Icons.settings },

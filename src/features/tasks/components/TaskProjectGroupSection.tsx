@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Icons } from '../../../shared/components/Icon';
+import { Avatar } from '../../../shared/components/Avatar';
 import { cx } from '../../../shared/styles/cx';
-import { DATE_GROUP_LABELS } from '../dateGroups';
+import { projectById } from '../taskOptions';
 import styles from '../tasks.module.css';
-import type { DateGroupId, Task, TaskPatch, TaskSubtask } from '../types';
+import type { Task, TaskPatch, TaskSubtask } from '../types';
 import { TaskColumnsHeader } from './TaskColumnsHeader';
 import { TaskListTree } from './TaskListTree';
 
-interface TaskGroupSectionProps {
-  groupId: DateGroupId;
+interface TaskProjectGroupSectionProps {
+  projectId: string | null;
+  label: string;
+  fullLabel: string;
   tasks: Task[];
   armedDeleteId: string | null;
   expandedTreeKeys: ReadonlySet<string>;
@@ -18,12 +21,14 @@ interface TaskGroupSectionProps {
   onUpdate: (id: string, patch: TaskPatch) => void;
   onUpdateSubtask: (rootId: string, path: string[], patch: TaskPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
-  onAdd: (groupId: DateGroupId) => void;
+  onAdd: (projectId: string | null) => void;
   onOpenTask: (id: string, subtaskPath?: string[]) => void;
 }
 
-export function TaskGroupSection({
-  groupId,
+export function TaskProjectGroupSection({
+  projectId,
+  label,
+  fullLabel,
   tasks,
   armedDeleteId,
   expandedTreeKeys,
@@ -35,24 +40,16 @@ export function TaskGroupSection({
   onAddSubtask,
   onAdd,
   onOpenTask,
-}: TaskGroupSectionProps) {
-  const [collapsed, setCollapsed] = useState(
-    groupId === 'week' || groupId === 'later' || groupId === 'none'
-  );
+}: TaskProjectGroupSectionProps) {
+  const [collapsed, setCollapsed] = useState(false);
+  const project = projectId ? projectById[projectId] : null;
 
   if (tasks.length === 0) return null;
 
-  const isNearGroup = groupId === 'overdue' || groupId === 'today' || groupId === 'tomorrow';
-  const isOverdueGroup = groupId === 'overdue';
-
   return (
     <section
-      className={cx(
-        styles['ts-group'],
-        isNearGroup && styles['ts-group-near'],
-        isOverdueGroup && styles['ts-group-overdue'],
-      )}
-      aria-label={DATE_GROUP_LABELS[groupId]}
+      className={cx(styles['ts-group'], styles['ts-group-project'])}
+      aria-label={fullLabel}
     >
       <div className={styles['ts-group-head']}>
         <button
@@ -60,16 +57,28 @@ export function TaskGroupSection({
           className={styles['ts-group-toggle']}
           onClick={() => setCollapsed((c) => !c)}
           aria-expanded={!collapsed}
+          title={fullLabel}
         >
           <span className={cx(styles['ts-chev'], collapsed && styles['ts-chev-closed'])}>{Icons.chevD}</span>
-          <span className={styles['ts-group-title']}>{DATE_GROUP_LABELS[groupId]}</span>
+          <span className={styles['ts-group-project-title']}>
+            {project ? (
+              <span className={styles['ts-group-project-av']}>
+                <Avatar name={project.name} hue={project.hue} size="sm" />
+              </span>
+            ) : (
+              <span className={styles['ts-group-project-ph']} aria-hidden>
+                {Icons.briefcase}
+              </span>
+            )}
+            <span className={styles['ts-group-project-name']}>{label}</span>
+          </span>
         </button>
         <span className={styles['ts-group-count']}>{tasks.length}</span>
         <button
           type="button"
           className={styles['ts-group-add']}
-          aria-label={`Нова задача: ${DATE_GROUP_LABELS[groupId]}`}
-          onClick={() => onAdd(groupId)}
+          aria-label={`Нова задача: ${label}`}
+          onClick={() => onAdd(projectId)}
         >
           {Icons.plus}
         </button>
@@ -96,7 +105,11 @@ export function TaskGroupSection({
             ))}
           </div>
 
-          <button type="button" className={styles['ts-new-row']} onClick={() => onAdd(groupId)}>
+          <button
+            type="button"
+            className={styles['ts-new-row']}
+            onClick={() => onAdd(projectId)}
+          >
             {Icons.plus}
             <span>Нова задача</span>
           </button>

@@ -6,6 +6,7 @@ import type { TeamMemberPatch, TeamSubtabId } from './types';
 
 const SUBTAB_DOC_TITLE: Record<TeamSubtabId, string> = {
   profile: 'Профіль',
+  tasks: 'Задачі',
   payouts: 'Виплати',
   effectiveness: 'Ефективність',
   settings: 'Налаштування',
@@ -16,9 +17,10 @@ interface TeamPageProps {
   teamSubtab: TeamSubtabId;
   onNavigateMember: (memberId: string | null, replaceHistory?: boolean, keepSubtab?: boolean) => void;
   onNavigateSubtab: (tab: TeamSubtabId) => void;
+  onOpenTask: (taskId: string) => void;
 }
 
-export function TeamPage({ selectedMemberId, teamSubtab, onNavigateMember, onNavigateSubtab }: TeamPageProps) {
+export function TeamPage({ selectedMemberId, teamSubtab, onNavigateMember, onNavigateSubtab, onOpenTask }: TeamPageProps) {
   const [removedMemberIds, setRemovedMemberIds] = useState<Set<string>>(() => new Set());
   const [overrides, setOverrides] = useState<Record<string, TeamMemberPatch>>({});
   const [avatars, setAvatars] = useState<Record<string, string>>({});
@@ -83,6 +85,7 @@ export function TeamPage({ selectedMemberId, teamSubtab, onNavigateMember, onNav
       onAvatarChange={(memberId, src) => setAvatars((current) => ({ ...current, [memberId]: src }))}
       onTeamPhotoChange={(memberId, src) => setTeamPhotos((current) => ({ ...current, [memberId]: src }))}
       onDeleteMember={deleteMember}
+      onOpenTask={onOpenTask}
     />
   );
 }

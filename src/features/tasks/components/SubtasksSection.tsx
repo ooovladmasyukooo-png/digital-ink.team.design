@@ -1,13 +1,20 @@
 import { useRef, useState } from 'react';
-import { Avatar } from '../../../shared/components/Avatar';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { PRIORITIES, STATUS_META } from '../constants';
 import { isoToDisplayDate } from '../dateDisplay';
-import { isSubtaskDone } from '../subtaskTask';
+import { createNewSubtask, isSubtaskDone } from '../subtaskTask';
 import styles from '../tasks.module.css';
 import type { Priority, Status, TaskSubtask } from '../types';
-import { assigneePickerItems, priorityPickerItems, statusPickerItems, SubtaskStatusIcon, teamById } from '../taskOptions';
+import {
+  AssigneeCell,
+  assigneePickerClearOption,
+  assigneePickerItems,
+  priorityPickerItems,
+  statusPickerItems,
+  SubtaskStatusIcon,
+  toggleAssigneeIds,
+} from '../taskOptions';
 import { TaskDeadlinePicker } from './TaskDeadlinePicker';
 import { TaskPickerPopover } from './TaskPickerPopover';
 
@@ -16,11 +23,12 @@ type SubtaskPicker = { subtaskId: string; field: SubtaskPickerField } | null;
 
 interface SubtasksSectionProps {
   subtasks: TaskSubtask[];
+  rootProjectId: string | null;
   onChange: (subtasks: TaskSubtask[]) => void;
   onOpenSubtask: (subtaskId: string) => void;
 }
 
-export function SubtasksSection({ subtasks, onChange, onOpenSubtask }: SubtasksSectionProps) {
+export function SubtasksSection({ subtasks, rootProjectId, onChange, onOpenSubtask }: SubtasksSectionProps) {
   const [picker, setPicker] = useState<SubtaskPicker>(null);
   const anchorRef = useRef<HTMLButtonElement>(null);
 
@@ -38,20 +46,7 @@ export function SubtasksSection({ subtasks, onChange, onOpenSubtask }: SubtasksS
   };
 
   const addSubtask = () => {
-    onChange([
-      ...subtasks,
-      {
-        id: `s${Date.now()}`,
-        title: 'Нова підзадача',
-        status: 'new',
-        priority: null,
-        assigneeId: null,
-        deadline: null,
-        description: '',
-        checkItems: [],
-        subtasks: [],
-      },
-    ]);
+    onChange([...subtasks, createNewSubtask(rootProjectId)]);
   };
 
   const head = (
@@ -145,8 +140,8 @@ export function SubtasksSection({ subtasks, onChange, onOpenSubtask }: SubtasksS
                   aria-label="Відповідальний"
                   onClick={(e) => openPicker(subtask.id, 'assignee', e.currentTarget)}
                 >
-                  {subtask.assigneeId && teamById[subtask.assigneeId] ? (
-                    <Avatar name={teamById[subtask.assigneeId].name} hue={teamById[subtask.assigneeId].hue} size="sm" />
+                  {subtask.assigneeIds.length > 0 ? (
+                    <AssigneeCell assigneeIds={subtask.assigneeIds} />
                   ) : (
                     <span className={styles['ts-subtask-meta-ph']} aria-hidden>
                       {Icons.team}
@@ -204,6 +199,7 @@ export function SubtasksSection({ subtasks, onChange, onOpenSubtask }: SubtasksS
             searchable={picker.field === 'assignee'}
             width={picker.field === 'assignee' ? 280 : picker.field === 'status' ? 220 : 200}
             compact={picker.field === 'status'}
+            multiSelect={picker.field === 'assignee'}
             clearOption={
               picker.field === 'priority'
                 ? {
@@ -211,14 +207,16 @@ export function SubtasksSection({ subtasks, onChange, onOpenSubtask }: SubtasksS
                     label: 'Clear',
                     selected: active.priority === null,
                   }
-                : undefined
+                : picker.field === 'assignee'
+                  ? assigneePickerClearOption(active.assigneeIds)
+                  : undefined
             }
             items={
               picker.field === 'status'
                 ? statusPickerItems(active.status)
                 : picker.field === 'priority'
                   ? priorityPickerItems(active.priority)
-                  : assigneePickerItems(active.assigneeId)
+                  : assigneePickerItems(active.assigneeIds)
             }
             onClose={() => setPicker(null)}
             onSelect={(id) => {
@@ -229,7 +227,7 @@ export function SubtasksSection({ subtasks, onChange, onOpenSubtask }: SubtasksS
                 updateOne(active.id, { priority: id === '__none__' ? null : (id as Priority) });
               }
               if (picker.field === 'assignee') {
-                updateOne(active.id, { assigneeId: id === '__none__' ? null : id });
+                updateOne(active.id, { assigneeIds: toggleAssigneeIds(active.assigneeIds, id) });
               }
               setPicker(null);
             }}

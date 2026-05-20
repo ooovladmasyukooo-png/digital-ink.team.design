@@ -67,6 +67,8 @@ interface TaskPickerPopoverProps {
   searchable?: boolean;
   clearOption?: TaskPickerClearOption;
   compact?: boolean;
+  /** Не закривати після вибору (кілька значень). */
+  multiSelect?: boolean;
   onClose: () => void;
   onSelect: (id: string) => void;
   children?: ReactNode;
@@ -80,6 +82,7 @@ export function TaskPickerPopover({
   searchable,
   clearOption,
   compact,
+  multiSelect,
   onClose,
   onSelect,
   children,
@@ -136,7 +139,7 @@ export function TaskPickerPopover({
 
   const pick = (id: string) => {
     onSelect(id);
-    onClose();
+    if (!multiSelect) onClose();
   };
 
   if (!open) return null;

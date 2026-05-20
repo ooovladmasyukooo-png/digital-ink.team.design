@@ -10,9 +10,16 @@ interface TaskDeleteButtonProps {
   armedId: string | null;
   onArm: (id: string | null) => void;
   onDelete: (id: string) => void;
+  itemLabel?: 'task' | 'subtask';
 }
 
-export function TaskDeleteButton({ taskId, armedId, onArm, onDelete }: TaskDeleteButtonProps) {
+export function TaskDeleteButton({
+  taskId,
+  armedId,
+  onArm,
+  onDelete,
+  itemLabel = 'task',
+}: TaskDeleteButtonProps) {
   const armed = armedId === taskId;
 
   useEffect(() => {
@@ -35,7 +42,13 @@ export function TaskDeleteButton({ taskId, armedId, onArm, onDelete }: TaskDelet
     <button
       type="button"
       className={cx(styles['ts-row-del'], armed && styles['ts-row-del-armed'])}
-      aria-label={armed ? 'Підтвердити видалення' : 'Видалити задачу'}
+      aria-label={
+        armed
+          ? 'Підтвердити видалення'
+          : itemLabel === 'subtask'
+            ? 'Видалити підзадачу'
+            : 'Видалити задачу'
+      }
       onClick={handleClick}
     >
       {Icons.trash}

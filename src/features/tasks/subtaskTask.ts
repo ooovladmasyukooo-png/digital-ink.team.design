@@ -28,8 +28,12 @@ export function taskFromSubtask(subtask: TaskSubtask, root: Task): Task {
     status: subtask.status,
     priority: subtask.priority,
     deadline: subtask.deadline,
-    assigneeId: subtask.assigneeId,
-    projectId: root.projectId,
+    completedAt: subtask.completedAt,
+    assigneeIds: subtask.assigneeIds,
+    creatorId: root.creatorId,
+    createdAt: root.createdAt,
+    recurrenceRule: null,
+    projectId: subtask.projectId ?? root.projectId,
     description: subtask.description,
     checkItems: subtask.checkItems,
     subtasks: subtask.subtasks,
@@ -69,12 +73,60 @@ export function subtaskPatchFromTaskPatch(patch: TaskPatch): Partial<TaskSubtask
   if (patch.status !== undefined) out.status = patch.status;
   if (patch.priority !== undefined) out.priority = patch.priority;
   if (patch.deadline !== undefined) out.deadline = patch.deadline;
-  if (patch.assigneeId !== undefined) out.assigneeId = patch.assigneeId;
+  if (patch.completedAt !== undefined) out.completedAt = patch.completedAt;
+  if (patch.assigneeIds !== undefined) out.assigneeIds = patch.assigneeIds;
+  if (patch.projectId !== undefined) out.projectId = patch.projectId;
   if (patch.description !== undefined) out.description = patch.description;
   if (patch.checkItems !== undefined) out.checkItems = patch.checkItems;
   return out;
 }
 
 export function isSubtaskDone(subtask: TaskSubtask): boolean {
-  return subtask.status === 'done';
+  return subtask.status === 'done' || subtask.status === 'archive';
+}
+
+export function resolveSubtaskProjectId(
+  subtask: Pick<TaskSubtask, 'projectId'>,
+  rootProjectId: string | null,
+): string | null {
+  return subtask.projectId ?? rootProjectId;
+}
+
+export function createNewSubtask(projectId: string | null, id?: string): TaskSubtask {
+  return {
+    id: id ?? `s${Date.now()}`,
+    title: 'Нова підзадача',
+    status: 'new',
+    priority: null,
+    assigneeIds: [],
+    projectId,
+    deadline: null,
+    completedAt: null,
+    description: '',
+    checkItems: [],
+    subtasks: [],
+  };
+}
+
+/** Додає підзадачу до списку за шляхом батька (порожній path = кореневі підзадачі задачі). */
+export function appendSubtaskAtPath(
+  subtasks: TaskSubtask[],
+  parentPath: string[],
+  newSubtask: TaskSubtask,
+): TaskSubtask[] {
+  if (parentPath.length === 0) return [...subtasks, newSubtask];
+  const [head, ...tail] = parentPath;
+  return subtasks.map((s) =>
+    s.id === head ? { ...s, subtasks: appendSubtaskAtPath(s.subtasks, tail, newSubtask) } : s,
+  );
+}
+
+/** Видаляє підзадачу за шляхом (перший id — прямий нащадок кореневої задачі). */
+export function removeSubtaskAtPath(subtasks: TaskSubtask[], path: string[]): TaskSubtask[] {
+  if (path.length === 0) return subtasks;
+  const [head, ...tail] = path;
+  if (tail.length === 0) return subtasks.filter((s) => s.id !== head);
+  return subtasks.map((s) =>
+    s.id === head ? { ...s, subtasks: removeSubtaskAtPath(s.subtasks, tail) } : s,
+  );
 }

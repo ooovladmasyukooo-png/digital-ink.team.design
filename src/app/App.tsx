@@ -6,6 +6,7 @@ import { FinancePage } from '../features/finance/FinancePage';
 import type { ProjectSubtabId } from '../features/projects/types';
 import { Projects2Page } from '../features/projects2/Projects2Page';
 import { TasksPage } from '../features/tasks/TasksPage';
+import { buildTaskLink } from '../features/tasks/tasksPaths';
 import type { TeamSubtabId } from '../features/team/types';
 import { TeamPage } from '../features/team/TeamPage';
 import type { FeatureId } from '../shared/types/common';
@@ -57,11 +58,8 @@ export function App() {
   }, [syncFromWindow]);
 
   useEffect(() => {
-    if (active === 'team' || active === 'projects2') return;
-    document.title =
-      active === 'tasks'
-        ? 'Задачі · Aurora CRM'
-        : `${SIDEBAR_TITLE_UK[active]} · Aurora CRM`;
+    if (active === 'team' || active === 'projects2' || active === 'tasks') return;
+    document.title = `${SIDEBAR_TITLE_UK[active]} · Aurora CRM`;
   }, [active]);
 
   const navigateFeature = useCallback((id: FeatureId) => {
@@ -112,6 +110,13 @@ export function App() {
     [project2Subtab],
   );
 
+  const navigateToTask = useCallback((taskId: string) => {
+    setActive('tasks');
+    setTeamProfileId(null);
+    setTeamSubtab('profile');
+    window.history.pushState({}, '', buildTaskLink(taskId));
+  }, []);
+
   const navigateProject2Subtab = useCallback(
     (tab: ProjectSubtabId) => {
       setProject2Subtab(tab);
@@ -130,6 +135,7 @@ export function App() {
           teamSubtab={teamSubtab}
           onNavigateMember={navigateTeamMember}
           onNavigateSubtab={navigateTeamSubtab}
+          onOpenTask={navigateToTask}
         />
       ) : active === 'projects2' ? (
         <Projects2Page

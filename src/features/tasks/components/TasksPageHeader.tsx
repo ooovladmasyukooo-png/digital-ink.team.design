@@ -6,7 +6,7 @@ import styles from '../tasks.module.css';
 
 const TASK_TABS: { id: TasksViewTabId; label: string; icon: ReactNode }[] = [
   { id: 'by-date', label: 'За датами', icon: Icons.calendar },
-  { id: 'by-area', label: 'За напрямами', icon: Icons.filter },
+  { id: 'by-area', label: 'По проектах', icon: Icons.filter },
   { id: 'personal', label: 'Особисті', icon: Icons.spark },
   { id: 'delegated', label: 'Делеговані', icon: Icons.team },
   { id: 'archive', label: 'Архів', icon: Icons.inbox },

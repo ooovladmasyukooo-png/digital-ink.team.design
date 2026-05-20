@@ -13,6 +13,10 @@ import { Icon, Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import teamStyles from '../../team/team.module.css';
 import { displayDateToIso } from '../dateDisplay';
+import { defaultRecurrenceRule, normalizeRecurrenceRule, recurrenceDaysInMonth } from '../recurrence';
+import taskStyles from '../tasks.module.css';
+import type { TaskRecurrenceRule } from '../types';
+import { TaskRecurrenceRuleEditor } from './TaskRecurrenceRuleEditor';
 
 function parseIsoToLocalDate(iso: string | null): Date | null {
   if (!iso) return null;
@@ -68,7 +72,7 @@ function computeDatePopPosition(shell: HTMLElement, pop: HTMLElement): CSSProper
   let pw = pop.offsetWidth;
   let ph = pop.offsetHeight;
   if (pw < 48) pw = 272;
-  if (ph < 48) ph = 280;
+  if (ph < 48) ph = 320;
 
   let top = rect.bottom + POP_GAP;
   const fitsBelow = top + ph <= window.innerHeight - VIEWPORT_MARGIN;
@@ -90,15 +94,31 @@ interface TaskDeadlinePickerProps {
   open: boolean;
   anchorRef: RefObject<HTMLElement | null>;
   valueIso: string | null;
+  recurrenceRule?: TaskRecurrenceRule | null;
+  showRecurrence?: boolean;
   onClose: () => void;
   onSelectIso: (iso: string | null) => void;
+  onRecurrenceChange?: (rule: TaskRecurrenceRule | null) => void;
 }
 
-export function TaskDeadlinePicker({ open, anchorRef, valueIso, onClose, onSelectIso }: TaskDeadlinePickerProps) {
+export function TaskDeadlinePicker({
+  open,
+  anchorRef,
+  valueIso,
+  recurrenceRule = null,
+  showRecurrence = false,
+  onClose,
+  onSelectIso,
+  onRecurrenceChange,
+}: TaskDeadlinePickerProps) {
   const popRef = useRef<HTMLDivElement>(null);
   const [popStyle, setPopStyle] = useState<CSSProperties>({});
   const [viewYear, setViewYear] = useState(() => new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(() => new Date().getMonth());
+  const [recurOn, setRecurOn] = useState(Boolean(recurrenceRule));
+  const [recurRule, setRecurRule] = useState<TaskRecurrenceRule>(() =>
+    normalizeRecurrenceRule(recurrenceRule, valueIso) ?? defaultRecurrenceRule('weekly', valueIso),
+  );
 
   const selected = useMemo(() => parseIsoToLocalDate(valueIso), [valueIso]);
   const cells = useMemo(() => monthCells(viewYear, viewMonth), [viewYear, viewMonth]);
@@ -116,8 +136,12 @@ export function TaskDeadlinePicker({ open, anchorRef, valueIso, onClose, onSelec
       setViewYear(selected.getFullYear());
       setViewMonth(selected.getMonth());
     }
+    setRecurOn(Boolean(recurrenceRule));
+    setRecurRule(
+      normalizeRecurrenceRule(recurrenceRule, valueIso) ?? defaultRecurrenceRule('weekly', valueIso),
+    );
     reposition();
-  }, [open, selected, reposition]);
+  }, [open, selected, recurrenceRule, valueIso, reposition]);
 
   useEffect(() => {
     if (!open) return;
@@ -152,6 +176,16 @@ export function TaskDeadlinePicker({ open, anchorRef, valueIso, onClose, onSelec
     a.getFullYear() === y && a.getMonth() === m && a.getDate() === day;
 
   const today = new Date();
+  const todayStart = useMemo(
+    () => new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+    [today.getFullYear(), today.getMonth(), today.getDate()],
+  );
+
+  const recurHighlightDays = useMemo(() => {
+    if (!recurOn) return new Set<number>();
+    const floor = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return recurrenceDaysInMonth(viewYear, viewMonth, recurRule, valueIso, floor);
+  }, [recurOn, recurRule, viewYear, viewMonth, valueIso, today.getDate(), today.getMonth(), today.getFullYear()]);
 
   const pickDisplay = (display: string) => {
     const iso = display.trim() ? displayDateToIso(display) : '';
@@ -159,12 +193,22 @@ export function TaskDeadlinePicker({ open, anchorRef, valueIso, onClose, onSelec
     onClose();
   };
 
+  const setRecurrenceEnabled = (enabled: boolean) => {
+    setRecurOn(enabled);
+    onRecurrenceChange?.(enabled ? recurRule : null);
+  };
+
+  const setRecurrenceRuleValue = (rule: TaskRecurrenceRule) => {
+    setRecurRule(rule);
+    if (recurOn) onRecurrenceChange?.(rule);
+  };
+
   if (!open) return null;
 
   return createPortal(
     <div
       ref={popRef}
-      className={teamStyles['date-pop']}
+      className={cx(teamStyles['date-pop'], taskStyles['ts-date-pop'])}
       style={popStyle}
       role="dialog"
       aria-modal="true"
@@ -222,23 +266,54 @@ export function TaskDeadlinePicker({ open, anchorRef, valueIso, onClose, onSelec
         ))}
       </div>
       <div className={teamStyles['date-pop-grid']}>
-        {cells.map((cell, idx) =>
-          cell === null ? (
-            <span key={`e-${idx}`} className={teamStyles['date-pop-cell']} data-empty="" aria-hidden />
-          ) : (
+        {cells.map((cell, idx) => {
+          if (cell === null) {
+            return <span key={`e-${idx}`} className={teamStyles['date-pop-cell']} data-empty="" aria-hidden />;
+          }
+          const cellDate = new Date(viewYear, viewMonth, cell);
+          const isSelected = Boolean(selected && sameDay(selected, viewYear, viewMonth, cell));
+          const showSelected = isSelected && cellDate >= todayStart;
+
+          return (
             <button
               key={`${viewYear}-${viewMonth}-${cell}`}
               type="button"
               className={teamStyles['date-pop-cell']}
               data-today={sameDay(today, viewYear, viewMonth, cell) ? '' : undefined}
-              data-selected={selected && sameDay(selected, viewYear, viewMonth, cell) ? '' : undefined}
-              onClick={() => pickDisplay(toDisplay(new Date(viewYear, viewMonth, cell)))}
+              data-selected={showSelected ? '' : undefined}
+              data-recur={recurHighlightDays.has(cell) ? '' : undefined}
+              onClick={() => pickDisplay(toDisplay(cellDate))}
             >
               {cell}
             </button>
-          ),
-        )}
+          );
+        })}
       </div>
+
+      {showRecurrence && onRecurrenceChange ? (
+        <div className={taskStyles['ts-date-pop-recur']}>
+          <label className={taskStyles['ts-date-pop-recur-toggle']}>
+            <input
+              type="checkbox"
+              checked={recurOn}
+              onChange={(e) => setRecurrenceEnabled(e.target.checked)}
+            />
+            <span className={taskStyles['ts-date-pop-recur-i']} aria-hidden>
+              {Icons.repeat}
+            </span>
+            <span>Повторювана задача</span>
+          </label>
+          {recurOn ? (
+            <TaskRecurrenceRuleEditor
+              rule={recurRule}
+              deadlineIso={valueIso}
+              onChange={setRecurrenceRuleValue}
+            />
+          ) : null}
+          <p className={taskStyles['ts-date-pop-recur-hint']}>Після виконання (Done) створиться нова копія з наступним дедлайном.</p>
+        </div>
+      ) : null}
+
       <div className={teamStyles['date-pop-foot']}>
         <button
           type="button"

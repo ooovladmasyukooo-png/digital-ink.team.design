@@ -12,11 +12,11 @@ export const FEATURE_IDS: FeatureId[] = [
   'tasks',
 ];
 
-const TEAM_SUBTAB_IDS: TeamSubtabId[] = ['profile', 'payouts', 'effectiveness', 'settings'];
+const TEAM_SUBTAB_IDS: TeamSubtabId[] = ['profile', 'tasks', 'payouts', 'effectiveness', 'settings'];
 const PROJECT_SUBTAB_IDS: ProjectSubtabId[] = ['profile', 'payouts', 'effectiveness', 'settings'];
 
 /** Непрофільні підвкладки в pathname (англійські сегменти). */
-const TEAM_PATH_SUBTAB_IDS: Exclude<TeamSubtabId, 'profile'>[] = ['payouts', 'effectiveness', 'settings'];
+const TEAM_PATH_SUBTAB_IDS: Exclude<TeamSubtabId, 'profile'>[] = ['tasks', 'payouts', 'effectiveness', 'settings'];
 const PROJECT_PATH_SUBTAB_IDS: Exclude<ProjectSubtabId, 'profile'>[] = ['payouts', 'effectiveness', 'settings'];
 
 export function parseTeamSubtab(raw: string | null): TeamSubtabId {
@@ -33,6 +33,7 @@ export function parseProjectSubtab(raw: string | null): ProjectSubtabId {
 
 export function pathForFeature(feature: FeatureId): string {
   if (feature === 'projects2') return '/projects';
+  if (feature === 'tasks') return '/tasks?day';
   return `/${feature}`;
 }
 

@@ -1,18 +1,17 @@
 import { useEffect } from 'react';
-import { createPortal } from 'react-dom';
-import { formatTaskDateTime } from '../dateDisplay';
 import { resolveTaskCreatedAt } from '../taskCreatedAt';
+import { formatTaskDateTime } from '../dateDisplay';
+import { taskDocumentTitle } from '../tasksPaths';
 import styles from '../tasks.module.css';
 import type { Task, TaskPatch } from '../types';
 import { teamById } from '../taskOptions';
 import { TaskDetailContent } from './TaskDetailContent';
 import { TaskDetailToolbar } from './TaskDetailToolbar';
 
-interface TaskDetailPanelProps {
+interface TaskDetailPageProps {
   task: Task;
   taskLinkId: string;
   onClose: () => void;
-  onExpand: () => void;
   onUpdate: (id: string, patch: TaskPatch) => void;
   onOpenSubtask: (subtaskId: string) => void;
   parentTask?: Pick<Task, 'id' | 'title'>;
@@ -20,59 +19,63 @@ interface TaskDetailPanelProps {
   onOpenParentTask?: () => void;
 }
 
-export function TaskDetailPanel({
+export function TaskDetailPage({
   task,
   taskLinkId,
   onClose,
-  onExpand,
   onUpdate,
   onOpenSubtask,
   parentTask,
   parentTaskLabel,
   onOpenParentTask,
-}: TaskDetailPanelProps) {
+}: TaskDetailPageProps) {
   const creator = teamById[task.creatorId];
   const creatorName = creator?.name ?? task.creatorId;
   const createdAtIso = resolveTaskCreatedAt(task);
   const createdAtLabel = formatTaskDateTime(createdAtIso);
 
   useEffect(() => {
+    document.title = taskDocumentTitle(task.title, task.id);
+    return () => {
+      document.title = 'Задачі · Aurora CRM';
+    };
+  }, [task.id, task.title]);
+
+  useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = '';
-      window.removeEventListener('keydown', onKey);
-    };
+    return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
 
-  return createPortal(
-    <>
-      <button type="button" className={styles['ts-drawer-backdrop']} aria-label="Закрити картку задачі" onClick={onClose} />
-      <aside className={styles['ts-drawer']} role="dialog" aria-modal="true" aria-label={task.title}>
+  return (
+    <div className={styles['ts-detail-page']}>
+      <div className={styles['ts-detail-page-main']}>
         <TaskDetailToolbar
           task={task}
           taskLinkId={taskLinkId}
-          variant="drawer"
+          variant="page"
           onClose={onClose}
-          onExpand={onExpand}
           creatorName={creatorName}
           creatorHue={creator?.hue ?? 0}
           createdAtIso={createdAtIso}
           createdAtLabel={createdAtLabel}
         />
-        <TaskDetailContent
-          task={task}
-          onUpdate={onUpdate}
-          onOpenSubtask={onOpenSubtask}
-          parentTask={parentTask}
-          parentTaskLabel={parentTaskLabel}
-          onOpenParentTask={onOpenParentTask}
-        />
-      </aside>
-    </>,
-    document.body,
+        <div className={styles['ts-detail-page-inner']}>
+          <TaskDetailContent
+            task={task}
+            onUpdate={onUpdate}
+            onOpenSubtask={onOpenSubtask}
+            parentTask={parentTask}
+            parentTaskLabel={parentTaskLabel}
+            onOpenParentTask={onOpenParentTask}
+            scrollClassName={styles['ts-detail-page-scroll']}
+            bodyClassName={styles['ts-drawer-body']}
+            footerClassName={styles['ts-drawer-footer']}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

@@ -5,6 +5,13 @@ import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 
 const MAX_ACTIVITY = 50;
 
+function sameIdList(a: string[], b: string[]): boolean {
+  if (a.length !== b.length) return false;
+  const sortedA = [...a].sort();
+  const sortedB = [...b].sort();
+  return sortedA.every((id, i) => id === sortedB[i]);
+}
+
 function nowIso(): string {
   return new Date().toISOString();
 }
@@ -28,6 +35,9 @@ function describePatch(prev: Task, patch: TaskPatch): string | null {
         : `встановила пріоритет ${PRIORITIES[patch.priority].label}`,
     );
   }
+  if (patch.recurrenceRule !== undefined && patch.recurrenceRule !== prev.recurrenceRule) {
+    parts.push(patch.recurrenceRule === null ? 'вимкнула повторення' : 'увімкнула повторення');
+  }
   if (patch.deadline !== undefined && patch.deadline !== prev.deadline) {
     parts.push(
       patch.deadline === null
@@ -35,8 +45,8 @@ function describePatch(prev: Task, patch: TaskPatch): string | null {
         : `встановила дедлайн ${formatTaskDeadline(patch.deadline)}`,
     );
   }
-  if (patch.assigneeId !== undefined && patch.assigneeId !== prev.assigneeId) {
-    parts.push('змінила відповідального');
+  if (patch.assigneeIds !== undefined && !sameIdList(patch.assigneeIds, prev.assigneeIds)) {
+    parts.push('змінила відповідальних');
   }
   if (patch.projectId !== undefined && patch.projectId !== prev.projectId) {
     parts.push(patch.projectId === null ? 'прибрала проєкт' : 'змінила проєкт');

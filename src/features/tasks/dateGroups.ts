@@ -1,3 +1,5 @@
+import { isCompletedStatus } from './taskCompletion';
+import { isPersonalTask } from './personalGroups';
 import type { DateGroupId, Priority, Task } from './types';
 
 /** Відповідає rank у PRIORITIES (constants.ts): high → low, без пріоритету — в кінці. */
@@ -102,6 +104,8 @@ export function groupTasksByDate(tasks: Task[], now = new Date()): Record<DateGr
   >;
 
   for (const task of tasks) {
+    if (isCompletedStatus(task.status)) continue;
+    if (isPersonalTask(task)) continue;
     const group = getTaskDateGroup(task.deadline, now);
     buckets[group].push(task);
   }
