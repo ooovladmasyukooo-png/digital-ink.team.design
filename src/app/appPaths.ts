@@ -10,6 +10,7 @@ export const FEATURE_IDS: FeatureId[] = [
   'finance',
   'team',
   'tasks',
+  'design-brief',
 ];
 
 const TEAM_SUBTAB_IDS: TeamSubtabId[] = ['profile', 'tasks', 'payouts', 'effectiveness', 'settings'];
@@ -34,6 +35,7 @@ export function parseProjectSubtab(raw: string | null): ProjectSubtabId {
 export function pathForFeature(feature: FeatureId): string {
   if (feature === 'projects2') return '/projects';
   if (feature === 'tasks') return '/tasks?day';
+  if (feature === 'design-brief') return '/design-brief';
   return `/${feature}`;
 }
 

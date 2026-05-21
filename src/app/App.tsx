@@ -5,6 +5,7 @@ import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { FinancePage } from '../features/finance/FinancePage';
 import type { ProjectSubtabId } from '../features/projects/types';
 import { Projects2Page } from '../features/projects2/Projects2Page';
+import { DesignBriefPage } from '../features/designBrief/DesignBriefPage';
 import { TasksPage } from '../features/tasks/TasksPage';
 import { buildTaskLink } from '../features/tasks/tasksPaths';
 import type { TeamSubtabId } from '../features/team/types';
@@ -26,9 +27,13 @@ const SIDEBAR_TITLE_UK: Record<FeatureId, string> = {
   finance: 'Фінанси',
   team: 'Команда',
   tasks: 'Задачі',
+  'design-brief': 'ТЗ дизайнеру',
 };
 
-const featurePages: Record<Exclude<FeatureId, 'team' | 'tasks' | 'projects2'>, ReactNode> = {
+const featurePages: Record<
+  Exclude<FeatureId, 'team' | 'tasks' | 'projects2' | 'design-brief'>,
+  ReactNode
+> = {
   dashboard: <DashboardPage />,
   crm: <CrmPage />,
   analytics: <AnalyticsPage />,
@@ -58,7 +63,7 @@ export function App() {
   }, [syncFromWindow]);
 
   useEffect(() => {
-    if (active === 'team' || active === 'projects2' || active === 'tasks') return;
+    if (active === 'team' || active === 'projects2' || active === 'tasks' || active === 'design-brief') return;
     document.title = `${SIDEBAR_TITLE_UK[active]} · Aurora CRM`;
   }, [active]);
 
@@ -146,6 +151,8 @@ export function App() {
         />
       ) : active === 'tasks' ? (
         <TasksPage />
+      ) : active === 'design-brief' ? (
+        <DesignBriefPage />
       ) : (
         featurePages[active]
       )}

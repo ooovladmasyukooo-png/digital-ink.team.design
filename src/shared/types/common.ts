@@ -1,6 +1,14 @@
 import type { ReactNode } from 'react';
 
-export type FeatureId = 'dashboard' | 'crm' | 'projects2' | 'analytics' | 'finance' | 'team' | 'tasks';
+export type FeatureId =
+  | 'dashboard'
+  | 'crm'
+  | 'projects2'
+  | 'analytics'
+  | 'finance'
+  | 'team'
+  | 'tasks'
+  | 'design-brief';
 
 export type Tone =
   | 'gray'
