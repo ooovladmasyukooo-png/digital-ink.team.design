@@ -50,7 +50,9 @@ interface DesignBriefRowProps {
   armedDeleteId?: string | null;
   onArmDelete?: (id: string | null) => void;
   onDelete?: (id: string) => void;
+  onDuplicate?: (id: string) => void;
   deleteBriefId?: string;
+  duplicateBriefId?: string;
 }
 
 export function DesignBriefRow({
@@ -77,7 +79,9 @@ export function DesignBriefRow({
   armedDeleteId = null,
   onArmDelete,
   onDelete,
+  onDuplicate,
   deleteBriefId,
+  duplicateBriefId,
 }: DesignBriefRowProps) {
   const [picker, setPicker] = useState<PickerField>(null);
   const statusRef = useRef<HTMLButtonElement>(null);
@@ -116,6 +120,7 @@ export function DesignBriefRow({
     isCompletedStatus(status) &&
     isCompletedAfterDeadline(deadline, completedAt);
   const showDelete = Boolean(deleteBriefId && onArmDelete && onDelete);
+  const showDuplicate = Boolean(duplicateBriefId && onDuplicate);
   const showDescription = hasTaskDescription(description);
 
   return (
@@ -274,6 +279,19 @@ export function DesignBriefRow({
       ) : null}
 
       <div className={styles['db-row-actions']}>
+        {showDuplicate ? (
+          <button
+            type="button"
+            className={styles['db-row-dup']}
+            aria-label={isSubtask ? 'Дублювати підзадачу' : 'Дублювати ТЗ'}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDuplicate!(duplicateBriefId!);
+            }}
+          >
+            {Icons.duplicate}
+          </button>
+        ) : null}
         {showDelete ? (
           <DesignBriefDeleteButton
             briefId={deleteBriefId!}

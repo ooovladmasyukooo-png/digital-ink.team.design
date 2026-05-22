@@ -52,8 +52,8 @@ function describePatch(prev: DesignBrief, patch: DesignBriefPatch): string | nul
     parts.push(patch.projectId === null ? 'прибрала проєкт' : 'змінила проєкт');
   }
   if (patch.subtasks !== undefined) {
-    const prevDone = prev.subtasks.filter((s) => s.status === 'done').length;
-    const nextDone = patch.subtasks.filter((s) => s.status === 'done').length;
+    const prevDone = prev.subtasks.filter((s) => s.status === 'done' || s.status === 'closed').length;
+    const nextDone = patch.subtasks.filter((s) => s.status === 'done' || s.status === 'closed').length;
     if (nextDone > prevDone) parts.push('виконала підзадачу');
     else if (nextDone < prevDone) parts.push('повернула підзадачу');
     else if (patch.subtasks.length > prev.subtasks.length) parts.push('додала підзадачу');

@@ -50,7 +50,9 @@ interface TaskRowProps {
   armedDeleteId?: string | null;
   onArmDelete?: (id: string | null) => void;
   onDelete?: (id: string) => void;
+  onDuplicate?: (id: string) => void;
   deleteTaskId?: string;
+  duplicateTaskId?: string;
 }
 
 export function TaskRow({
@@ -77,7 +79,9 @@ export function TaskRow({
   armedDeleteId = null,
   onArmDelete,
   onDelete,
+  onDuplicate,
   deleteTaskId,
+  duplicateTaskId,
 }: TaskRowProps) {
   const [picker, setPicker] = useState<PickerField>(null);
   const statusRef = useRef<HTMLButtonElement>(null);
@@ -116,6 +120,7 @@ export function TaskRow({
     isCompletedStatus(status) &&
     isCompletedAfterDeadline(deadline, completedAt);
   const showDelete = Boolean(deleteTaskId && onArmDelete && onDelete);
+  const showDuplicate = Boolean(duplicateTaskId && onDuplicate);
   const showDescription = hasTaskDescription(description);
 
   return (
@@ -274,6 +279,19 @@ export function TaskRow({
       ) : null}
 
       <div className={styles['ts-row-actions']}>
+        {showDuplicate ? (
+          <button
+            type="button"
+            className={styles['ts-row-dup']}
+            aria-label={isSubtask ? 'Дублювати підзадачу' : 'Дублювати задачу'}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDuplicate!(duplicateTaskId!);
+            }}
+          >
+            {Icons.duplicate}
+          </button>
+        ) : null}
         {showDelete ? (
           <TaskDeleteButton
             taskId={deleteTaskId!}

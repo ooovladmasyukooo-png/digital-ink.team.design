@@ -37,6 +37,8 @@ export function designBriefFromSubtask(subtask: DesignBriefSubtask, root: Design
     format: null,
     sizes: [],
     referenceLinks: [],
+    referenceMaterials: [],
+    videoMaterials: [],
     copyVariants: [],
     description: subtask.description,
     checkItems: subtask.checkItems,
@@ -86,7 +88,7 @@ export function subtaskPatchFromDesignBriefPatch(patch: DesignBriefPatch): Parti
 }
 
 export function isSubtaskDone(subtask: DesignBriefSubtask): boolean {
-  return subtask.status === 'done' || subtask.status === 'archive';
+  return subtask.status === 'done' || subtask.status === 'closed';
 }
 
 export function resolveSubtaskProjectId(

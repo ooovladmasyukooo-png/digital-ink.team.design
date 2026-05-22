@@ -3,14 +3,29 @@ import { DesignBriefDetailLayer } from './components/DesignBriefDetailLayer';
 import { DesignBriefListView } from './components/DesignBriefListView';
 import { DESIGN_BRIEF_CREATOR_ID } from './constants';
 import {
-  buildDesignBriefTaskLink,
+  buildDesignBriefUrl,
   designBriefDocumentTitle,
   designBriefItemDocumentTitle,
+  parseDesignBriefSearch,
 } from './designBriefPaths';
 import { useDesignBriefWorkspace } from './useDesignBriefWorkspace';
+import type { DesignBriefViewTabId } from './types';
 import styles from './designBrief.module.css';
 
 const DESIGN_BRIEF_VIEWER_STORAGE_KEY = 'design-brief-viewer-id';
+const DESIGN_BRIEF_TAB_STORAGE_KEY = 'design-brief-active-tab';
+
+function readTabFromStorage(): DesignBriefViewTabId {
+  try {
+    const stored = sessionStorage.getItem(DESIGN_BRIEF_TAB_STORAGE_KEY);
+    if (stored === 'by-date' || stored === 'by-status' || stored === 'by-people' || stored === 'archive') {
+      return stored;
+    }
+  } catch {
+    /* ignore */
+  }
+  return 'by-status';
+}
 
 function readViewerFromStorage(): string {
   try {
@@ -21,42 +36,10 @@ function readViewerFromStorage(): string {
   }
 }
 
-function parseDesignBriefSearch(search: string): { briefId: string | null; full: boolean } {
-  if (!search || search === '?') return { briefId: null, full: false };
-  const raw = search.startsWith('?') ? search.slice(1) : search;
-  let briefId: string | null = null;
-  let full = false;
-
-  for (const part of raw.split('&').filter(Boolean)) {
-    const eq = part.indexOf('=');
-    const key = (eq === -1 ? part : part.slice(0, eq)).trim().toLowerCase();
-    const value = eq === -1 ? '' : part.slice(eq + 1);
-    if (key === 'full') {
-      full = true;
-      continue;
-    }
-    if ((key === 'id' || key === 'task') && value.trim()) {
-      try {
-        briefId = decodeURIComponent(value.trim());
-      } catch {
-        briefId = value.trim();
-      }
-    }
-  }
-
-  return { briefId, full };
-}
-
-function buildDesignBriefUrl(opts: { brief?: string | null; full?: boolean }): string {
-  if (opts.brief) {
-    return buildDesignBriefTaskLink(opts.brief);
-  }
-  return '/design-brief';
-}
-
 export function DesignBriefPage() {
   const [urlSearch, setUrlSearch] = useState(() => window.location.search);
   const [viewerId, setViewerId] = useState(readViewerFromStorage);
+  const [activeTab, setActiveTab] = useState<DesignBriefViewTabId>(readTabFromStorage);
   const workspace = useDesignBriefWorkspace(viewerId);
   const { panelBrief, selectedBriefId, openBrief, closeDetail } = workspace;
 
@@ -66,7 +49,8 @@ export function DesignBriefPage() {
     (opts: { brief?: string | null; full?: boolean; replace?: boolean }) => {
       const current = parseDesignBriefSearch(urlSearch);
       const nextBrief = opts.brief !== undefined ? opts.brief : current.briefId;
-      const path = buildDesignBriefUrl({ brief: nextBrief ?? undefined, full: opts.full });
+      const nextFull = opts.full !== undefined ? opts.full : current.full;
+      const path = buildDesignBriefUrl({ brief: nextBrief ?? undefined, full: nextFull });
       const next = path.includes('?') ? path.slice(path.indexOf('?')) : '';
       setUrlSearch(next);
       const fn = opts.replace ? window.history.replaceState : window.history.pushState;
@@ -121,6 +105,15 @@ export function DesignBriefPage() {
     },
     [closeDetail],
   );
+
+  const onTab = useCallback((tabId: DesignBriefViewTabId) => {
+    setActiveTab(tabId);
+    try {
+      sessionStorage.setItem(DESIGN_BRIEF_TAB_STORAGE_KEY, tabId);
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const closeBriefDetail = useCallback(() => {
     closeDetail();
@@ -185,6 +178,8 @@ export function DesignBriefPage() {
       <div className={styles['db-main']}>
         <DesignBriefListView
           workspace={workspaceWithNav}
+          activeTab={activeTab}
+          onTab={onTab}
           viewerId={viewerId}
           onViewerChange={onViewerChange}
           onCreate={onCreate}

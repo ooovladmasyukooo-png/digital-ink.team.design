@@ -19,6 +19,7 @@ export function TasksByAreaView({ workspace }: TasksByAreaViewProps) {
     updateSubtaskAtPath,
     addSubtaskAtPath,
     deleteTask,
+    duplicateTask,
     addTaskForProject,
   } = workspace;
 
@@ -38,6 +39,7 @@ export function TasksByAreaView({ workspace }: TasksByAreaViewProps) {
               onToggleTreeExpand={toggleTreeExpand}
               onArmDelete={setArmedDeleteId}
               onDelete={deleteTask}
+              onDuplicate={duplicateTask}
               onUpdate={updateTask}
               onUpdateSubtask={updateSubtaskAtPath}
               onAddSubtask={addSubtaskAtPath}

@@ -1,6 +1,8 @@
 import { useCallback, useState, useSyncExternalStore } from 'react';
 import {
   createNewDesignBrief,
+  createNewDesignBriefForGroup,
+  createNewDesignBriefForMember,
   createNewDesignBriefForStatus,
   DESIGN_BRIEF_CREATOR_ID,
 } from './constants';
@@ -24,7 +26,9 @@ import {
   getSubtaskAtPath,
   removeSubtaskAtPath,
 } from './designBriefSubtask';
+import { duplicateDesignBriefTarget } from './designBriefDuplicate';
 import { collapseTreeBranch, expandTreeBranch, treeRowKey } from './designBriefTree';
+import type { DateGroupId } from '../tasks/types';
 import type { DesignBriefPatch, DesignBriefSubtask, Status } from './types';
 
 export function useDesignBriefWorkspace(viewerId = DESIGN_BRIEF_CREATOR_ID) {
@@ -100,6 +104,11 @@ export function useDesignBriefWorkspace(viewerId = DESIGN_BRIEF_CREATOR_ID) {
     });
   }, []);
 
+  const duplicateBrief = useCallback((targetId: string) => {
+    setArmedDeleteId(null);
+    setDesignBriefs((prev) => duplicateDesignBriefTarget(prev, targetId, allocateDesignBriefId()));
+  }, []);
+
   const deleteBrief = useCallback((targetId: string) => {
     setArmedDeleteId((cur) => (cur === targetId ? null : cur));
 
@@ -143,6 +152,22 @@ export function useDesignBriefWorkspace(viewerId = DESIGN_BRIEF_CREATOR_ID) {
     (status: Status) => {
       const id = allocateDesignBriefId();
       setDesignBriefs((prev) => [...prev, createNewDesignBriefForStatus(status, id, viewerId)]);
+    },
+    [viewerId],
+  );
+
+  const addDesignBriefForGroup = useCallback(
+    (groupId: DateGroupId) => {
+      const id = allocateDesignBriefId();
+      setDesignBriefs((prev) => [...prev, createNewDesignBriefForGroup(groupId, id, new Date(), undefined, viewerId)]);
+    },
+    [viewerId],
+  );
+
+  const addDesignBriefForMember = useCallback(
+    (memberId: string) => {
+      const id = allocateDesignBriefId();
+      setDesignBriefs((prev) => [...prev, createNewDesignBriefForMember(memberId, id, viewerId)]);
     },
     [viewerId],
   );
@@ -209,7 +234,10 @@ export function useDesignBriefWorkspace(viewerId = DESIGN_BRIEF_CREATOR_ID) {
     updateSubtaskAtPath,
     addSubtaskAtPath,
     deleteBrief,
+    duplicateBrief,
     addDesignBriefForStatus,
+    addDesignBriefForGroup,
+    addDesignBriefForMember,
     createDesignBrief,
     closeDetail,
     updateDetail,

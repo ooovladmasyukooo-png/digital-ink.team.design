@@ -18,6 +18,8 @@ export const initialDesignBriefs: DesignBrief[] = [
     referenceLinks: [
       { id: 'ref1', url: 'https://www.pinterest.com/search/pins/?q=dark%20neon%20beauty', label: 'Moodboard' },
     ],
+    referenceMaterials: [],
+    videoMaterials: [],
     copyVariants: [
       {
         id: 'copy1',
@@ -37,7 +39,7 @@ export const initialDesignBriefs: DesignBrief[] = [
   {
     id: 'db2',
     title: 'UI-kit для CRM — форми та таблиці',
-    status: 'doing',
+    status: 'in_design',
     priority: 'medium',
     deadline: offsetIso(5),
     completedAt: null,
@@ -49,6 +51,8 @@ export const initialDesignBriefs: DesignBrief[] = [
     format: 'static',
     sizes: ['16:9'],
     referenceLinks: [],
+    referenceMaterials: [],
+    videoMaterials: [],
     copyVariants: [],
     description: 'Оновити стани input/select, таблиці задач і drawer. Підтримка light/dark.',
     checkItems: [],
@@ -59,7 +63,7 @@ export const initialDesignBriefs: DesignBrief[] = [
   {
     id: 'db3',
     title: 'Storyboard для Old Sailor Reels',
-    status: 'inbox',
+    status: 'ready',
     priority: 'low',
     deadline: null,
     completedAt: null,
@@ -71,6 +75,8 @@ export const initialDesignBriefs: DesignBrief[] = [
     format: 'video',
     sizes: ['9:16'],
     referenceLinks: [],
+    referenceMaterials: [],
+    videoMaterials: [],
     copyVariants: [],
     description: '',
     checkItems: [],

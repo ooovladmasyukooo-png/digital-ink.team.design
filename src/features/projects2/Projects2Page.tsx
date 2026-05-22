@@ -6,9 +6,23 @@ import type { ProjectPatch, ProjectSubtabId } from './types';
 
 const SUBTAB_DOC_TITLE: Record<ProjectSubtabId, string> = {
   profile: 'Головна',
-  payouts: 'Виплати',
-  effectiveness: 'Ефективність',
+  tasks: 'Задачі',
+  documents: 'Документи',
+  'daily-reports': 'Щоденна звітність',
+  bookings: 'Букінги',
+  'design-brief': 'ТЗ дизайнеру',
+  invoices: 'Інвойси',
   settings: 'Налаштування',
+};
+
+const COMING_SOON_SUBTITLE: Partial<Record<ProjectSubtabId, string>> = {
+  tasks: 'Задачі проєкту у розробці.',
+  documents: 'Документи проєкту у розробці.',
+  'daily-reports': 'Щоденна звітність у розробці.',
+  bookings: 'Букінги у розробці.',
+  'design-brief': 'ТЗ дизайнеру для проєкту у розробці.',
+  invoices: 'Інвойси у розробці.',
+  settings: 'Додаткові налаштування проєкту у розробці.',
 };
 
 interface Projects2PageProps {

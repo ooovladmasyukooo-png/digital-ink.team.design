@@ -3,7 +3,7 @@ import { AnalyticsPage } from '../features/analytics/AnalyticsPage';
 import { CrmPage } from '../features/crm/CrmPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { FinancePage } from '../features/finance/FinancePage';
-import type { ProjectSubtabId } from '../features/projects/types';
+import type { ProjectSubtabId } from '../features/projects2/types';
 import { Projects2Page } from '../features/projects2/Projects2Page';
 import { DesignBriefPage } from '../features/designBrief/DesignBriefPage';
 import { TasksPage } from '../features/tasks/TasksPage';

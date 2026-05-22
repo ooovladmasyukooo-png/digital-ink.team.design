@@ -34,6 +34,8 @@ import {
   DesignBriefFormatSizeRows,
   DesignBriefReferencesSection,
 } from './DesignBriefCreativeFields';
+import { DesignBriefVideoMaterialsSection } from './DesignBriefMaterialUpload';
+import { VIDEO_MATERIAL_CONFIG } from '../designBriefMaterials';
 
 type PickerField = 'status' | 'priority' | 'deadline' | 'assignee' | 'project' | null;
 
@@ -194,7 +196,12 @@ export function DesignBriefDetailContent({
             </DetailRow>
 
             {!parentBrief ? (
-              <DesignBriefFormatSizeRows format={brief.format} sizes={brief.sizes} onPatch={patch} />
+              <DesignBriefFormatSizeRows
+                format={brief.format}
+                sizes={brief.sizes}
+                referenceMaterials={brief.referenceMaterials}
+                onPatch={patch}
+              />
             ) : null}
 
             {parentBrief && onOpenParentTask ? (
@@ -233,6 +240,16 @@ export function DesignBriefDetailContent({
 
           {!parentBrief ? (
             <DesignBriefCopyTextBlock briefId={brief.id} copyVariants={brief.copyVariants} onPatch={patch} />
+          ) : null}
+
+          {!parentBrief ? (
+            <DesignBriefVideoMaterialsSection
+              materials={brief.videoMaterials}
+              config={VIDEO_MATERIAL_CONFIG}
+              hint="Фото або відео, до 20 файлів по 50 МБ"
+              archiveName={brief.title}
+              onChange={(videoMaterials) => patch({ videoMaterials })}
+            />
           ) : null}
         </div>
 

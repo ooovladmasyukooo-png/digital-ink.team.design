@@ -5,18 +5,20 @@ import { Chip } from '../../shared/components/Chip';
 import { cx } from '../../shared/styles/cx';
 import { projects } from '../projects2/data';
 import { teamMembers } from '../team/data';
-import { PRIORITIES, STATUS_META, PRIORITY_OPTIONS, STATUS_OPTIONS } from './constants';
+import { PRIORITIES, STAGE_LABELS, STATUS_META, PRIORITY_OPTIONS, STATUS_OPTIONS, type Stage } from './constants';
 import type { TaskPickerItem } from './components/DesignBriefPickerPopover';
 import type { Priority, Status } from './types';
 import styles from './designBrief.module.css';
 
+const STAGE_ORDER: Stage[] = ['todo', 'inprogress', 'complete'];
+
 const STATUS_ICONS: Record<Status, ReactNode> = {
-  inbox: Icons.inbox,
   new: Icons.spark,
-  doing: Icons.play,
-  control: Icons.eye,
+  ready: Icons.play,
+  in_design: Icons.tasks,
+  approve: Icons.eye,
   done: Icons.check,
-  archive: Icons.archive,
+  closed: Icons.archive,
 };
 
 export const teamById = Object.fromEntries(teamMembers.map((m) => [m.id, m]));
@@ -29,7 +31,7 @@ function StatusLabel({ status, size = 'sm' }: { status: Status; size?: 'sm' | 'm
       className={cx(
         styles['db-status'],
         size === 'md' ? styles['db-status-md'] : styles['db-status-sm'],
-        styles[`ts-status-${meta.tone}`]
+        styles[`db-status-${meta.tone}`]
       )}
     >
       <span className={styles['db-status-i']}>{STATUS_ICONS[status]}</span>
@@ -39,12 +41,27 @@ function StatusLabel({ status, size = 'sm' }: { status: Status; size?: 'sm' | 'm
 }
 
 export function statusPickerItems(current: Status): TaskPickerItem[] {
-  return STATUS_OPTIONS.map((id) => ({
-    id,
-    selected: id === current,
-    searchText: STATUS_META[id].label,
-    label: <StatusLabel status={id} size="md" />,
-  }));
+  const items: TaskPickerItem[] = [];
+
+  for (const stage of STAGE_ORDER) {
+    items.push({
+      id: `__stage_${stage}__`,
+      kind: 'heading',
+      label: STAGE_LABELS[stage],
+    });
+
+    for (const id of STATUS_OPTIONS) {
+      if (STATUS_META[id].stage !== stage) continue;
+      items.push({
+        id,
+        selected: id === current,
+        searchText: STATUS_META[id].label,
+        label: <StatusLabel status={id} size="md" />,
+      });
+    }
+  }
+
+  return items;
 }
 
 export function priorityPickerItems(current: Priority | null): TaskPickerItem[] {
@@ -124,7 +141,7 @@ export function SubtaskStatusIcon({ status }: { status: Status }) {
         styles['db-status'],
         styles['db-status-sm'],
         styles['db-subtask-status-only'],
-        styles[`ts-status-${meta.tone}`],
+        styles[`db-status-${meta.tone}`],
       )}
     >
       <span className={styles['db-status-i']}>{STATUS_ICONS[status]}</span>

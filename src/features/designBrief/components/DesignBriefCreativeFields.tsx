@@ -2,14 +2,17 @@ import { useEffect, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { DESIGN_BRIEF_FORMAT_OPTIONS, DESIGN_BRIEF_SIZE_OPTIONS, createEmptyCopyVariant, defaultCopyVariantLabel } from '../constants';
+import { REFERENCE_MATERIAL_CONFIG } from '../designBriefMaterials';
 import styles from '../designBrief.module.css';
 import type {
   DesignBriefCopyVariant,
   DesignBriefFormat,
+  DesignBriefMaterial,
   DesignBriefPatch,
   DesignBriefReferenceLink,
   DesignBriefSize,
 } from '../types';
+import { DesignBriefReferenceMaterialsRow } from './DesignBriefMaterialUpload';
 
 function toggleValue<T extends string>(values: T[], value: T): T[] {
   return values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
@@ -80,6 +83,7 @@ function AspectRatioIcon({ size }: { size: DesignBriefSize }) {
 interface DesignBriefFormatSizeRowsProps {
   format: DesignBriefFormat | null;
   sizes: DesignBriefSize[];
+  referenceMaterials: DesignBriefMaterial[];
   onPatch: (patch: DesignBriefPatch) => void;
 }
 
@@ -118,7 +122,12 @@ function SingleSelectRow<T extends string>({
   );
 }
 
-export function DesignBriefFormatSizeRows({ format, sizes, onPatch }: DesignBriefFormatSizeRowsProps) {
+export function DesignBriefFormatSizeRows({
+  format,
+  sizes,
+  referenceMaterials,
+  onPatch,
+}: DesignBriefFormatSizeRowsProps) {
   return (
     <>
       <SingleSelectRow
@@ -133,6 +142,12 @@ export function DesignBriefFormatSizeRows({ format, sizes, onPatch }: DesignBrie
         values={sizes}
         onChange={(next) => onPatch({ sizes: next })}
         renderOptionIcon={(size) => <AspectRatioIcon size={size} />}
+      />
+      <DesignBriefReferenceMaterialsRow
+        materials={referenceMaterials}
+        config={REFERENCE_MATERIAL_CONFIG}
+        hint="Фото або відео, до 10 файлів по 50 МБ"
+        onChange={(next) => onPatch({ referenceMaterials: next })}
       />
     </>
   );
@@ -241,6 +256,14 @@ export function DesignBriefCopyTextBlock({ briefId, copyVariants, onPatch }: Des
   );
 }
 
+function resolveExternalHref(url: string): string | null {
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  if (trimmed.includes('.')) return `https://${trimmed}`;
+  return null;
+}
+
 interface DesignBriefReferencesSectionProps {
   referenceLinks: DesignBriefReferenceLink[];
   onPatch: (patch: DesignBriefPatch) => void;
@@ -281,11 +304,11 @@ export function DesignBriefReferencesSection({ referenceLinks, onPatch }: Design
           styles['db-drawer-block-empty-hit'],
         )}
         onClick={addReference}
-        aria-label="Додати референси"
+        aria-label="Додати додаткове посилання"
       >
         <span className={styles['db-drawer-empty-t']}>
           {Icons.plus}
-          Додати референси
+          Додати посилання
         </span>
       </button>
     );
@@ -294,37 +317,55 @@ export function DesignBriefReferencesSection({ referenceLinks, onPatch }: Design
   return (
     <section className={cx(styles['db-drawer-block'], styles['db-drawer-block-refs'])}>
       <div className={styles['db-drawer-block-head']}>
-        <h3 className={styles['db-drawer-block-title']}>Референси</h3>
+        <h3 className={styles['db-drawer-block-title']}>Додаткові посилання</h3>
         <span className={styles['db-drawer-block-meta']}>{referenceLinks.length}</span>
       </div>
       <div className={styles['db-drawer-block-body']}>
         <ul className={styles['db-ref-list']}>
-          {referenceLinks.map((link) => (
+          {referenceLinks.map((link) => {
+            const href = resolveExternalHref(link.url);
+            return (
             <li key={link.id} className={styles['db-ref-row']}>
               <input
                 className={styles['db-ref-label']}
                 value={link.label ?? ''}
                 placeholder="Назва"
                 onChange={(e) => updateReference(link.id, { label: e.target.value })}
-                aria-label="Назва референсу"
+                aria-label="Назва посилання"
               />
               <input
                 className={styles['db-ref-url']}
                 value={link.url}
                 placeholder="https://…"
                 onChange={(e) => updateReference(link.id, { url: e.target.value })}
-                aria-label="Посилання на референс"
+                aria-label="URL посилання"
               />
+              {href ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles['db-ref-open']}
+                  aria-label="Відкрити в новому вікні"
+                >
+                  {Icons.openExternal}
+                </a>
+              ) : (
+                <span className={cx(styles['db-ref-open'], styles['db-ref-open-disabled'])} aria-hidden>
+                  {Icons.openExternal}
+                </span>
+              )}
               <button
                 type="button"
                 className={styles['db-ref-remove']}
                 onClick={() => removeReference(link.id)}
-                aria-label="Видалити референс"
+                aria-label="Видалити посилання"
               >
                 {Icons.trash}
               </button>
             </li>
-          ))}
+            );
+          })}
         </ul>
         <button type="button" className={styles['db-detail-add']} onClick={addReference}>
           {Icons.plus}

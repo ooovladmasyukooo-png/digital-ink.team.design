@@ -26,6 +26,7 @@ interface TaskListTreeProps {
   armedDeleteId: string | null;
   onArmDelete: (id: string | null) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onUpdateRoot: (id: string, patch: TaskPatch) => void;
   onUpdateSubtask: (rootId: string, path: string[], patch: TaskPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
@@ -43,6 +44,7 @@ interface SubtaskBranchProps {
   armedDeleteId: string | null;
   onArmDelete: (id: string | null) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onToggleExpand: (rootId: string, path: string[]) => void;
   onUpdateSubtask: (rootId: string, path: string[], patch: TaskPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
@@ -78,6 +80,7 @@ function SubtaskBranch({
   armedDeleteId,
   onArmDelete,
   onDelete,
+  onDuplicate,
   onToggleExpand,
   onUpdateSubtask,
   onAddSubtask,
@@ -111,7 +114,9 @@ function SubtaskBranch({
         armedDeleteId={armedDeleteId}
         onArmDelete={onArmDelete}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
         deleteTaskId={key}
+        duplicateTaskId={key}
       />
       {expanded ? (
         <>
@@ -128,6 +133,7 @@ function SubtaskBranch({
               armedDeleteId={armedDeleteId}
               onArmDelete={onArmDelete}
               onDelete={onDelete}
+              onDuplicate={onDuplicate}
               onToggleExpand={onToggleExpand}
               onUpdateSubtask={onUpdateSubtask}
               onAddSubtask={onAddSubtask}
@@ -154,6 +160,7 @@ export function TaskListTree({
   armedDeleteId,
   onArmDelete,
   onDelete,
+  onDuplicate,
   onUpdateRoot,
   onUpdateSubtask,
   onAddSubtask,
@@ -188,7 +195,9 @@ export function TaskListTree({
         armedDeleteId={armedDeleteId}
         onArmDelete={onArmDelete}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
         deleteTaskId={task.id}
+        duplicateTaskId={task.id}
       />
       {expanded ? (
         <>
@@ -205,6 +214,7 @@ export function TaskListTree({
               armedDeleteId={armedDeleteId}
               onArmDelete={onArmDelete}
               onDelete={onDelete}
+              onDuplicate={onDuplicate}
               onToggleExpand={onToggleExpand}
               onUpdateSubtask={onUpdateSubtask}
               onAddSubtask={onAddSubtask}

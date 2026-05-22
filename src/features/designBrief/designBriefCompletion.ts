@@ -1,7 +1,7 @@
 import type { Status, DesignBrief, DesignBriefPatch, DesignBriefSubtask } from './types';
 
 export function isCompletedStatus(status: Status): boolean {
-  return status === 'done' || status === 'archive';
+  return status === 'closed';
 }
 
 export function completionNowIso(now = new Date()): string {

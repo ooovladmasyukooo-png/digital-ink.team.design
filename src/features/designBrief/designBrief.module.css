@@ -11,7 +11,6 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  height: 62px;
   min-height: 62px;
   border-bottom: 1px solid var(--line);
   background: var(--bg);
@@ -78,9 +77,13 @@
   flex-shrink: 0;
   height: 26px;
   min-height: 26px;
-  padding: 0 var(--db-content-x) 0 var(--db-rail-x);
+  padding: 0 calc(var(--db-content-x) + 10px) 0 var(--db-rail-x);
   gap: 10px;
   overflow: visible;
+}
+
+.db-stacked-header .db-stacked-tabs-bar {
+  border-top: 1px dashed color-mix(in oklab, var(--line) 58%, transparent);
 }
 
 .db-viewer-wrap {
@@ -325,26 +328,63 @@
 }
 
 .db-design-brief-header {
-  flex-shrink: 0;
-  padding-right: 18px !important;
-  padding-left: calc(var(--db-content-x) + 10px) !important;
-}
-
-.db-design-brief-subhead {
   display: flex;
   flex-shrink: 0;
-  justify-content: flex-end;
   align-items: center;
-  min-height: 0;
-  padding: 0 calc(var(--db-content-x) + 10px);
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding: 5px calc(var(--db-content-x) + 10px) 5px var(--db-content-x);
+  background: var(--bg);
 }
 
-.db-design-brief-subhead .db-viewer-wrap {
-  margin-left: 0;
+.db-design-brief-header-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.db-design-brief-header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.db-design-brief-header-title {
+  margin: 0;
+  color: var(--txt);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.db-design-brief-header-count {
+  flex-shrink: 0;
+  padding: 1px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--txt-3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.db-design-brief-header-action {
+  flex-shrink: 0;
+}
+
+.db-design-brief-header-action :global(.red-out-btn) {
+  min-height: 26px;
+  padding: 3px 9px;
+  font-size: 12px;
 }
 
 .db-by-date.db-design-brief-list {
-  padding-top: 0;
+  padding-top: 16px;
 }
 
 .db-design-brief-list .db-group:first-of-type {
@@ -357,38 +397,39 @@
 
 /* —— Списки задач: за датами, напрямками (спільні відступи) —— */
 .db-by-date {
-  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 28px;
+  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 56px;
   --db-row-inner: 28px;
   --db-row-pad-y: 2px;
   --db-tree-indent: 20px;
   --db-line: color-mix(in oklab, var(--line) 32%, transparent);
   padding: 18px var(--db-content-x) 36px;
+  width: 100%;
   max-width: 1200px;
 }
 
 /* Архів: ширша колонка «Викон.» */
 .db-archive {
-  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 28px;
+  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 56px;
 }
 
 /* Особисті: без колонки «Проєкт» */
 .db-personal {
-  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px 28px;
+  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px 56px;
 }
 
 /* Делеговані: як «За датами», з колонкою «Проєкт» */
 .db-delegated {
-  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px minmax(0, 156px) 28px;
+  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px minmax(0, 156px) 56px;
 }
 
 /* Done у профілі спеціаліста: проєкт + дата виконання */
 .db-group-with-completed {
-  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 28px;
+  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 56px;
 }
 
-.db-personal .db-table,
-.db-delegated .db-table {
+.db-table {
   width: 100%;
+  min-width: 0;
 }
 
 .db-group-empty {
@@ -414,17 +455,18 @@
   border-left-color: color-mix(in oklab, #a78bfa 45%, transparent);
 }
 
-.db-group-status-green .db-group-head {
-  border-left-color: color-mix(in oklab, #34d399 45%, transparent);
+.db-group-status-amber .db-group-head {
+  border-left-color: color-mix(in oklab, #d4a017 45%, transparent);
 }
 
-.db-table {
-  min-width: 0;
+.db-group-status-green .db-group-head {
+  border-left-color: color-mix(in oklab, #34d399 45%, transparent);
 }
 
 .db-cols,
 .db-row {
   display: grid;
+  width: 100%;
   grid-template-columns: var(--db-grid);
   align-items: center;
   column-gap: 4px;
@@ -672,6 +714,7 @@
   background: var(--bg-2);
 }
 
+.db-row:hover .db-row-dup,
 .db-row:hover .db-row-del {
   opacity: 1;
   pointer-events: auto;
@@ -1376,8 +1419,10 @@
 .db-row-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 2px;
 }
 
+.db-row-dup,
 .db-row-del {
   display: flex;
   width: 24px;
@@ -1395,11 +1440,13 @@
   transition: opacity 0.1s ease, color 0.1s ease, background 0.1s ease;
 }
 
+.db-row-dup svg,
 .db-row-del svg {
   width: 12px;
   height: 12px;
 }
 
+.db-row-dup:hover,
 .db-row-del:hover {
   background: var(--bg-3);
   color: var(--txt-3);
@@ -1616,7 +1663,7 @@
   white-space: nowrap;
 }
 
-/* Slate — Inbox, Archive */
+/* Slate — Closed */
 .db-status-slate {
   --status-bg: oklch(0.3 0.012 260 / 55%);
   --status-fg: oklch(0.84 0.015 260);
@@ -1634,7 +1681,7 @@
   --status-icon-fg: oklch(0.86 0.01 260);
 }
 
-/* Blue — Doing */
+/* Blue — Ready for design */
 .db-status-blue {
   --status-bg: oklch(0.32 0.11 250 / 42%);
   --status-fg: #93c5fd;
@@ -1643,13 +1690,22 @@
   --status-icon-fg: #60a5fa;
 }
 
-/* Purple — Control */
+/* Purple — In design */
 .db-status-purple {
   --status-bg: oklch(0.32 0.14 305 / 42%);
   --status-fg: #c4b5fd;
   --status-border: oklch(0.42 0.14 305 / 55%);
   --status-icon-bg: oklch(0.3 0.14 305 / 55%);
   --status-icon-fg: #a78bfa;
+}
+
+/* Amber — Approve */
+.db-status-amber {
+  --status-bg: oklch(0.34 0.08 85 / 42%);
+  --status-fg: #fcd34d;
+  --status-border: oklch(0.44 0.1 85 / 55%);
+  --status-icon-bg: oklch(0.32 0.09 85 / 55%);
+  --status-icon-fg: #fbbf24;
 }
 
 /* Green — Done */
@@ -1693,6 +1749,14 @@
   --status-icon-fg: #7c3aed;
 }
 
+[data-theme='light'] .db-status-amber {
+  --status-bg: oklch(0.95 0.05 85);
+  --status-fg: #92400e;
+  --status-border: oklch(0.84 0.08 85);
+  --status-icon-bg: oklch(0.9 0.07 85);
+  --status-icon-fg: #b45309;
+}
+
 [data-theme='light'] .db-status-green {
   --status-bg: oklch(0.93 0.05 160);
   --status-fg: #047857;
@@ -1715,6 +1779,21 @@
   color: var(--txt-3);
   font-size: 12px;
   text-align: center;
+}
+
+.db-picker-heading {
+  padding: 8px 10px 4px;
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.db-picker-heading:not(:first-child) {
+  margin-top: 4px;
+  border-top: 1px solid color-mix(in oklab, var(--line) 45%, transparent);
+  padding-top: 10px;
 }
 
 .db-picker-item {
@@ -1853,17 +1932,24 @@
 }
 
 .db-detail-head-page {
+  flex-direction: row;
+  align-items: center;
   gap: 0;
-  padding: 8px 20px 10px var(--db-content-x);
+  min-height: 40px;
+  padding: 8px 18px 10px calc(var(--db-content-x) + 10px);
 }
 
 .db-detail-head-page .db-detail-head-row {
+  width: 100%;
   gap: 12px;
+  min-height: 22px;
 }
 
 .db-detail-head-page .db-detail-crumb {
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 22px;
+  align-items: center;
 }
 
 .db-detail-head-row {
@@ -1927,6 +2013,9 @@
 }
 
 .db-detail-page {
+  --db-line: color-mix(in oklab, var(--line) 28%, transparent);
+  --db-drawer-x: 24px;
+  --db-drawer-divider: 1px dashed color-mix(in oklab, var(--line) 58%, transparent);
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -1960,6 +2049,11 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.db-detail-page-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .db-drawer-creator-av {
@@ -2444,11 +2538,50 @@
 }
 
 .db-drawer-block-meta {
-  margin-left: auto;
   color: var(--txt-4);
   font-family: 'JetBrains Mono', monospace;
   font-size: 9.5px;
   font-weight: 500;
+}
+
+.db-drawer-block-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.db-materials-archive-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border: 1px solid color-mix(in oklab, var(--line) 35%, transparent);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--bg-2) 40%, var(--bg));
+  color: var(--txt-3);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    color 0.12s ease;
+}
+
+.db-materials-archive-btn:hover,
+.db-materials-archive-btn:focus-visible {
+  border-color: color-mix(in oklab, var(--line) 55%, transparent);
+  background: color-mix(in oklab, var(--bg-2) 60%, var(--bg));
+  color: var(--txt);
+  outline: none;
+}
+
+.db-materials-archive-btn :global(svg) {
+  width: 12px;
+  height: 12px;
 }
 
 .db-drawer-block-body {
@@ -3329,7 +3462,7 @@ button.db-comment-attachment-link {
 
 .db-ref-row {
   display: grid;
-  grid-template-columns: minmax(88px, 0.45fr) minmax(0, 1fr) 28px;
+  grid-template-columns: minmax(80px, 0.4fr) minmax(0, 1fr) 28px 28px;
   gap: 6px;
   align-items: center;
 }
@@ -3357,6 +3490,36 @@ button.db-comment-attachment-link {
   color: var(--txt-4);
 }
 
+.db-ref-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid color-mix(in oklab, var(--line) 28%, transparent);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--bg-2) 38%, var(--bg));
+  color: var(--txt-3);
+  line-height: 0;
+  text-decoration: none;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.db-ref-open:hover {
+  border-color: color-mix(in oklab, var(--line) 50%, transparent);
+  color: var(--blue);
+}
+
+.db-ref-open-disabled {
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.db-ref-open :global(svg) {
+  width: 12px;
+  height: 12px;
+}
+
 .db-ref-remove {
   display: inline-flex;
   align-items: center;
@@ -3379,4 +3542,158 @@ button.db-comment-attachment-link {
 .db-ref-remove :global(svg) {
   width: 13px;
   height: 13px;
+}
+
+/* —— Референс / відео матеріали (ТЗ) —— */
+.db-detail-material-field {
+  min-width: 0;
+}
+
+.db-detail-row-material {
+  align-items: start;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.db-materials-grid-compact {
+  gap: 6px;
+}
+
+.db-material-thumb-compact,
+.db-material-add-compact {
+  width: 48px;
+  height: 48px;
+}
+
+.db-material-add-compact :global(svg) {
+  width: 14px;
+  height: 14px;
+}
+
+.db-drawer-block-materials {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-top: var(--db-drawer-divider);
+}
+
+.db-drawer-block-materials-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  border-top: var(--db-drawer-divider);
+}
+
+.db-materials-file-input {
+  display: none;
+}
+
+.db-materials-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.db-material-item {
+  position: relative;
+}
+
+.db-material-thumb,
+.db-material-add {
+  display: block;
+  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 1px solid color-mix(in oklab, var(--line) 28%, transparent);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--bg-2) 38%, var(--bg));
+  cursor: pointer;
+}
+
+.db-material-add {
+  display: grid;
+  place-items: center;
+  color: var(--txt-3);
+  font: inherit;
+}
+
+.db-material-add:hover {
+  border-color: color-mix(in oklab, var(--line) 50%, transparent);
+  color: var(--txt);
+}
+
+.db-material-add :global(svg) {
+  width: 16px;
+  height: 16px;
+}
+
+.db-material-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.db-material-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 28%);
+  color: #fff;
+  pointer-events: none;
+}
+
+.db-material-play :global(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.db-material-thumb {
+  position: relative;
+}
+
+.db-material-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 55%);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.db-material-item:hover .db-material-remove,
+.db-material-item:focus-within .db-material-remove {
+  opacity: 1;
+}
+
+.db-material-remove :global(svg) {
+  width: 10px;
+  height: 10px;
+}
+
+.db-materials-hint {
+  margin: 6px 0 0;
+  color: var(--txt-4);
+  font-size: 10.5px;
+}
+
+.db-materials-error {
+  margin: 4px 0 0;
+  color: var(--red);
+  font-size: 11px;
 }

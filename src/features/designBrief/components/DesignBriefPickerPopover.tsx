@@ -51,6 +51,7 @@ export interface TaskPickerItem {
   label: ReactNode;
   searchText?: string;
   selected?: boolean;
+  kind?: 'option' | 'heading';
 }
 
 export interface TaskPickerClearOption {
@@ -131,6 +132,7 @@ export function DesignBriefPickerPopover({
 
   const filtered = searchable
     ? items.filter((item) => {
+        if (item.kind === 'heading') return false;
         const q = query.trim().toLowerCase();
         if (!q) return true;
         return (item.searchText ?? '').toLowerCase().includes(q);
@@ -170,23 +172,29 @@ export function DesignBriefPickerPopover({
         {filtered.length === 0 ? (
           <div className={styles['db-picker-empty']}>Нічого не знайдено</div>
         ) : (
-          filtered.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              role="option"
-              aria-selected={item.selected}
-              className={cx(styles['db-picker-item'], item.selected && styles['db-picker-item-on'])}
-              onClick={() => pick(item.id)}
-            >
-              <span className={styles['db-picker-item-body']}>{item.label}</span>
-              {item.selected ? (
-                <span className={styles['db-picker-check']} aria-hidden>
-                  {Icons.check}
-                </span>
-              ) : null}
-            </button>
-          ))
+          filtered.map((item) =>
+            item.kind === 'heading' ? (
+              <div key={item.id} className={styles['db-picker-heading']} role="presentation">
+                {item.label}
+              </div>
+            ) : (
+              <button
+                key={item.id}
+                type="button"
+                role="option"
+                aria-selected={item.selected}
+                className={cx(styles['db-picker-item'], item.selected && styles['db-picker-item-on'])}
+                onClick={() => pick(item.id)}
+              >
+                <span className={styles['db-picker-item-body']}>{item.label}</span>
+                {item.selected ? (
+                  <span className={styles['db-picker-check']} aria-hidden>
+                    {Icons.check}
+                  </span>
+                ) : null}
+              </button>
+            ),
+          )
         )}
       </div>
       {clearOption ? (

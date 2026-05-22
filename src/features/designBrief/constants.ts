@@ -1,4 +1,6 @@
 import type { Priority, Status, DesignBrief, DesignBriefRecurrenceKind, DesignBriefFormat, DesignBriefSize, DesignBriefCopyVariant } from './types';
+import type { DateGroupId } from '../tasks/types';
+import { defaultDeadlineForGroup } from '../tasks/dateGroups';
 
 /** Демо: автор ТЗ (Андрій Мельник). */
 export const DESIGN_BRIEF_CREATOR_ID = 'andrii';
@@ -8,18 +10,24 @@ export const DESIGN_BRIEF_DEFAULT_ASSIGNEE_ID = 'nina';
 
 export type Stage = 'todo' | 'inprogress' | 'complete';
 
-export type StatusTone = 'slate' | 'gray' | 'blue' | 'purple' | 'green';
+export type StatusTone = 'slate' | 'gray' | 'blue' | 'purple' | 'amber' | 'green';
+
+export const STAGE_LABELS: Record<Stage, string> = {
+  todo: 'To do',
+  inprogress: 'In progress',
+  complete: 'Complete',
+};
 
 export const STATUS_META: Record<
   Status,
   { stage: Stage; label: string; rank: number; tone: StatusTone }
 > = {
-  inbox: { stage: 'todo', label: 'Inbox', rank: 0, tone: 'slate' },
-  new: { stage: 'todo', label: 'New', rank: 1, tone: 'gray' },
-  doing: { stage: 'inprogress', label: 'Doing', rank: 2, tone: 'blue' },
-  control: { stage: 'inprogress', label: 'Control', rank: 3, tone: 'purple' },
-  done: { stage: 'complete', label: 'Done', rank: 4, tone: 'green' },
-  archive: { stage: 'complete', label: 'Archive', rank: 5, tone: 'slate' },
+  new: { stage: 'todo', label: 'New', rank: 0, tone: 'gray' },
+  ready: { stage: 'todo', label: 'Ready for design', rank: 1, tone: 'blue' },
+  in_design: { stage: 'inprogress', label: 'In design', rank: 2, tone: 'purple' },
+  approve: { stage: 'inprogress', label: 'Approve', rank: 3, tone: 'amber' },
+  done: { stage: 'inprogress', label: 'Done', rank: 4, tone: 'green' },
+  closed: { stage: 'complete', label: 'Closed', rank: 5, tone: 'slate' },
 };
 
 export const PRIORITIES: Record<Priority, { label: string; short: string; rank: number; tone: 'red' | 'blue' | 'gray' }> = {
@@ -73,7 +81,7 @@ export function createNewDesignBrief(
   return {
     id,
     title: 'Нове ТЗ',
-    status: 'inbox',
+    status: 'new',
     priority: null,
     deadline: null,
     completedAt: null,
@@ -85,6 +93,8 @@ export function createNewDesignBrief(
     format: null,
     sizes: [],
     referenceLinks: [],
+    referenceMaterials: [],
+    videoMaterials: [],
     copyVariants: [createEmptyCopyVariant()],
     description: '',
     checkItems: [],
@@ -104,4 +114,25 @@ export function createNewDesignBriefForStatus(
     ...createNewDesignBrief(id, assigneeId, creatorId),
     status,
   };
+}
+
+export function createNewDesignBriefForGroup(
+  groupId: DateGroupId,
+  id: string,
+  now = new Date(),
+  assigneeId = DESIGN_BRIEF_DEFAULT_ASSIGNEE_ID,
+  creatorId = DESIGN_BRIEF_CREATOR_ID,
+): DesignBrief {
+  return {
+    ...createNewDesignBrief(id, assigneeId, creatorId),
+    deadline: defaultDeadlineForGroup(groupId, now),
+  };
+}
+
+export function createNewDesignBriefForMember(
+  memberId: string,
+  id: string,
+  creatorId = DESIGN_BRIEF_CREATOR_ID,
+): DesignBrief {
+  return createNewDesignBrief(id, memberId, creatorId);
 }

@@ -21,6 +21,7 @@ export function TasksByDateView({ workspace }: TasksByDateViewProps) {
     updateSubtaskAtPath,
     addSubtaskAtPath,
     deleteTask,
+    duplicateTask,
     addTask,
   } = workspace;
 
@@ -38,6 +39,7 @@ export function TasksByDateView({ workspace }: TasksByDateViewProps) {
               onToggleTreeExpand={toggleTreeExpand}
               onArmDelete={setArmedDeleteId}
               onDelete={deleteTask}
+              onDuplicate={duplicateTask}
               onUpdate={updateTask}
               onUpdateSubtask={updateSubtaskAtPath}
               onAddSubtask={addSubtaskAtPath}

@@ -21,6 +21,7 @@ export function TasksDelegatedView({ workspace }: TasksDelegatedViewProps) {
     updateSubtaskAtPath,
     addSubtaskAtPath,
     deleteTask,
+    duplicateTask,
     addTaskForDelegated,
   } = workspace;
 
@@ -43,6 +44,7 @@ export function TasksDelegatedView({ workspace }: TasksDelegatedViewProps) {
             onToggleTreeExpand={toggleTreeExpand}
             onArmDelete={setArmedDeleteId}
             onDelete={deleteTask}
+            onDuplicate={duplicateTask}
             onUpdate={updateTask}
             onUpdateSubtask={updateSubtaskAtPath}
             onAddSubtask={addSubtaskAtPath}

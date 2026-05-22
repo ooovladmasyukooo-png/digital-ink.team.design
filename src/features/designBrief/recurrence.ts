@@ -218,5 +218,5 @@ export function spawnRecurringDesignBrief(brief: DesignBrief, newId: string, now
 }
 
 export function shouldSpawnRecurring(prev: DesignBrief, patch: { status?: DesignBrief['status'] }): boolean {
-  return patch.status === 'done' && prev.status !== 'done' && prev.recurrenceRule !== null;
+  return patch.status === 'closed' && prev.status !== 'closed' && prev.recurrenceRule !== null;
 }

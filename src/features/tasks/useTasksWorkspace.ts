@@ -26,6 +26,7 @@ import {
   removeSubtaskAtPath,
   taskFromSubtask,
 } from './subtaskTask';
+import { duplicateTaskTarget } from './taskDuplicate';
 import { collapseTreeBranch, expandTreeBranch, treeRowKey } from './taskTree';
 import type { DateGroupId, Status, Task, TaskPatch, TaskSubtask } from './types';
 
@@ -107,6 +108,11 @@ export function useTasksWorkspace(viewerId = TASK_CREATOR_ASSIGNEE_ID) {
       const clone = spawnRecurringTask(next, allocateTaskId());
       return prev.map((task, i) => (i === idx ? next : task)).concat(clone);
     });
+  }, []);
+
+  const duplicateTask = useCallback((targetId: string) => {
+    setArmedDeleteId(null);
+    setTasks((prev) => duplicateTaskTarget(prev, targetId, allocateTaskId()));
   }, []);
 
   const deleteTask = useCallback((targetId: string) => {
@@ -264,6 +270,7 @@ export function useTasksWorkspace(viewerId = TASK_CREATOR_ASSIGNEE_ID) {
     updateArchiveItem,
     addSubtaskAtPath,
     deleteTask,
+    duplicateTask,
     addTask,
     addTaskForProject,
     addTaskForPersonal,

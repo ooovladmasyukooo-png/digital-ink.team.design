@@ -1,4 +1,4 @@
-export type Status = 'inbox' | 'new' | 'doing' | 'control' | 'done' | 'archive';
+export type Status = 'new' | 'ready' | 'in_design' | 'approve' | 'done' | 'closed';
 export type Priority = 'high' | 'medium' | 'low';
 
 /** 0 = понеділок … 6 = неділя (як у календарі дедлайну). */
@@ -17,6 +17,8 @@ export type LegacyDesignBriefRecurrenceRule = 'daily' | 'weekly' | 'monthly' | '
 export type DesignBriefFormat = 'static' | 'video';
 export type DesignBriefSize = '1:1' | '4:5' | '16:9' | '9:16';
 
+export type DesignBriefViewTabId = 'by-date' | 'by-status' | 'by-people' | 'archive';
+
 export interface DesignBriefReferenceLink {
   id: string;
   url: string;
@@ -26,6 +28,14 @@ export interface DesignBriefReferenceLink {
 export interface DesignBriefCopyVariant {
   id: string;
   body: string;
+}
+
+export interface DesignBriefMaterial {
+  id: string;
+  name: string;
+  dataUrl: string;
+  mimeType: string;
+  kind: 'image' | 'video';
 }
 
 export interface DesignBriefCheckItem {
@@ -86,6 +96,8 @@ export interface DesignBrief {
   format: DesignBriefFormat | null;
   sizes: DesignBriefSize[];
   referenceLinks: DesignBriefReferenceLink[];
+  referenceMaterials: DesignBriefMaterial[];
+  videoMaterials: DesignBriefMaterial[];
   copyVariants: DesignBriefCopyVariant[];
   description: string;
   checkItems: DesignBriefCheckItem[];
@@ -110,6 +122,8 @@ export type DesignBriefPatch = Partial<
     | 'format'
     | 'sizes'
     | 'referenceLinks'
+    | 'referenceMaterials'
+    | 'videoMaterials'
     | 'copyVariants'
     | 'description'
     | 'checkItems'

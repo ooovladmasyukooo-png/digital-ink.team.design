@@ -1,5 +1,5 @@
 import type { FeatureId } from '../shared/types/common';
-import type { ProjectSubtabId } from '../features/projects/types';
+import type { ProjectSubtabId } from '../features/projects2/types';
 import type { TeamSubtabId } from '../features/team/types';
 
 export const FEATURE_IDS: FeatureId[] = [
@@ -14,11 +14,28 @@ export const FEATURE_IDS: FeatureId[] = [
 ];
 
 const TEAM_SUBTAB_IDS: TeamSubtabId[] = ['profile', 'tasks', 'payouts', 'effectiveness', 'settings'];
-const PROJECT_SUBTAB_IDS: ProjectSubtabId[] = ['profile', 'payouts', 'effectiveness', 'settings'];
+const PROJECT_SUBTAB_IDS: ProjectSubtabId[] = [
+  'profile',
+  'tasks',
+  'documents',
+  'daily-reports',
+  'bookings',
+  'design-brief',
+  'invoices',
+  'settings',
+];
 
 /** Непрофільні підвкладки в pathname (англійські сегменти). */
 const TEAM_PATH_SUBTAB_IDS: Exclude<TeamSubtabId, 'profile'>[] = ['tasks', 'payouts', 'effectiveness', 'settings'];
-const PROJECT_PATH_SUBTAB_IDS: Exclude<ProjectSubtabId, 'profile'>[] = ['payouts', 'effectiveness', 'settings'];
+const PROJECT_PATH_SUBTAB_IDS: Exclude<ProjectSubtabId, 'profile'>[] = [
+  'tasks',
+  'documents',
+  'daily-reports',
+  'bookings',
+  'design-brief',
+  'invoices',
+  'settings',
+];
 
 export function parseTeamSubtab(raw: string | null): TeamSubtabId {
   const t = raw?.trim().toLowerCase();
@@ -54,7 +71,6 @@ function parseProfileFeature(
   parts: string[],
   params: URLSearchParams,
 ): Pick<ParsedLocation, 'feature' | 'teamProfileId' | 'teamSubtab' | 'project2ProfileId' | 'project2Subtab'> {
-  const pathSubtabs = feature === 'team' ? TEAM_PATH_SUBTAB_IDS : PROJECT_PATH_SUBTAB_IDS;
   const parseSubtab = feature === 'team' ? parseTeamSubtab : parseProjectSubtab;
   const seg2 = parts[1]?.toLowerCase();
 
@@ -76,12 +92,15 @@ function parseProfileFeature(
     return { ...empty, project2ProfileId: id, project2Subtab: subtab as ProjectSubtabId };
   }
 
-  if (seg2 && pathSubtabs.includes(seg2 as (typeof pathSubtabs)[number])) {
-    const raw = params.get('id');
-    const id = raw?.trim() ? raw.trim() : null;
-    if (feature === 'team') {
+  if (feature === 'team') {
+    if (seg2 && TEAM_PATH_SUBTAB_IDS.includes(seg2 as (typeof TEAM_PATH_SUBTAB_IDS)[number])) {
+      const raw = params.get('id');
+      const id = raw?.trim() ? raw.trim() : null;
       return { ...empty, teamProfileId: id, teamSubtab: seg2 as TeamSubtabId };
     }
+  } else if (seg2 && PROJECT_PATH_SUBTAB_IDS.includes(seg2 as (typeof PROJECT_PATH_SUBTAB_IDS)[number])) {
+    const raw = params.get('id');
+    const id = raw?.trim() ? raw.trim() : null;
     return { ...empty, project2ProfileId: id, project2Subtab: seg2 as ProjectSubtabId };
   }
 

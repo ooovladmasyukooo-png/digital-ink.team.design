@@ -10,11 +10,12 @@ import { treeRowKey } from '../designBriefTree';
 import type { DesignBrief, DesignBriefPatch, DesignBriefSubtask } from '../types';
 import { DesignBriefRow } from './DesignBriefRow';
 
-export type DesignBriefListVariant = 'default' | 'personal' | 'withCompleted';
+export type DesignBriefListVariant = 'default' | 'personal' | 'withCompleted' | 'archive';
 
-function taskRowVariant(listVariant: DesignBriefListVariant): 'default' | 'personal' | 'withCompleted' {
+function taskRowVariant(listVariant: DesignBriefListVariant): 'default' | 'archive' | 'personal' | 'withCompleted' {
   if (listVariant === 'personal') return 'personal';
   if (listVariant === 'withCompleted') return 'withCompleted';
+  if (listVariant === 'archive') return 'archive';
   return 'default';
 }
 
@@ -26,6 +27,7 @@ interface DesignBriefListTreeProps {
   armedDeleteId: string | null;
   onArmDelete: (id: string | null) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onUpdateRoot: (id: string, patch: DesignBriefPatch) => void;
   onUpdateSubtask: (rootId: string, path: string[], patch: DesignBriefPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: DesignBriefSubtask) => void;
@@ -43,6 +45,7 @@ interface SubtaskBranchProps {
   armedDeleteId: string | null;
   onArmDelete: (id: string | null) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onToggleExpand: (rootId: string, path: string[]) => void;
   onUpdateSubtask: (rootId: string, path: string[], patch: DesignBriefPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: DesignBriefSubtask) => void;
@@ -78,6 +81,7 @@ function SubtaskBranch({
   armedDeleteId,
   onArmDelete,
   onDelete,
+  onDuplicate,
   onToggleExpand,
   onUpdateSubtask,
   onAddSubtask,
@@ -111,7 +115,9 @@ function SubtaskBranch({
         armedDeleteId={armedDeleteId}
         onArmDelete={onArmDelete}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
         deleteBriefId={key}
+        duplicateBriefId={key}
       />
       {expanded ? (
         <>
@@ -128,6 +134,7 @@ function SubtaskBranch({
               armedDeleteId={armedDeleteId}
               onArmDelete={onArmDelete}
               onDelete={onDelete}
+              onDuplicate={onDuplicate}
               onToggleExpand={onToggleExpand}
               onUpdateSubtask={onUpdateSubtask}
               onAddSubtask={onAddSubtask}
@@ -154,6 +161,7 @@ export function DesignBriefListTree({
   armedDeleteId,
   onArmDelete,
   onDelete,
+  onDuplicate,
   onUpdateRoot,
   onUpdateSubtask,
   onAddSubtask,
@@ -188,7 +196,9 @@ export function DesignBriefListTree({
         armedDeleteId={armedDeleteId}
         onArmDelete={onArmDelete}
         onDelete={onDelete}
+        onDuplicate={onDuplicate}
         deleteBriefId={brief.id}
+        duplicateBriefId={brief.id}
       />
       {expanded ? (
         <>
@@ -205,6 +215,7 @@ export function DesignBriefListTree({
               armedDeleteId={armedDeleteId}
               onArmDelete={onArmDelete}
               onDelete={onDelete}
+              onDuplicate={onDuplicate}
               onToggleExpand={onToggleExpand}
               onUpdateSubtask={onUpdateSubtask}
               onAddSubtask={onAddSubtask}

@@ -27,6 +27,7 @@ export function TeamMemberTasksTab({ memberId, onOpenTaskFullPage }: TeamMemberT
     updateSubtaskAtPath,
     addSubtaskAtPath,
     deleteTask,
+    duplicateTask,
     addTaskForMember,
     selectedTaskId,
   } = workspace;
@@ -60,6 +61,7 @@ export function TeamMemberTasksTab({ memberId, onOpenTaskFullPage }: TeamMemberT
               onToggleTreeExpand={toggleTreeExpand}
               onArmDelete={setArmedDeleteId}
               onDelete={deleteTask}
+              onDuplicate={duplicateTask}
               onUpdate={updateTask}
               onUpdateSubtask={updateSubtaskAtPath}
               onAddSubtask={addSubtaskAtPath}

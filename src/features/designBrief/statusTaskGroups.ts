@@ -10,7 +10,7 @@ const PRIORITY_SORT_RANK: Record<Priority, number> = {
 
 const NO_PRIORITY_SORT_RANK = 99;
 
-export const TASK_STATUS_TAB_ORDER: Status[] = ['inbox', 'new', 'doing', 'control', 'done'];
+export const TASK_STATUS_TAB_ORDER: Status[] = ['new', 'ready', 'in_design', 'approve', 'done'];
 
 export type StatusTaskGroup = {
   status: Status;

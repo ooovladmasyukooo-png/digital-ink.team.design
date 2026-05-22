@@ -1,18 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
+import { Avatar } from '../../../shared/components/Avatar';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
-import { STATUS_META } from '../constants';
+import { teamMembers } from '../../team/data';
 import styles from '../designBrief.module.css';
-import type { Status, DesignBrief, DesignBriefPatch, DesignBriefSubtask } from '../types';
+import type { DesignBrief, DesignBriefPatch, DesignBriefSubtask } from '../types';
 import { DesignBriefColumnsHeader } from './DesignBriefColumnsHeader';
 import { DesignBriefListTree } from './DesignBriefListTree';
 
-interface DesignBriefStatusGroupSectionProps {
-  status: Status;
+interface DesignBriefPeopleGroupSectionProps {
+  memberId: string;
   label: string;
   tasks: DesignBrief[];
-  /** Особисті — без «Проєкт»; withCompleted — колонка «Викон.» */
-  listVariant?: 'default' | 'personal' | 'withCompleted';
   armedDeleteId: string | null;
   expandedTreeKeys: ReadonlySet<string>;
   onToggleTreeExpand: (rootId: string, path: string[]) => void;
@@ -22,21 +21,12 @@ interface DesignBriefStatusGroupSectionProps {
   onUpdate: (id: string, patch: DesignBriefPatch) => void;
   onUpdateSubtask: (rootId: string, path: string[], patch: DesignBriefPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: DesignBriefSubtask) => void;
-  onAdd: (status: Status) => void;
+  onAdd: (memberId: string) => void;
   onOpenTask: (id: string, subtaskPath?: string[]) => void;
 }
 
-const STATUS_GROUP_CLASS: Record<string, string | undefined> = {
-  slate: styles['db-group-status-slate'],
-  gray: styles['db-group-status-gray'],
-  blue: styles['db-group-status-blue'],
-  purple: styles['db-group-status-purple'],
-  amber: styles['db-group-status-amber'],
-  green: styles['db-group-status-green'],
-};
-
-export function DesignBriefStatusGroupSection({
-  status,
+export function DesignBriefPeopleGroupSection({
+  memberId,
   label,
   tasks,
   armedDeleteId,
@@ -50,10 +40,10 @@ export function DesignBriefStatusGroupSection({
   onAddSubtask,
   onAdd,
   onOpenTask,
-  listVariant = 'default',
-}: DesignBriefStatusGroupSectionProps) {
+}: DesignBriefPeopleGroupSectionProps) {
   const [collapsed, setCollapsed] = useState(tasks.length === 0);
   const prevTaskCount = useRef(tasks.length);
+  const member = teamMembers.find((item) => item.id === memberId);
 
   useEffect(() => {
     if (tasks.length === 0) {
@@ -66,55 +56,44 @@ export function DesignBriefStatusGroupSection({
 
   const handleAdd = () => {
     setCollapsed(false);
-    onAdd(status);
+    onAdd(memberId);
   };
 
-  const tone = STATUS_META[status].tone;
-  const toneClass = STATUS_GROUP_CLASS[tone];
-  const headerVariant =
-    listVariant === 'personal' ? 'personal' : listVariant === 'withCompleted' ? 'withCompleted' : 'default';
-
   return (
-    <section
-      className={cx(
-        styles['db-group'],
-        styles['db-group-status'],
-        toneClass,
-        listVariant === 'withCompleted' && styles['db-group-with-completed'],
-      )}
-      aria-label={label}
-    >
+    <section className={cx(styles['db-group'], styles['db-group-project'])} aria-label={label}>
       <div className={styles['db-group-head']}>
         <button
           type="button"
           className={styles['db-group-toggle']}
-          onClick={() => setCollapsed((c) => !c)}
+          onClick={() => setCollapsed((value) => !value)}
           aria-expanded={!collapsed}
         >
           <span className={cx(styles['db-chev'], collapsed && styles['db-chev-closed'])}>{Icons.chevD}</span>
-          <span className={styles['db-group-title']}>{label}</span>
+          <span className={styles['db-group-project-title']}>
+            {member ? (
+              <span className={styles['db-group-project-av']}>
+                <Avatar name={member.name} hue={member.hue} size="sm" />
+              </span>
+            ) : null}
+            <span className={styles['db-group-project-name']}>{label}</span>
+          </span>
         </button>
         <span className={styles['db-group-count']}>{tasks.length}</span>
-        <button
-          type="button"
-          className={styles['db-group-add']}
-          aria-label={`Нове ТЗ: ${label}`}
-          onClick={handleAdd}
-        >
+        <button type="button" className={styles['db-group-add']} aria-label={`Нове ТЗ: ${label}`} onClick={handleAdd}>
           {Icons.plus}
         </button>
       </div>
 
       {!collapsed ? (
         <>
-          <DesignBriefColumnsHeader inGroup variant={headerVariant} />
+          <DesignBriefColumnsHeader inGroup variant="personal" />
           {tasks.length > 0 ? (
             <div className={styles['db-rows']}>
               {tasks.map((brief) => (
                 <DesignBriefListTree
                   key={brief.id}
                   brief={brief}
-                  listVariant={listVariant}
+                  listVariant="personal"
                   expandedKeys={expandedTreeKeys}
                   onToggleExpand={onToggleTreeExpand}
                   armedDeleteId={armedDeleteId}
@@ -129,9 +108,8 @@ export function DesignBriefStatusGroupSection({
               ))}
             </div>
           ) : (
-            <p className={styles['db-group-empty']}>Немає задач</p>
+            <p className={styles['db-group-empty']}>Немає ТЗ</p>
           )}
-
           <button type="button" className={styles['db-new-row']} onClick={handleAdd}>
             {Icons.plus}
             <span>Нове ТЗ</span>

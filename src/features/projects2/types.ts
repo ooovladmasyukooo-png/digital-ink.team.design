@@ -1,5 +1,19 @@
 export type ProjectStatus = 'active' | 'paused';
-export type ProjectSubtabId = 'profile' | 'payouts' | 'effectiveness' | 'settings';
+export type ProjectSubtabId =
+  | 'profile'
+  | 'tasks'
+  | 'documents'
+  | 'daily-reports'
+  | 'bookings'
+  | 'design-brief'
+  | 'invoices'
+  | 'settings';
+
+export interface ProjectQuickLinks {
+  instagram: string;
+  facebookAds: string;
+  googleDrive: string;
+}
 
 export interface Project {
   id: string;
@@ -20,6 +34,7 @@ export interface Project {
   telegram: string;
   telegramId: string;
   comments: string;
+  quickLinks: ProjectQuickLinks;
 }
 
 export type ProjectPatch = Partial<Omit<Project, 'id' | 'hue' | 'status'>>;

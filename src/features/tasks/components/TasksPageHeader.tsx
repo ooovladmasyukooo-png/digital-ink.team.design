@@ -15,33 +15,31 @@ const TASK_TABS: { id: TasksViewTabId; label: string; icon: ReactNode }[] = [
 
 interface TasksPageHeaderProps {
   activeTab: TasksViewTabId;
-  viewerId: string;
+  count: number;
   onTab: (tabId: TasksViewTabId) => void;
-  onViewerChange: (memberId: string) => void;
   onCreateTask: () => void;
+  viewerId: string;
+  onViewerChange: (memberId: string) => void;
 }
 
 export function TasksPageHeader({
   activeTab,
-  viewerId,
+  count,
   onTab,
-  onViewerChange,
   onCreateTask,
+  viewerId,
+  onViewerChange,
 }: TasksPageHeaderProps) {
   return (
     <header className={styles['ts-stacked-header']}>
       <div className={styles['ts-stacked-top']}>
-        <div className={styles['ts-title-row']}>
+        <div className={styles['ts-stacked-title-row']}>
           <h1 className={styles['ts-stacked-title']}>Задачі</h1>
-          <button
-            type="button"
-            className={styles['ts-title-add']}
-            aria-label="Додати задачу"
-            onClick={onCreateTask}
-          >
-            {Icons.plus}
-          </button>
+          <span className={styles['ts-tasks-header-count']}>{count}</span>
         </div>
+        <button className="red-out-btn" type="button" onClick={onCreateTask}>
+          {Icons.plus} Нова задача
+        </button>
       </div>
       <div className={styles['ts-stacked-tabs-bar']}>
         <nav className={styles['ts-stacked-tabs']} aria-label="Вкладки задач">

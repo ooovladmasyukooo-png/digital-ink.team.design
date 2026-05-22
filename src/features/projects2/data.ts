@@ -1,4 +1,17 @@
-import type { Project } from './types';
+import type { Project, ProjectQuickLinks } from './types';
+
+function instagramFromUsername(username: string): string {
+  const handle = username.replace(/^@/, '');
+  return `https://instagram.com/${handle}`;
+}
+
+function defaultQuickLinks(username: string, slug: string): ProjectQuickLinks {
+  return {
+    instagram: instagramFromUsername(username),
+    facebookAds: `https://business.facebook.com/adsmanager/manage/campaigns?project=${slug}`,
+    googleDrive: `https://drive.google.com/drive/folders/${slug}`,
+  };
+}
 
 export const projects: Project[] = [
   {
@@ -20,6 +33,7 @@ export const projects: Project[] = [
     telegram: '@black_ritual',
     telegramId: '671002211',
     comments: 'Флагманський проєкт мережі Digital Ink.',
+    quickLinks: defaultQuickLinks('@black.ritual.kyiv', 'black-ritual'),
   },
   {
     id: 'vlad-ink',
@@ -40,6 +54,7 @@ export const projects: Project[] = [
     telegram: '@vlad_ink',
     telegramId: '935551840',
     comments: 'Топ за відгуками клієнтів у 2025.',
+    quickLinks: defaultQuickLinks('@vlad.ink', 'vlad-ink'),
   },
   {
     id: 'maya-lines',
@@ -60,6 +75,7 @@ export const projects: Project[] = [
     telegram: '@maya_lines',
     telegramId: '678801209',
     comments: 'Високий repeat-rate по рекомендаціях.',
+    quickLinks: defaultQuickLinks('@maya.lines', 'maya-lines'),
   },
   {
     id: 'old-sailor',
@@ -80,6 +96,7 @@ export const projects: Project[] = [
     telegram: '@old_sailor',
     telegramId: '487003321',
     comments: 'Найстаріший проєкт у портфелі.',
+    quickLinks: defaultQuickLinks('@old.sailor.od', 'old-sailor'),
   },
   {
     id: 'neo-chrome',
@@ -100,6 +117,7 @@ export const projects: Project[] = [
     telegram: '@neo_chrome',
     telegramId: '504129077',
     comments: 'Тимчасово без онлайн-запису.',
+    quickLinks: defaultQuickLinks('@neo.chrome', 'neo-chrome'),
   },
   {
     id: 'sakura-hand',
@@ -120,5 +138,6 @@ export const projects: Project[] = [
     telegram: '@sakura_hand',
     telegramId: '9012345678',
     comments: 'Поп-ап формат, календар синхронізується вручну.',
+    quickLinks: defaultQuickLinks('@sakura.hand', 'sakura-hand'),
   },
 ];

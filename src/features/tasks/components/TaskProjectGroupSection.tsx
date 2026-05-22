@@ -18,6 +18,7 @@ interface TaskProjectGroupSectionProps {
   onToggleTreeExpand: (rootId: string, path: string[]) => void;
   onArmDelete: (id: string | null) => void;
   onDelete: (id: string) => void;
+  onDuplicate: (id: string) => void;
   onUpdate: (id: string, patch: TaskPatch) => void;
   onUpdateSubtask: (rootId: string, path: string[], patch: TaskPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
@@ -35,6 +36,7 @@ export function TaskProjectGroupSection({
   onToggleTreeExpand,
   onArmDelete,
   onDelete,
+  onDuplicate,
   onUpdate,
   onUpdateSubtask,
   onAddSubtask,
@@ -97,6 +99,7 @@ export function TaskProjectGroupSection({
                 armedDeleteId={armedDeleteId}
                 onArmDelete={onArmDelete}
                 onDelete={onDelete}
+                onDuplicate={onDuplicate}
                 onUpdateRoot={onUpdate}
                 onUpdateSubtask={onUpdateSubtask}
                 onAddSubtask={onAddSubtask}

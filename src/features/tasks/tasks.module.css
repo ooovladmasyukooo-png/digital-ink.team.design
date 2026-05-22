@@ -11,7 +11,6 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  height: 62px;
   min-height: 62px;
   border-bottom: 1px solid var(--line);
   background: var(--bg);
@@ -20,56 +19,46 @@
 
 .ts-stacked-top {
   display: flex;
-  flex: 0 0 36px;
+  flex: 0 0 auto;
   align-items: center;
-  height: 36px;
+  justify-content: space-between;
+  gap: 12px;
   min-height: 36px;
-  padding: 0 18px 0 var(--ts-content-x);
+  padding: 5px calc(var(--ts-content-x) + 10px) 5px var(--ts-content-x);
 }
 
-.ts-title-row {
+.ts-stacked-title-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  min-width: 0;
+  gap: 8px;
 }
 
 .ts-stacked-title {
   margin: 0;
   color: var(--txt);
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
-.ts-title-add {
-  display: grid;
-  width: 20px;
-  height: 20px;
+.ts-tasks-header-count {
   flex-shrink: 0;
-  place-items: center;
+  padding: 1px 7px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--bg-2);
-  color: var(--txt-2);
-  cursor: pointer;
-  padding: 0;
-  transition:
-    border-color 0.15s ease,
-    background 0.15s ease,
-    color 0.15s ease;
+  color: var(--txt-3);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
 }
 
-.ts-title-add:hover {
-  border-color: var(--line-2);
-  background: var(--bg-3);
-  color: var(--txt);
-}
-
-.ts-title-add :global(svg) {
-  width: 11px;
-  height: 11px;
+.ts-stacked-top :global(.red-out-btn) {
+  min-height: 26px;
+  padding: 3px 9px;
+  font-size: 12px;
 }
 
 .ts-stacked-tabs-bar {
@@ -78,9 +67,13 @@
   flex-shrink: 0;
   height: 26px;
   min-height: 26px;
-  padding: 0 var(--ts-content-x) 0 var(--ts-rail-x);
+  padding: 0 calc(var(--ts-content-x) + 10px) 0 var(--ts-rail-x);
   gap: 10px;
   overflow: visible;
+}
+
+.ts-stacked-header .ts-stacked-tabs-bar {
+  border-top: 1px dashed color-mix(in oklab, var(--line) 58%, transparent);
 }
 
 .ts-viewer-wrap {
@@ -318,6 +311,14 @@
   min-height: 0;
 }
 
+.ts-main .ts-by-date {
+  padding-top: 16px;
+}
+
+.ts-main .ts-by-date .ts-group:first-of-type {
+  margin-top: 0;
+}
+
 .ts-design-brief-shell {
   display: flex;
   min-height: 100%;
@@ -373,38 +374,39 @@
 
 /* —— Списки задач: за датами, напрямками (спільні відступи) —— */
 .ts-by-date {
-  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 28px;
+  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 56px;
   --ts-row-inner: 28px;
   --ts-row-pad-y: 2px;
   --ts-tree-indent: 20px;
   --ts-line: color-mix(in oklab, var(--line) 32%, transparent);
   padding: 18px var(--ts-content-x) 36px;
+  width: 100%;
   max-width: 1200px;
 }
 
 /* Архів: ширша колонка «Викон.» */
 .ts-archive {
-  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 28px;
+  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 56px;
 }
 
 /* Особисті: без колонки «Проєкт» */
 .ts-personal {
-  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px 28px;
+  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px 56px;
 }
 
 /* Делеговані: як «За датами», з колонкою «Проєкт» */
 .ts-delegated {
-  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px minmax(0, 156px) 28px;
+  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px minmax(0, 156px) 56px;
 }
 
 /* Done у профілі спеціаліста: проєкт + дата виконання */
 .ts-group-with-completed {
-  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 28px;
+  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 56px;
 }
 
-.ts-personal .ts-table,
-.ts-delegated .ts-table {
+.ts-table {
   width: 100%;
+  min-width: 0;
 }
 
 .ts-group-empty {
@@ -434,13 +436,10 @@
   border-left-color: color-mix(in oklab, #34d399 45%, transparent);
 }
 
-.ts-table {
-  min-width: 0;
-}
-
 .ts-cols,
 .ts-row {
   display: grid;
+  width: 100%;
   grid-template-columns: var(--ts-grid);
   align-items: center;
   column-gap: 4px;
@@ -688,6 +687,7 @@
   background: var(--bg-2);
 }
 
+.ts-row:hover .ts-row-dup,
 .ts-row:hover .ts-row-del {
   opacity: 1;
   pointer-events: auto;
@@ -1392,8 +1392,10 @@
 .ts-row-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 2px;
 }
 
+.ts-row-dup,
 .ts-row-del {
   display: flex;
   width: 24px;
@@ -1411,11 +1413,13 @@
   transition: opacity 0.1s ease, color 0.1s ease, background 0.1s ease;
 }
 
+.ts-row-dup svg,
 .ts-row-del svg {
   width: 12px;
   height: 12px;
 }
 
+.ts-row-dup:hover,
 .ts-row-del:hover {
   background: var(--bg-3);
   color: var(--txt-3);

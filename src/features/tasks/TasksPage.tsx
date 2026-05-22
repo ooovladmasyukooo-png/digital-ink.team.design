@@ -1,4 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ARCHIVE_GROUP_ORDER } from './archiveGroups';
+import { DATE_GROUP_ORDER } from './dateGroups';
+import { buildDelegatedGroups } from './delegatedGroups';
+import { buildPersonalGroups } from './personalGroups';
 import { TasksArchiveView } from './components/TasksArchiveView';
 import { TasksByAreaView } from './components/TasksByAreaView';
 import { TasksByDateView } from './components/TasksByDateView';
@@ -45,7 +49,33 @@ export function TasksPage() {
   const [urlSearch, setUrlSearch] = useState(readSearchFromUrl);
   const [viewerId, setViewerId] = useState(readViewerFromStorage);
   const workspace = useTasksWorkspace(viewerId);
-  const { panelTask, selectedTaskId, openTask, closeDetail } = workspace;
+  const {
+    panelTask,
+    selectedTaskId,
+    openTask,
+    closeDetail,
+    grouped,
+    projectGroups,
+    archiveGrouped,
+    tasks,
+  } = workspace;
+
+  const totalCount = useMemo(() => {
+    switch (activeTab) {
+      case 'by-date':
+        return DATE_GROUP_ORDER.reduce((sum, groupId) => sum + grouped[groupId].length, 0);
+      case 'by-area':
+        return projectGroups.reduce((sum, group) => sum + group.tasks.length, 0);
+      case 'personal':
+        return buildPersonalGroups(tasks, viewerId).reduce((sum, group) => sum + group.tasks.length, 0);
+      case 'delegated':
+        return buildDelegatedGroups(tasks, viewerId).reduce((sum, group) => sum + group.tasks.length, 0);
+      case 'archive':
+        return ARCHIVE_GROUP_ORDER.reduce((sum, groupId) => sum + archiveGrouped[groupId].length, 0);
+      default:
+        return 0;
+    }
+  }, [activeTab, archiveGrouped, grouped, projectGroups, tasks, viewerId]);
 
   const parsed = parseTasksSearch(urlSearch);
   const taskFull = parsed.full;
@@ -213,10 +243,11 @@ export function TasksPage() {
     <div className={styles['ts-shell']}>
       <TasksPageHeader
         activeTab={activeTab}
-        viewerId={viewerId}
+        count={totalCount}
         onTab={onTab}
-        onViewerChange={onViewerChange}
         onCreateTask={onCreateTask}
+        viewerId={viewerId}
+        onViewerChange={onViewerChange}
       />
       <div className={styles['ts-main']}>
         {activeTab === 'by-date' ? (

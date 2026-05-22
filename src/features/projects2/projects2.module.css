@@ -109,6 +109,39 @@
   min-width: 0;
 }
 
+.p2-quick-links-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.p2-quick-links-wrap :global(.red-out-btn) {
+  min-height: 26px;
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+.p2-quick-links-wrap.on :global(.red-out-btn) {
+  border-color: var(--btn-accent-outline-hover-border);
+  background: var(--btn-accent-outline-hover-bg);
+  color: var(--btn-accent-outline-hover-fg);
+}
+
+.p2-quick-links-menu {
+  top: calc(100% + 6px);
+  right: 0;
+  left: auto;
+  z-index: 120;
+  width: 196px;
+}
+
+.p2-quick-links-menu :global(.pop-tab-list) {
+  padding: 4px;
+}
+
+.p2-quick-links-menu :global(.pop-row) {
+  text-decoration: none;
+}
+
 /* Єдиний розмір для «Проєкти», «/» і назви проєкту */
 .p2-crumb-text {
   font-size: var(--p2-crumb-size);

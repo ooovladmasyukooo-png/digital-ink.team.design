@@ -12,6 +12,7 @@ export function ArchiveListRow({ item, workspace }: ArchiveListRowProps) {
     armedDeleteId,
     setArmedDeleteId,
     deleteTask,
+    duplicateTask,
     openTask,
     updateArchiveItem,
   } = workspace;
@@ -39,7 +40,9 @@ export function ArchiveListRow({ item, workspace }: ArchiveListRowProps) {
       armedDeleteId={armedDeleteId}
       onArmDelete={setArmedDeleteId}
       onDelete={deleteTask}
+      onDuplicate={duplicateTask}
       deleteTaskId={item.rowKey}
+      duplicateTaskId={item.rowKey}
     />
   );
 }

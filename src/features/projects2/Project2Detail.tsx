@@ -6,6 +6,16 @@ import { ProfileTab } from './tabs/ProfileTab';
 import styles from './projects2.module.css';
 import type { Project, ProjectPatch, ProjectSubtabId } from './types';
 
+const COMING_SOON_SUBTITLE: Partial<Record<ProjectSubtabId, string>> = {
+  tasks: 'Задачі проєкту у розробці.',
+  documents: 'Документи проєкту у розробці.',
+  'daily-reports': 'Щоденна звітність у розробці.',
+  bookings: 'Букінги у розробці.',
+  'design-brief': 'ТЗ дизайнеру для проєкту у розробці.',
+  invoices: 'Інвойси у розробці.',
+  settings: 'Додаткові налаштування проєкту у розробці.',
+};
+
 interface Project2DetailProps {
   project: Project;
   activeProjects: Project[];
@@ -73,7 +83,7 @@ export function Project2Detail({
 
   const save = (field: keyof ProjectPatch, value: string) => onSave(project.id, field, value);
 
-  const isComingSoonView = subtab === 'payouts' || subtab === 'effectiveness' || subtab === 'settings';
+  const isComingSoonView = subtab !== 'profile';
 
   return (
     <div className={styles['p2-shell']}>
@@ -102,11 +112,9 @@ export function Project2Detail({
               onDeleteProject={() => onDeleteProject(project.id)}
             />
           ) : null}
-          {subtab === 'payouts' ? <ProjectComingSoon subtitle="Розділ виплат та звітності у розробці." /> : null}
-          {subtab === 'effectiveness' ? (
-            <ProjectComingSoon subtitle="Метрики та аналітика ефективності у розробці." />
+          {subtab !== 'profile' ? (
+            <ProjectComingSoon subtitle={COMING_SOON_SUBTITLE[subtab] ?? 'Розділ у розробці.'} />
           ) : null}
-          {subtab === 'settings' ? <ProjectComingSoon subtitle="Додаткові налаштування проєкту у розробці." /> : null}
         </div>
       </main>
     </div>

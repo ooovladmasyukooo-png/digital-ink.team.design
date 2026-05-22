@@ -21,6 +21,7 @@ export function TasksPersonalView({ workspace }: TasksPersonalViewProps) {
     updateSubtaskAtPath,
     addSubtaskAtPath,
     deleteTask,
+    duplicateTask,
     addTaskForPersonal,
   } = workspace;
 
@@ -43,6 +44,7 @@ export function TasksPersonalView({ workspace }: TasksPersonalViewProps) {
             onToggleTreeExpand={toggleTreeExpand}
             onArmDelete={setArmedDeleteId}
             onDelete={deleteTask}
+            onDuplicate={duplicateTask}
             onUpdate={updateTask}
             onUpdateSubtask={updateSubtaskAtPath}
             onAddSubtask={addSubtaskAtPath}

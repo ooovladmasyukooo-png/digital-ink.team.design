@@ -48,6 +48,7 @@ export function DesignBriefDetailToolbar({
       setShareNote('Не вдалося скопіювати');
       window.setTimeout(() => setShareNote(null), 2000);
     }
+    onExpand?.();
   };
 
   const meta = (
@@ -102,7 +103,7 @@ export function DesignBriefDetailToolbar({
       <div className={styles['db-detail-head-row']}>
         <nav className={styles['db-detail-crumb']} aria-label="Навігація">
           <button type="button" className={cx(styles['db-detail-crumb-text'], styles['db-detail-crumb-root'])} onClick={onClose}>
-            Задача
+            ТЗ дизайнеру
           </button>
           <span className={cx(styles['db-detail-crumb-text'], styles['db-detail-crumb-sep'])} aria-hidden>
             /

@@ -1,29 +1,30 @@
 import { useState } from 'react';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
-import { DATE_GROUP_LABELS } from '../dateGroups';
-import styles from '../tasks.module.css';
-import type { DateGroupId, Task, TaskPatch, TaskSubtask } from '../types';
-import { TaskColumnsHeader } from './TaskColumnsHeader';
-import { TaskListTree } from './TaskListTree';
+import type { DateGroupId } from '../../tasks/types';
+import { DATE_GROUP_LABELS } from '../designBriefDateGroups';
+import styles from '../designBrief.module.css';
+import type { DesignBrief, DesignBriefPatch, DesignBriefSubtask } from '../types';
+import { DesignBriefColumnsHeader } from './DesignBriefColumnsHeader';
+import { DesignBriefListTree } from './DesignBriefListTree';
 
-interface TaskGroupSectionProps {
+interface DesignBriefDateGroupSectionProps {
   groupId: DateGroupId;
-  tasks: Task[];
+  tasks: DesignBrief[];
   armedDeleteId: string | null;
   expandedTreeKeys: ReadonlySet<string>;
   onToggleTreeExpand: (rootId: string, path: string[]) => void;
   onArmDelete: (id: string | null) => void;
   onDelete: (id: string) => void;
   onDuplicate: (id: string) => void;
-  onUpdate: (id: string, patch: TaskPatch) => void;
-  onUpdateSubtask: (rootId: string, path: string[], patch: TaskPatch) => void;
-  onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
+  onUpdate: (id: string, patch: DesignBriefPatch) => void;
+  onUpdateSubtask: (rootId: string, path: string[], patch: DesignBriefPatch) => void;
+  onAddSubtask: (rootId: string, parentPath: string[], subtask: DesignBriefSubtask) => void;
   onAdd: (groupId: DateGroupId) => void;
   onOpenTask: (id: string, subtaskPath?: string[]) => void;
 }
 
-export function TaskGroupSection({
+export function DesignBriefDateGroupSection({
   groupId,
   tasks,
   armedDeleteId,
@@ -37,9 +38,9 @@ export function TaskGroupSection({
   onAddSubtask,
   onAdd,
   onOpenTask,
-}: TaskGroupSectionProps) {
+}: DesignBriefDateGroupSectionProps) {
   const [collapsed, setCollapsed] = useState(
-    groupId === 'week' || groupId === 'later' || groupId === 'none'
+    groupId === 'week' || groupId === 'later' || groupId === 'none',
   );
 
   if (tasks.length === 0) return null;
@@ -50,27 +51,27 @@ export function TaskGroupSection({
   return (
     <section
       className={cx(
-        styles['ts-group'],
-        isNearGroup && styles['ts-group-near'],
-        isOverdueGroup && styles['ts-group-overdue'],
+        styles['db-group'],
+        isNearGroup && styles['db-group-near'],
+        isOverdueGroup && styles['db-group-overdue'],
       )}
       aria-label={DATE_GROUP_LABELS[groupId]}
     >
-      <div className={styles['ts-group-head']}>
+      <div className={styles['db-group-head']}>
         <button
           type="button"
-          className={styles['ts-group-toggle']}
-          onClick={() => setCollapsed((c) => !c)}
+          className={styles['db-group-toggle']}
+          onClick={() => setCollapsed((value) => !value)}
           aria-expanded={!collapsed}
         >
-          <span className={cx(styles['ts-chev'], collapsed && styles['ts-chev-closed'])}>{Icons.chevD}</span>
-          <span className={styles['ts-group-title']}>{DATE_GROUP_LABELS[groupId]}</span>
+          <span className={cx(styles['db-chev'], collapsed && styles['db-chev-closed'])}>{Icons.chevD}</span>
+          <span className={styles['db-group-title']}>{DATE_GROUP_LABELS[groupId]}</span>
         </button>
-        <span className={styles['ts-group-count']}>{tasks.length}</span>
+        <span className={styles['db-group-count']}>{tasks.length}</span>
         <button
           type="button"
-          className={styles['ts-group-add']}
-          aria-label={`Нова задача: ${DATE_GROUP_LABELS[groupId]}`}
+          className={styles['db-group-add']}
+          aria-label={`Нове ТЗ: ${DATE_GROUP_LABELS[groupId]}`}
           onClick={() => onAdd(groupId)}
         >
           {Icons.plus}
@@ -79,12 +80,12 @@ export function TaskGroupSection({
 
       {!collapsed ? (
         <>
-          <TaskColumnsHeader inGroup />
-          <div className={styles['ts-rows']}>
-            {tasks.map((task) => (
-              <TaskListTree
-                key={task.id}
-                task={task}
+          <DesignBriefColumnsHeader inGroup />
+          <div className={styles['db-rows']}>
+            {tasks.map((brief) => (
+              <DesignBriefListTree
+                key={brief.id}
+                brief={brief}
                 expandedKeys={expandedTreeKeys}
                 onToggleExpand={onToggleTreeExpand}
                 armedDeleteId={armedDeleteId}
@@ -98,10 +99,9 @@ export function TaskGroupSection({
               />
             ))}
           </div>
-
-          <button type="button" className={styles['ts-new-row']} onClick={() => onAdd(groupId)}>
+          <button type="button" className={styles['db-new-row']} onClick={() => onAdd(groupId)}>
             {Icons.plus}
-            <span>Нова задача</span>
+            <span>Нове ТЗ</span>
           </button>
         </>
       ) : null}
