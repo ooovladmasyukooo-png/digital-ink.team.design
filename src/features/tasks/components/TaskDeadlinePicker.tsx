@@ -12,29 +12,14 @@ import { createPortal } from 'react-dom';
 import { Icon, Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import teamStyles from '../../team/team.module.css';
-import { displayDateToIso } from '../dateDisplay';
+import { buildDeadlineIso, formatTimeInputValue, parseDeadlineValue, parseTimeInputValue } from '../dateDisplay';
 import { defaultRecurrenceRule, normalizeRecurrenceRule, recurrenceDaysInMonth } from '../recurrence';
 import taskStyles from '../tasks.module.css';
 import type { TaskRecurrenceRule } from '../types';
 import { TaskRecurrenceRuleEditor } from './TaskRecurrenceRuleEditor';
 
 function parseIsoToLocalDate(iso: string | null): Date | null {
-  if (!iso) return null;
-  const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!m) return null;
-  const y = Number(m[1]);
-  const mo = Number(m[2]);
-  const d = Number(m[3]);
-  const dt = new Date(y, mo - 1, d);
-  if (dt.getFullYear() !== y || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return null;
-  return dt;
-}
-
-function toDisplay(d: Date): string {
-  const dd = String(d.getDate()).padStart(2, '0');
-  const mm = String(d.getMonth() + 1).padStart(2, '0');
-  const yyyy = String(d.getFullYear());
-  return `${dd}.${mm}.${yyyy}`;
+  return parseDeadlineValue(iso).date;
 }
 
 const WEEKDAYS_UK = ['П', 'В', 'С', 'Ч', 'П', 'С', 'Н'];
@@ -119,6 +104,9 @@ export function TaskDeadlinePicker({
   const [recurRule, setRecurRule] = useState<TaskRecurrenceRule>(() =>
     normalizeRecurrenceRule(recurrenceRule, valueIso) ?? defaultRecurrenceRule('weekly', valueIso),
   );
+  const [timeEnabled, setTimeEnabled] = useState(false);
+  const [timeValue, setTimeValue] = useState('09:00');
+  const [draftDate, setDraftDate] = useState<Date | null>(null);
 
   const selected = useMemo(() => parseIsoToLocalDate(valueIso), [valueIso]);
   const cells = useMemo(() => monthCells(viewYear, viewMonth), [viewYear, viewMonth]);
@@ -140,6 +128,10 @@ export function TaskDeadlinePicker({
     setRecurRule(
       normalizeRecurrenceRule(recurrenceRule, valueIso) ?? defaultRecurrenceRule('weekly', valueIso),
     );
+    const parsed = parseDeadlineValue(valueIso);
+    setTimeEnabled(parsed.hasTime);
+    setTimeValue(formatTimeInputValue(parsed.hours, parsed.minutes));
+    setDraftDate(parsed.date);
     reposition();
   }, [open, selected, recurrenceRule, valueIso, reposition]);
 
@@ -187,10 +179,45 @@ export function TaskDeadlinePicker({
     return recurrenceDaysInMonth(viewYear, viewMonth, recurRule, valueIso, floor);
   }, [recurOn, recurRule, viewYear, viewMonth, valueIso, today.getDate(), today.getMonth(), today.getFullYear()]);
 
-  const pickDisplay = (display: string) => {
-    const iso = display.trim() ? displayDateToIso(display) : '';
-    onSelectIso(iso || null);
-    onClose();
+  const buildIsoFromDate = useCallback(
+    (date: Date, enabled = timeEnabled, time = timeValue) => {
+      const parsedTime = enabled ? parseTimeInputValue(time) : null;
+      return buildDeadlineIso(
+        date.getFullYear(),
+        date.getMonth() + 1,
+        date.getDate(),
+        parsedTime,
+      );
+    },
+    [timeEnabled, timeValue],
+  );
+
+  const applyDeadline = useCallback(
+    (date: Date, closeAfter = false) => {
+      onSelectIso(buildIsoFromDate(date));
+      if (closeAfter) onClose();
+    },
+    [buildIsoFromDate, onClose, onSelectIso],
+  );
+
+  const applyTimeToDraft = useCallback(
+    (enabled: boolean, time: string) => {
+      const date = draftDate ?? parseDeadlineValue(valueIso).date;
+      if (!date) return;
+      onSelectIso(buildIsoFromDate(date, enabled, time));
+    },
+    [buildIsoFromDate, draftDate, onSelectIso, valueIso],
+  );
+
+  const pickDate = (date: Date) => {
+    setDraftDate(date);
+    applyDeadline(date, true);
+  };
+
+  const handleDone = () => {
+    const date = draftDate ?? parseDeadlineValue(valueIso).date;
+    if (!date) return;
+    applyDeadline(date, true);
   };
 
   const setRecurrenceEnabled = (enabled: boolean) => {
@@ -282,12 +309,39 @@ export function TaskDeadlinePicker({
               data-today={sameDay(today, viewYear, viewMonth, cell) ? '' : undefined}
               data-selected={showSelected ? '' : undefined}
               data-recur={recurHighlightDays.has(cell) ? '' : undefined}
-              onClick={() => pickDisplay(toDisplay(cellDate))}
+              onClick={() => pickDate(cellDate)}
             >
               {cell}
             </button>
           );
         })}
+      </div>
+
+      <div className={taskStyles['ts-date-pop-time']}>
+        <label className={taskStyles['ts-date-pop-time-toggle']}>
+          <input
+            type="checkbox"
+            checked={timeEnabled}
+            onChange={(e) => {
+              const enabled = e.target.checked;
+              setTimeEnabled(enabled);
+              applyTimeToDraft(enabled, timeValue);
+            }}
+          />
+          <span>Час</span>
+        </label>
+        <input
+          type="time"
+          className={taskStyles['ts-date-pop-time-input']}
+          value={timeValue}
+          disabled={!timeEnabled}
+          aria-label="Час дедлайну"
+          onChange={(e) => {
+            const nextTime = e.target.value;
+            setTimeValue(nextTime);
+            applyTimeToDraft(timeEnabled, nextTime);
+          }}
+        />
       </div>
 
       {showRecurrence && onRecurrenceChange ? (
@@ -325,8 +379,16 @@ export function TaskDeadlinePicker({
         >
           Очистити
         </button>
-        <button type="button" className={teamStyles['date-pop-link']} onClick={() => pickDisplay(toDisplay(new Date()))}>
+        <button type="button" className={teamStyles['date-pop-link']} onClick={() => pickDate(new Date())}>
           Сьогодні
+        </button>
+        <button
+          type="button"
+          className={cx(teamStyles['date-pop-link'], taskStyles['ts-date-pop-done'])}
+          disabled={!(draftDate ?? parseDeadlineValue(valueIso).date)}
+          onClick={handleDone}
+        >
+          Готово
         </button>
       </div>
     </div>,

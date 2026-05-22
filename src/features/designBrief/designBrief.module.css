@@ -397,7 +397,7 @@
 
 /* —— Списки задач: за датами, напрямками (спільні відступи) —— */
 .db-by-date {
-  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 56px;
+  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 96px 72px minmax(0, 156px) 56px;
   --db-row-inner: 28px;
   --db-row-pad-y: 2px;
   --db-tree-indent: 20px;
@@ -409,22 +409,22 @@
 
 /* Архів: ширша колонка «Викон.» */
 .db-archive {
-  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 56px;
+  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 96px 72px minmax(0, 156px) 104px 56px;
 }
 
 /* Особисті: без колонки «Проєкт» */
 .db-personal {
-  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px 56px;
+  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 96px 72px 56px;
 }
 
 /* Делеговані: як «За датами», з колонкою «Проєкт» */
 .db-delegated {
-  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 76px 72px minmax(0, 156px) 56px;
+  --db-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 96px 72px minmax(0, 156px) 56px;
 }
 
 /* Done у профілі спеціаліста: проєкт + дата виконання */
 .db-group-with-completed {
-  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 76px 72px minmax(0, 156px) 104px 56px;
+  --db-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 96px 72px minmax(0, 156px) 104px 56px;
 }
 
 .db-table {
@@ -1095,6 +1095,11 @@
   white-space: nowrap;
 }
 
+.db-deadline-t-today {
+  color: #fbbf24;
+  font-weight: 500;
+}
+
 .db-deadline-t-late {
   color: var(--red);
   font-weight: 500;
@@ -1110,6 +1115,69 @@
   line-height: 0;
   color: var(--txt-4);
   opacity: 0.85;
+}
+
+.db-date-pop-time {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid color-mix(in oklab, var(--line) 50%, transparent);
+}
+
+.db-date-pop-time-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--txt-2);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  user-select: none;
+}
+
+.db-date-pop-time-toggle input {
+  width: 13px;
+  height: 13px;
+  margin: 0;
+  accent-color: var(--red);
+  cursor: pointer;
+}
+
+.db-date-pop-time-input {
+  min-width: 0;
+  flex: 1;
+  max-width: 112px;
+  padding: 4px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--txt);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.2;
+}
+
+.db-date-pop-time-input:focus {
+  outline: none;
+  border-color: color-mix(in oklab, var(--red) 45%, var(--line));
+}
+
+.db-date-pop-time-input:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.db-date-pop-done {
+  margin-left: auto;
+  font-weight: 600;
+}
+
+.db-date-pop-done:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
 .db-date-pop-recur {

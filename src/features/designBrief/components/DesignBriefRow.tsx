@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { PRIORITIES, STATUS_META } from '../constants';
-import { formatTaskCompletedAt, formatTaskDeadline, isCompletedAfterDeadline } from '../dateDisplay';
+import { formatTaskCompletedAt, formatTaskDeadline, getTaskDeadlineRelativeKind, isCompletedAfterDeadline } from '../dateDisplay';
 import { isCompletedStatus } from '../designBriefCompletion';
 import { hasTaskDescription } from '../designBriefTree';
 import styles from '../designBrief.module.css';
@@ -122,6 +122,14 @@ export function DesignBriefRow({
   const showDelete = Boolean(deleteBriefId && onArmDelete && onDelete);
   const showDuplicate = Boolean(duplicateBriefId && onDuplicate);
   const showDescription = hasTaskDescription(description);
+  const deadlineRelativeKind = getTaskDeadlineRelativeKind(deadline);
+
+  const deadlineTextClassName = (late: boolean) =>
+    cx(
+      styles['db-deadline-t'],
+      deadlineRelativeKind === 'today' && !late && styles['db-deadline-t-today'],
+      late && styles['db-deadline-t-late'],
+    );
 
   return (
     <div
@@ -218,7 +226,7 @@ export function DesignBriefRow({
       {isArchive ? (
         <div className={cx(styles['db-cell-btn'], styles['db-cell-deadline'])} aria-label="Дедлайн">
           {deadline ? (
-            <span className={cx(styles['db-deadline-t'], deadlineLate && styles['db-deadline-t-late'])}>
+            <span className={deadlineTextClassName(deadlineLate)}>
               {formatTaskDeadline(deadline)}
             </span>
           ) : (
@@ -235,7 +243,7 @@ export function DesignBriefRow({
         >
           {deadline ? (
             <span className={styles['db-deadline-wrap']}>
-              <span className={cx(styles['db-deadline-t'], deadlineLate && styles['db-deadline-t-late'])}>
+              <span className={deadlineTextClassName(deadlineLate)}>
                 {formatTaskDeadline(deadline)}
               </span>
               {recurrenceRule ? (

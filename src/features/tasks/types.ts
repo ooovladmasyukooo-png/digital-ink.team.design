@@ -37,7 +37,7 @@ export interface TaskSubtask {
   assigneeIds: string[];
   /** null — успадковує проєкт головної задачі */
   projectId: string | null;
-  /** YYYY-MM-DD або null */
+  /** YYYY-MM-DD або YYYY-MM-DDTHH:mm */
   deadline: string | null;
   /** ISO datetime — коли відмічено Done / Archive */
   completedAt: string | null;
@@ -68,7 +68,7 @@ export interface Task {
   title: string;
   status: Status;
   priority: Priority | null;
-  /** YYYY-MM-DD або null */
+  /** YYYY-MM-DD або YYYY-MM-DDTHH:mm */
   deadline: string | null;
   /** ISO datetime — коли відмічено Done / Archive */
   completedAt: string | null;

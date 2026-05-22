@@ -1,6 +1,8 @@
 import type { FeatureId } from '../shared/types/common';
 import type { ProjectSubtabId } from '../features/projects2/types';
+import { parseProjectSearch, pathForProject2Profile } from '../features/projects2/project2Paths';
 import type { TeamSubtabId } from '../features/team/types';
+import { parseTeamSearch, pathForTeamProfile } from '../features/team/teamPaths';
 
 export const FEATURE_IDS: FeatureId[] = [
   'dashboard',
@@ -25,7 +27,7 @@ const PROJECT_SUBTAB_IDS: ProjectSubtabId[] = [
   'settings',
 ];
 
-/** Непрофільні підвкладки в pathname (англійські сегменти). */
+/** Старі pathname-підвкладки: /team/tasks?id=… */
 const TEAM_PATH_SUBTAB_IDS: Exclude<TeamSubtabId, 'profile'>[] = ['tasks', 'payouts', 'effectiveness', 'settings'];
 const PROJECT_PATH_SUBTAB_IDS: Exclude<ProjectSubtabId, 'profile'>[] = [
   'tasks',
@@ -66,13 +68,16 @@ export type ParsedLocation = {
 
 type ProfileFeature = 'team' | 'projects2';
 
-function parseProfileFeature(
+function parseLegacyProfileFeature(
   feature: ProfileFeature,
   parts: string[],
-  params: URLSearchParams,
-): Pick<ParsedLocation, 'feature' | 'teamProfileId' | 'teamSubtab' | 'project2ProfileId' | 'project2Subtab'> {
+  search: string,
+): Pick<ParsedLocation, 'feature' | 'teamProfileId' | 'teamSubtab' | 'project2ProfileId' | 'project2Subtab'> | null {
   const parseSubtab = feature === 'team' ? parseTeamSubtab : parseProjectSubtab;
   const seg2 = parts[1]?.toLowerCase();
+  const params = new URLSearchParams(search);
+  const rawId = params.get('id');
+  const id = rawId?.trim() ? rawId.trim() : null;
 
   const empty: ParsedLocation = {
     feature,
@@ -83,8 +88,6 @@ function parseProfileFeature(
   };
 
   if (seg2 === 'profil' || seg2 === 'profile') {
-    const raw = params.get('id');
-    const id = raw?.trim() ? raw.trim() : null;
     const subtab = id ? parseSubtab(params.get('tab')) : 'profile';
     if (feature === 'team') {
       return { ...empty, teamProfileId: id, teamSubtab: subtab as TeamSubtabId };
@@ -94,34 +97,66 @@ function parseProfileFeature(
 
   if (feature === 'team') {
     if (seg2 && TEAM_PATH_SUBTAB_IDS.includes(seg2 as (typeof TEAM_PATH_SUBTAB_IDS)[number])) {
-      const raw = params.get('id');
-      const id = raw?.trim() ? raw.trim() : null;
       return { ...empty, teamProfileId: id, teamSubtab: seg2 as TeamSubtabId };
     }
   } else if (seg2 && PROJECT_PATH_SUBTAB_IDS.includes(seg2 as (typeof PROJECT_PATH_SUBTAB_IDS)[number])) {
-    const raw = params.get('id');
-    const id = raw?.trim() ? raw.trim() : null;
     return { ...empty, project2ProfileId: id, project2Subtab: seg2 as ProjectSubtabId };
   }
 
-  return empty;
+  return null;
+}
+
+function parseProfileFeature(
+  feature: ProfileFeature,
+  parts: string[],
+  search: string,
+): Pick<ParsedLocation, 'feature' | 'teamProfileId' | 'teamSubtab' | 'project2ProfileId' | 'project2Subtab'> {
+  const empty: ParsedLocation = {
+    feature,
+    teamProfileId: null,
+    teamSubtab: 'profile',
+    project2ProfileId: null,
+    project2Subtab: 'profile',
+  };
+
+  const legacy = parseLegacyProfileFeature(feature, parts, search);
+  if (legacy) return legacy;
+
+  if (parts.length !== 1) return empty;
+
+  if (feature === 'team') {
+    const parsed = parseTeamSearch(search);
+    return {
+      ...empty,
+      teamProfileId: parsed.memberId,
+      teamSubtab: parsed.subtab,
+    };
+  }
+
+  const parsed = parseProjectSearch(search);
+  return {
+    ...empty,
+    project2ProfileId: parsed.projectId,
+    project2Subtab: parsed.subtab,
+  };
 }
 
 /**
  * Team list: `/team`
- * Projects: `/projects` (projects2 feature)
+ * Team profile: `/team?profil&id=…`
+ * Team tasks: `/team?tasks&id=…`
+ * Projects: `/projects?profil&id=…`
  */
 export function parseLocation(pathname: string, search: string): ParsedLocation {
   const path = pathname.replace(/\/$/, '') || '/';
   const parts = path.split('/').filter(Boolean);
-  const params = new URLSearchParams(search);
 
   if (parts[0] === 'team') {
-    return parseProfileFeature('team', parts, params);
+    return parseProfileFeature('team', parts, search);
   }
 
   if (parts[0] === 'projects' || parts[0] === 'projects2') {
-    return parseProfileFeature('projects2', parts, params);
+    return parseProfileFeature('projects2', parts, search);
   }
 
   const seg = parts[0];
@@ -144,20 +179,4 @@ export function parseLocation(pathname: string, search: string): ParsedLocation 
   };
 }
 
-export function pathForTeamProfile(memberId: string, tab: TeamSubtabId = 'profile'): string {
-  const q = new URLSearchParams();
-  q.set('id', memberId);
-  if (tab === 'profile') {
-    return `/team/profil?${q.toString()}`;
-  }
-  return `/team/${tab}?${q.toString()}`;
-}
-
-export function pathForProject2Profile(projectId: string, tab: ProjectSubtabId = 'profile'): string {
-  const q = new URLSearchParams();
-  q.set('id', projectId);
-  if (tab === 'profile') {
-    return `/projects/profil?${q.toString()}`;
-  }
-  return `/projects/${tab}?${q.toString()}`;
-}
+export { pathForTeamProfile, pathForProject2Profile };

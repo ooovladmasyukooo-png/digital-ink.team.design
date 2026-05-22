@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { PRIORITIES, STATUS_META } from '../constants';
-import { formatTaskCompletedAt, formatTaskDeadline, isCompletedAfterDeadline } from '../dateDisplay';
+import { formatTaskCompletedAt, formatTaskDeadline, getTaskDeadlineRelativeKind, isCompletedAfterDeadline } from '../dateDisplay';
 import { isCompletedStatus } from '../taskCompletion';
 import { hasTaskDescription } from '../taskTree';
 import styles from '../tasks.module.css';
@@ -122,6 +122,14 @@ export function TaskRow({
   const showDelete = Boolean(deleteTaskId && onArmDelete && onDelete);
   const showDuplicate = Boolean(duplicateTaskId && onDuplicate);
   const showDescription = hasTaskDescription(description);
+  const deadlineRelativeKind = getTaskDeadlineRelativeKind(deadline);
+
+  const deadlineTextClassName = (late: boolean) =>
+    cx(
+      styles['ts-deadline-t'],
+      deadlineRelativeKind === 'today' && !late && styles['ts-deadline-t-today'],
+      late && styles['ts-deadline-t-late'],
+    );
 
   return (
     <div
@@ -218,7 +226,7 @@ export function TaskRow({
       {isArchive ? (
         <div className={cx(styles['ts-cell-btn'], styles['ts-cell-deadline'])} aria-label="Дедлайн">
           {deadline ? (
-            <span className={cx(styles['ts-deadline-t'], deadlineLate && styles['ts-deadline-t-late'])}>
+            <span className={deadlineTextClassName(deadlineLate)}>
               {formatTaskDeadline(deadline)}
             </span>
           ) : (
@@ -235,7 +243,7 @@ export function TaskRow({
         >
           {deadline ? (
             <span className={styles['ts-deadline-wrap']}>
-              <span className={cx(styles['ts-deadline-t'], deadlineLate && styles['ts-deadline-t-late'])}>
+              <span className={deadlineTextClassName(deadlineLate)}>
                 {formatTaskDeadline(deadline)}
               </span>
               {recurrenceRule ? (
