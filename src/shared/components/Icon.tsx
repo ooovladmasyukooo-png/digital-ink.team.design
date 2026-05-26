@@ -83,6 +83,33 @@ export const Icons = {
   mail: <Icon d={<><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></>} size={14} />,
   check: <Icon d={<path d="M20 6 9 17l-5-5" />} size={14} />,
   spark: <Icon d={<path d="M12 2 14 9l7 1-5 5 2 7-6-4-6 4 2-7-5-5 7-1Z" />} size={14} />,
+  /** Швидка задача (тег quick). */
+  bolt: <Icon d={<path d="M13 2 3 14h8l-1 8 10-12h-8l1-8Z" />} size={12} sw={1.75} />,
+  /** Порожні теги — натисніть, щоб обрати. */
+  tagEmpty: (
+    <Icon
+      size={12}
+      sw={1.85}
+      d={
+        <>
+          <path d="M12 7v5" />
+          <path d="M12 6.5h.01" />
+        </>
+      }
+    />
+  ),
+  /** Клієнтська задача (тег client). */
+  client: (
+    <Icon
+      size={12}
+      d={
+        <>
+          <circle cx="12" cy="8" r="3.25" />
+          <path d="M5.5 20a6.5 6.5 0 0 1 13 0" />
+        </>
+      }
+    />
+  ),
   inbox: <Icon d={<><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6Z" /></>} size={14} />,
   play: (
     <Icon

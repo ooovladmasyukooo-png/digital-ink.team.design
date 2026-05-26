@@ -3,6 +3,8 @@ export type TasksViewTabId = 'by-date' | 'by-area' | 'personal' | 'delegated' | 
 export type Status = 'inbox' | 'new' | 'doing' | 'control' | 'done' | 'archive';
 export type Priority = 'high' | 'medium' | 'low';
 
+export type TaskTagId = 'quick' | 'client';
+
 export type DateGroupId = 'overdue' | 'today' | 'tomorrow' | 'week' | 'later' | 'none';
 
 /** Група в архіві за датою виконання (від найновіших). */
@@ -34,6 +36,9 @@ export interface TaskSubtask {
   title: string;
   status: Status;
   priority: Priority | null;
+  tagIds: TaskTagId[];
+  /** Довільні теги (назва з попапу). */
+  customTags: string[];
   assigneeIds: string[];
   /** null — успадковує проєкт головної задачі */
   projectId: string | null;
@@ -68,6 +73,8 @@ export interface Task {
   title: string;
   status: Status;
   priority: Priority | null;
+  tagIds: TaskTagId[];
+  customTags: string[];
   /** YYYY-MM-DD або YYYY-MM-DDTHH:mm */
   deadline: string | null;
   /** ISO datetime — коли відмічено Done / Archive */
@@ -93,6 +100,8 @@ export type TaskPatch = Partial<
     | 'title'
     | 'status'
     | 'priority'
+    | 'tagIds'
+    | 'customTags'
     | 'deadline'
     | 'completedAt'
     | 'recurrenceRule'
@@ -120,6 +129,8 @@ export interface ArchiveListItem {
   description: string;
   status: Status;
   priority: Priority | null;
+  tagIds: TaskTagId[];
+  customTags: string[];
   deadline: string | null;
   completedAt: string;
   assigneeIds: string[];

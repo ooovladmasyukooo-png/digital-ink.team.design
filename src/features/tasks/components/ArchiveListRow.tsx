@@ -27,6 +27,8 @@ export function ArchiveListRow({ item, workspace }: ArchiveListRowProps) {
       description={item.description}
       status={item.status}
       priority={item.priority}
+      tagIds={item.tagIds}
+      customTags={item.customTags}
       deadline={item.deadline}
       completedAt={item.completedAt}
       assigneeIds={item.assigneeIds}

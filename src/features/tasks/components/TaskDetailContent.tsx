@@ -18,20 +18,26 @@ import {
   PriorityBadge,
   ProjectCell,
   StatusBadge,
+  TaskTagsCell,
+  TaskTagsEmptyMark,
   assigneePickerClearOption,
   assigneePickerItems,
   toggleAssigneeIds,
   priorityPickerItems,
   projectPickerItems,
   statusPickerItems,
+  tagPickerClearOption,
+  tagPickerItems,
+  toggleTaskTagIds,
 } from '../taskOptions';
+import { normalizeCustomTags, normalizeTaskTagIds, taskHasTags } from '../taskTags';
 import { ChecklistSection } from './ChecklistSection';
 import { CommentsSection } from './CommentsSection';
 import { SubtasksSection } from './SubtasksSection';
 import { TaskDeadlinePicker } from './TaskDeadlinePicker';
 import { TaskPickerPopover } from './TaskPickerPopover';
 
-type PickerField = 'status' | 'priority' | 'deadline' | 'assignee' | 'project' | null;
+type PickerField = 'status' | 'tags' | 'priority' | 'deadline' | 'assignee' | 'project' | null;
 
 export interface TaskDetailContentProps {
   task: Task;
@@ -85,7 +91,10 @@ export function TaskDetailContent({
   const titleRef = useRef<HTMLTextAreaElement>(null);
   const descRef = useRef<HTMLTextAreaElement>(null);
   const statusRef = useRef<HTMLButtonElement>(null);
+  const tagsRef = useRef<HTMLButtonElement>(null);
   const priorityRef = useRef<HTMLButtonElement>(null);
+  const tagIds = normalizeTaskTagIds(task.tagIds);
+  const customTags = normalizeCustomTags(task.customTags);
   const deadlineRef = useRef<HTMLButtonElement>(null);
   const assigneeRef = useRef<HTMLButtonElement>(null);
   const projectRef = useRef<HTMLButtonElement>(null);
@@ -96,6 +105,8 @@ export function TaskDetailContent({
     switch (field) {
       case 'status':
         return statusRef;
+      case 'tags':
+        return tagsRef;
       case 'priority':
         return priorityRef;
       case 'deadline':
@@ -141,6 +152,23 @@ export function TaskDetailContent({
               onClick={() => togglePicker('status')}
             >
               <StatusBadge status={task.status} />
+            </DetailRow>
+
+            <DetailRow
+              label="Теги"
+              ariaLabel={
+                taskHasTags(tagIds, customTags)
+                  ? `Теги: ${[...tagIds, ...customTags].join(', ')}`
+                  : 'Теги не встановлено'
+              }
+              buttonRef={tagsRef}
+              onClick={() => togglePicker('tags')}
+            >
+              {taskHasTags(tagIds, customTags) ? (
+                <TaskTagsCell tagIds={tagIds} customTags={customTags} variant="full" />
+              ) : (
+                <TaskTagsEmptyMark />
+              )}
             </DetailRow>
 
             <DetailRow
@@ -252,19 +280,19 @@ export function TaskDetailContent({
       {picker && picker !== 'deadline' ? (
         <TaskPickerPopover
           open
-          anchorRef={anchorFor(picker)}
+          anchorRef={picker === 'tags' ? tagsRef : anchorFor(picker)}
           searchable={picker === 'assignee' || picker === 'project'}
           width={
             picker === 'assignee' || picker === 'project'
               ? 280
-              : picker === 'priority'
+              : picker === 'priority' || picker === 'tags'
                 ? 200
                 : picker === 'status'
                   ? 168
                   : 220
           }
           compact={picker === 'status'}
-          multiSelect={picker === 'assignee'}
+          multiSelect={picker === 'assignee' || picker === 'tags'}
           clearOption={
             picker === 'priority'
               ? {
@@ -274,20 +302,28 @@ export function TaskDetailContent({
                 }
               : picker === 'assignee'
                 ? assigneePickerClearOption(task.assigneeIds)
-                : undefined
+                : picker === 'tags'
+                  ? tagPickerClearOption(tagIds, customTags)
+                  : undefined
           }
           items={
             picker === 'status'
               ? statusPickerItems(task.status)
-              : picker === 'priority'
-                ? priorityPickerItems(task.priority)
-                : picker === 'assignee'
-                  ? assigneePickerItems(task.assigneeIds)
-                  : projectPickerItems(task.projectId)
+              : picker === 'tags'
+                ? tagPickerItems(tagIds)
+                : picker === 'priority'
+                  ? priorityPickerItems(task.priority)
+                  : picker === 'assignee'
+                    ? assigneePickerItems(task.assigneeIds)
+                    : projectPickerItems(task.projectId)
           }
           onClose={() => setPicker(null)}
           onSelect={(id) => {
             if (picker === 'status') patch({ status: id as Status });
+            if (picker === 'tags') {
+              if (id === '__none__') patch({ tagIds: [], customTags: [] });
+              else patch({ tagIds: toggleTaskTagIds(tagIds, id) });
+            }
             if (picker === 'priority') patch({ priority: id === '__none__' ? null : (id as Priority) });
             if (picker === 'assignee') patch({ assigneeIds: toggleAssigneeIds(task.assigneeIds, id) });
             if (picker === 'project') patch({ projectId: id === '__none__' ? null : id });

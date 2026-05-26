@@ -3,6 +3,7 @@ import styles from '../tasks.module.css';
 import { columnIcons } from '../taskOptions';
 
 const META_COLS = [
+  { key: 'tags', label: 'Теги', title: 'Теги', icon: columnIcons.tags },
   { key: 'priority', label: 'Пріор.', title: 'Пріоритет', icon: columnIcons.priority },
   { key: 'deadline', label: 'Дедл.', title: 'Дедлайн', icon: columnIcons.deadline },
   { key: 'assignee', label: 'Відповід.', title: 'Відповідальний', icon: columnIcons.assignee },
@@ -41,13 +42,22 @@ export function TaskColumnsHeader({ inGroup, variant = 'default' }: TaskColumnsH
       </div>
 
       {metaCols.map((col) => (
-        <div key={col.key} className={cx(styles['ts-col'], styles['ts-col-meta'])}>
+        <div
+          key={col.key}
+          className={cx(
+            styles['ts-col'],
+            styles['ts-col-meta'],
+            col.key === 'tags' && styles['ts-col-tags-head'],
+          )}
+        >
           <span className={styles['ts-col-i']} aria-hidden>
             {col.icon}
           </span>
-          <span className={styles['ts-col-label']} title={col.title}>
-            {col.label}
-          </span>
+          {col.key !== 'tags' ? (
+            <span className={styles['ts-col-label']} title={col.title}>
+              {col.label}
+            </span>
+          ) : null}
         </div>
       ))}
       {showCompleted ? (

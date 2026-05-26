@@ -1,7 +1,18 @@
-import type { Task } from './types';
+import type { Task, TaskSubtask, TaskTagId } from './types';
+
+type SeedSubtask = Omit<TaskSubtask, 'tagIds' | 'customTags' | 'subtasks'> & {
+  tagIds?: TaskTagId[];
+  customTags?: string[];
+  subtasks: SeedSubtask[];
+};
+type SeedTask = Omit<Task, 'tagIds' | 'customTags' | 'subtasks'> & {
+  tagIds?: TaskTagId[];
+  customTags?: string[];
+  subtasks: SeedSubtask[];
+};
 
 /** Початкові задачі для вкладки «За датами». */
-export const initialTasks: Task[] = [
+export const initialTasks: SeedTask[] = [
   {
     id: 't1',
     title: 'Скинути шаблони і варіанти сайтів',
@@ -157,6 +168,7 @@ export const initialTasks: Task[] = [
     title: 'Ревʼю payout-таблиці',
     status: 'inbox',
     priority: 'medium',
+    tagIds: ['quick'],
     deadline: weekEndIso(),
     completedAt: null,
     recurrenceRule: null,
@@ -234,6 +246,7 @@ export const initialTasks: Task[] = [
     title: 'Запланувати 1:1 з командою',
     status: 'inbox',
     priority: 'medium',
+    tagIds: ['client'],
     deadline: todayIso(),
     completedAt: null,
     recurrenceRule: null,

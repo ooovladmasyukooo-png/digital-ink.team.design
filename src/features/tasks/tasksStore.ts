@@ -1,7 +1,38 @@
 import { initialTasks } from './data';
-import type { Task } from './types';
+import { normalizeCustomTags, normalizeTaskTagIds } from './taskTags';
+import type { Task, TaskSubtask, TaskTagId } from './types';
 
-let tasksState: Task[] = initialTasks;
+type TaskSeed = Omit<Task, 'tagIds' | 'customTags' | 'subtasks'> & {
+  tagIds?: TaskTagId[];
+  customTags?: string[];
+  subtasks: TaskSubtaskSeed[];
+};
+
+type TaskSubtaskSeed = Omit<TaskSubtask, 'tagIds' | 'customTags' | 'subtasks'> & {
+  tagIds?: TaskTagId[];
+  customTags?: string[];
+  subtasks: TaskSubtaskSeed[];
+};
+
+function hydrateSubtask(subtask: TaskSubtaskSeed): TaskSubtask {
+  return {
+    ...subtask,
+    tagIds: normalizeTaskTagIds(subtask.tagIds),
+    customTags: normalizeCustomTags(subtask.customTags),
+    subtasks: subtask.subtasks.map(hydrateSubtask),
+  };
+}
+
+function hydrateTask(task: TaskSeed): Task {
+  return {
+    ...task,
+    tagIds: normalizeTaskTagIds(task.tagIds),
+    customTags: normalizeCustomTags(task.customTags),
+    subtasks: task.subtasks.map(hydrateSubtask),
+  };
+}
+
+let tasksState: Task[] = initialTasks.map(hydrateTask);
 let nextTaskId = 100;
 const listeners = new Set<() => void>();
 

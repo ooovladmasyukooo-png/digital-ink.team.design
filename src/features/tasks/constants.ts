@@ -90,6 +90,8 @@ export function createNewTaskForProject(
     title: 'Нова задача',
     status: 'inbox',
     priority: null,
+    tagIds: [],
+    customTags: [],
     deadline: null,
     completedAt: null,
     recurrenceRule: null,

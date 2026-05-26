@@ -6,24 +6,30 @@ import { formatTaskCompletedAt, formatTaskDeadline, getTaskDeadlineRelativeKind,
 import { isCompletedStatus } from '../taskCompletion';
 import { hasTaskDescription } from '../taskTree';
 import styles from '../tasks.module.css';
-import type { Priority, Status, TaskPatch, TaskRecurrenceRule } from '../types';
+import type { Priority, Status, TaskPatch, TaskRecurrenceRule, TaskTagId } from '../types';
 import {
   AssigneeCell,
   PriorityBadge,
   ProjectCell,
   StatusBadge,
+  TaskTagsCell,
+  TaskTagsEmptyMark,
   assigneePickerClearOption,
   assigneePickerItems,
   toggleAssigneeIds,
   priorityPickerItems,
   projectPickerItems,
   statusPickerItems,
+  tagPickerClearOption,
+  tagPickerItems,
+  toggleTaskTagIds,
 } from '../taskOptions';
+import { normalizeCustomTags, normalizeTaskTagIds, taskHasTags, TASK_TAGS } from '../taskTags';
 import { TaskDeadlinePicker } from './TaskDeadlinePicker';
 import { TaskDeleteButton } from './TaskDeleteButton';
 import { TaskPickerPopover } from './TaskPickerPopover';
 
-type PickerField = 'status' | 'priority' | 'deadline' | 'assignee' | 'project' | null;
+type PickerField = 'status' | 'tags' | 'priority' | 'deadline' | 'assignee' | 'project' | null;
 
 interface TaskRowProps {
   variant?: 'default' | 'archive' | 'personal' | 'withCompleted';
@@ -35,6 +41,8 @@ interface TaskRowProps {
   description: string;
   status: Status;
   priority: Priority | null;
+  tagIds?: TaskTagId[];
+  customTags?: string[];
   deadline: string | null;
   completedAt?: string | null;
   recurrenceRule?: TaskRecurrenceRule | null;
@@ -64,6 +72,8 @@ export function TaskRow({
   description,
   status,
   priority,
+  tagIds: tagIdsProp,
+  customTags: customTagsProp,
   deadline,
   completedAt = null,
   recurrenceRule = null,
@@ -83,8 +93,11 @@ export function TaskRow({
   deleteTaskId,
   duplicateTaskId,
 }: TaskRowProps) {
+  const tagIds = normalizeTaskTagIds(tagIdsProp);
+  const customTags = normalizeCustomTags(customTagsProp);
   const [picker, setPicker] = useState<PickerField>(null);
   const statusRef = useRef<HTMLButtonElement>(null);
+  const tagsRef = useRef<HTMLButtonElement>(null);
   const priorityRef = useRef<HTMLButtonElement>(null);
   const deadlineRef = useRef<HTMLButtonElement>(null);
   const assigneeRef = useRef<HTMLButtonElement>(null);
@@ -96,6 +109,8 @@ export function TaskRow({
     switch (field) {
       case 'status':
         return statusRef;
+      case 'tags':
+        return tagsRef;
       case 'priority':
         return priorityRef;
       case 'deadline':
@@ -190,26 +205,48 @@ export function TaskRow({
         </button>
 
         <button type="button" className={styles['ts-title-btn']} onClick={onOpen} aria-label={`Відкрити: ${title}`}>
-          <span className={styles['ts-title-t']}>{title}</span>
-          {showDescription || childCount > 0 ? (
-            <span className={styles['ts-title-badges']}>
-              {showDescription ? (
-                <span className={styles['ts-desc-badge']} aria-label="Є опис">
-                  <span className={styles['ts-desc-badge-i']} aria-hidden>
-                    {Icons.description}
+          <span className={styles['ts-title-inner']}>
+            <span className={styles['ts-title-t']}>{title}</span>
+            {showDescription || childCount > 0 ? (
+              <span className={styles['ts-title-badges']}>
+                {showDescription ? (
+                  <span className={styles['ts-desc-badge']} aria-label="Є опис">
+                    <span className={styles['ts-desc-badge-i']} aria-hidden>
+                      {Icons.description}
+                    </span>
                   </span>
-                </span>
-              ) : null}
-              {childCount > 0 ? (
-                <span className={styles['ts-subtree-badge']} aria-label={`${childCount} підзадач`}>
-                  <span className={styles['ts-subtree-badge-i']} aria-hidden>
-                    {Icons.subtree}
+                ) : null}
+                {childCount > 0 ? (
+                  <span className={styles['ts-subtree-badge']} aria-label={`${childCount} підзадач`}>
+                    <span className={styles['ts-subtree-badge-i']} aria-hidden>
+                      {Icons.subtree}
+                    </span>
+                    <span className={styles['ts-subtree-badge-n']}>{childCount}</span>
                   </span>
-                  <span className={styles['ts-subtree-badge-n']}>{childCount}</span>
-                </span>
-              ) : null}
-            </span>
-          ) : null}
+                ) : null}
+              </span>
+            ) : null}
+          </span>
+        </button>
+      </div>
+
+      <div className={styles['ts-cell-tags']}>
+        <button
+          ref={tagsRef}
+          type="button"
+          className={styles['ts-cell-btn']}
+          onClick={() => togglePicker('tags')}
+          aria-label={
+            taskHasTags(tagIds, customTags)
+              ? `Теги: ${[...tagIds.map((id) => TASK_TAGS[id]?.label ?? id), ...customTags].join(', ')}`
+              : 'Обрати теги'
+          }
+        >
+          {taskHasTags(tagIds, customTags) ? (
+            <TaskTagsCell tagIds={tagIds} customTags={customTags} />
+          ) : (
+            <TaskTagsEmptyMark />
+          )}
         </button>
       </div>
 
@@ -327,19 +364,19 @@ export function TaskRow({
       {picker && picker !== 'deadline' ? (
         <TaskPickerPopover
           open
-          anchorRef={anchorFor(picker)}
+          anchorRef={picker === 'tags' ? tagsRef : anchorFor(picker)}
           searchable={picker === 'assignee' || picker === 'project'}
           width={
             picker === 'assignee' || picker === 'project'
               ? 280
-              : picker === 'priority'
+              : picker === 'priority' || picker === 'tags'
                 ? 200
                 : picker === 'status'
                   ? 168
                   : 220
           }
           compact={picker === 'status'}
-          multiSelect={picker === 'assignee'}
+          multiSelect={picker === 'assignee' || picker === 'tags'}
           clearOption={
             picker === 'priority'
               ? {
@@ -349,20 +386,28 @@ export function TaskRow({
                 }
               : picker === 'assignee'
                 ? assigneePickerClearOption(assigneeIds)
-                : undefined
+                : picker === 'tags'
+                  ? tagPickerClearOption(tagIds, customTags)
+                  : undefined
           }
           items={
             picker === 'status'
               ? statusPickerItems(status)
-              : picker === 'priority'
-                ? priorityPickerItems(priority)
-                : picker === 'assignee'
-                  ? assigneePickerItems(assigneeIds)
-                  : projectPickerItems(projectId)
+              : picker === 'tags'
+                ? tagPickerItems(tagIds)
+                : picker === 'priority'
+                  ? priorityPickerItems(priority)
+                  : picker === 'assignee'
+                    ? assigneePickerItems(assigneeIds)
+                    : projectPickerItems(projectId)
           }
           onClose={() => setPicker(null)}
           onSelect={(id) => {
             if (picker === 'status') onUpdate({ status: id as Status });
+            if (picker === 'tags') {
+              if (id === '__none__') onUpdate({ tagIds: [], customTags: [] });
+              else onUpdate({ tagIds: toggleTaskTagIds(tagIds, id) });
+            }
             if (picker === 'priority') onUpdate({ priority: id === '__none__' ? null : (id as Priority) });
             if (picker === 'assignee') onUpdate({ assigneeIds: toggleAssigneeIds(assigneeIds, id) });
             if (picker === 'project') onUpdate({ projectId: id === '__none__' ? null : id });

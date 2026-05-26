@@ -378,8 +378,10 @@ button {
 .chip-hot { border-color: oklch(0.42 0.16 25 / 50%); background: oklch(0.34 0.13 25 / 40%); color: #f87171; }
 .chip-amber,
 .chip-warm { border-color: oklch(0.45 0.14 75 / 50%); background: oklch(0.36 0.11 75 / 40%); color: #fbbf24; }
+.chip-orange { border-color: oklch(0.58 0.19 48 / 52%); background: oklch(0.42 0.15 48 / 42%); color: #fb923c; }
 .chip-blue,
 .chip-cold { border-color: oklch(0.4 0.14 250 / 50%); background: oklch(0.32 0.11 250 / 40%); color: #60a5fa; }
+.chip-purple { border-color: oklch(0.42 0.16 300 / 50%); background: oklch(0.34 0.12 300 / 40%); color: #c084fc; }
 
 [data-theme='light'] .chip-green,
 [data-theme='light'] .chip-new { border-color: oklch(0.85 0.1 160 / 60%); background: oklch(0.92 0.08 160 / 50%); color: #047857; }
@@ -387,8 +389,10 @@ button {
 [data-theme='light'] .chip-hot { border-color: oklch(0.85 0.12 25 / 60%); background: oklch(0.92 0.08 25 / 50%); color: #b91c1c; }
 [data-theme='light'] .chip-amber,
 [data-theme='light'] .chip-warm { border-color: oklch(0.85 0.12 75 / 60%); background: oklch(0.92 0.08 75 / 50%); color: #b45309; }
+[data-theme='light'] .chip-orange { border-color: oklch(0.86 0.14 48 / 62%); background: oklch(0.93 0.09 48 / 52%); color: #ea580c; }
 [data-theme='light'] .chip-blue,
 [data-theme='light'] .chip-cold { border-color: oklch(0.85 0.1 250 / 60%); background: oklch(0.92 0.08 250 / 50%); color: #1d4ed8; }
+[data-theme='light'] .chip-purple { border-color: oklch(0.85 0.12 300 / 60%); background: oklch(0.92 0.08 300 / 50%); color: #7c3aed; }
 
 .av,
 .av-img { width: 36px; height: 36px; flex-shrink: 0; border-radius: 10px; }

@@ -374,7 +374,7 @@
 
 /* —— Списки задач: за датами, напрямками (спільні відступи) —— */
 .ts-by-date {
-  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 96px 72px minmax(0, 156px) 56px;
+  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 48px 58px 96px 72px minmax(0, 156px) 56px;
   --ts-row-inner: 28px;
   --ts-row-pad-y: 2px;
   --ts-tree-indent: 20px;
@@ -386,22 +386,22 @@
 
 /* Архів: ширша колонка «Викон.» */
 .ts-archive {
-  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 96px 72px minmax(0, 156px) 104px 56px;
+  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 48px 58px 96px 72px minmax(0, 156px) 104px 56px;
 }
 
 /* Особисті: без колонки «Проєкт» */
 .ts-personal {
-  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 96px 72px 56px;
+  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 48px 58px 96px 72px 56px;
 }
 
 /* Делеговані: як «За датами», з колонкою «Проєкт» */
 .ts-delegated {
-  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 58px 96px 72px minmax(0, 156px) 56px;
+  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 48px 58px 96px 72px minmax(0, 156px) 56px;
 }
 
 /* Done у профілі спеціаліста: проєкт + дата виконання */
 .ts-group-with-completed {
-  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 96px 72px minmax(0, 156px) 104px 56px;
+  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 48px 58px 96px 72px minmax(0, 156px) 104px 56px;
 }
 
 .ts-table {
@@ -776,6 +776,7 @@
 }
 
 .ts-cell-deadline,
+.ts-cell-tags,
 .ts-cell-priority,
 .ts-cell-assignee,
 .ts-cell-project {
@@ -784,8 +785,10 @@
 
 .ts-cell-lead .ts-title-btn {
   flex: 1;
+  min-width: 0;
   min-height: var(--ts-row-inner);
   height: auto;
+  overflow: hidden;
 }
 
 .ts-cell-btn,
@@ -835,6 +838,7 @@
   min-width: 0;
   align-items: center;
   gap: 6px;
+  overflow: hidden;
 }
 
 .ts-status-inline {
@@ -1025,13 +1029,22 @@
   min-width: 0;
   min-height: var(--ts-row-inner);
   align-items: center;
-  gap: 6px;
+  justify-content: flex-start;
   padding: 0;
   border: 0;
   background: transparent;
   color: var(--txt);
   cursor: pointer;
   text-align: left;
+  overflow: hidden;
+}
+
+.ts-title-inner {
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
 }
 
 .ts-title-btn:hover .ts-title-t {
@@ -1041,7 +1054,7 @@
 }
 
 .ts-title-t {
-  flex: 1;
+  flex: 0 1 auto;
   overflow: hidden;
   min-width: 0;
   font-size: 12.5px;
@@ -1315,6 +1328,242 @@
   color: var(--txt-4);
   font-size: 11px;
   line-height: var(--ts-row-inner);
+}
+
+.ts-col-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--txt-4);
+}
+
+.ts-row > .ts-cell-tags {
+  display: flex;
+  align-self: center;
+  justify-self: center;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.ts-col-tags-head {
+  justify-content: center;
+}
+
+.ts-cell-tags {
+  width: 48px;
+  max-width: 48px;
+  min-width: 48px;
+  min-height: var(--ts-row-inner);
+  padding: 0;
+  overflow: hidden;
+}
+
+.ts-cell-tags .ts-cell-btn {
+  width: 100%;
+  min-height: var(--ts-row-inner);
+  height: var(--ts-row-inner);
+}
+
+.ts-tags {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 48px;
+  min-width: 0;
+}
+
+.ts-tags-full {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  min-width: 0;
+}
+
+.ts-tag-chip {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 9.5px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.ts-tag-chip-icon {
+  box-sizing: border-box;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 5px;
+}
+
+.ts-tag-i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.ts-tag-i :global(svg) {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+
+.ts-picker-item .ts-tag-chip-icon {
+  margin: 0 auto;
+}
+
+.ts-tag-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  line-height: 0;
+}
+
+.ts-tag-icon.ts-tag-quick {
+  color: #fb923c;
+}
+
+.ts-tag-icon.ts-tag-client {
+  color: #c084fc;
+}
+
+.ts-tag-chip-wrap {
+  display: inline-flex;
+}
+
+.ts-tag-chip-wrap :global(.chip) {
+  gap: 4px;
+  padding: 2px 7px 2px 5px;
+}
+
+.ts-tag-custom {
+  max-width: 22px;
+  overflow: hidden;
+  color: var(--txt-2);
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-tags-picker-custom-dot {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  place-items: center;
+  color: var(--txt-3);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ts-tags-picker-create {
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--txt-2);
+  cursor: pointer;
+  font-size: 11px;
+  text-align: left;
+}
+
+.ts-tags-picker-create:hover {
+  background: var(--bg-2);
+  color: var(--txt);
+}
+
+.ts-tag-i-lg :global(svg) {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
+.ts-tags-picker {
+  display: flex;
+  flex-direction: column;
+  width: 220px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  box-shadow: 0 10px 32px oklch(0 0 0 / 38%);
+}
+
+.ts-tags-picker-search {
+  padding: 8px 8px 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.ts-tags-picker-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg-2);
+  color: var(--txt);
+  font-size: 12px;
+  outline: none;
+}
+
+.ts-tags-picker-input:focus {
+  border-color: color-mix(in oklab, var(--red) 45%, var(--line));
+}
+
+.ts-tags-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  overflow: auto;
+}
+
+.ts-tags-picker-item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--txt);
+  cursor: pointer;
+  text-align: left;
+}
+
+.ts-tags-picker-item:hover {
+  background: var(--bg-2);
+}
+
+.ts-tags-picker-item-on {
+  background: color-mix(in oklab, var(--red) 12%, var(--bg-2));
+}
+
+.ts-tags-picker-item-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ts-tags-picker-foot {
+  padding: 4px 6px 6px;
+  border-top: 1px solid var(--line);
 }
 
 .ts-pri-flag {

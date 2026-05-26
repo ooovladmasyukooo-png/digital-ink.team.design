@@ -101,6 +101,8 @@ function SubtaskBranch({
         description={subtask.description}
         status={subtask.status}
         priority={subtask.priority}
+        tagIds={subtask.tagIds}
+        customTags={subtask.customTags}
         deadline={subtask.deadline}
         completedAt={subtask.completedAt}
         assigneeIds={subtask.assigneeIds}
@@ -180,6 +182,8 @@ export function TaskListTree({
         description={task.description}
         status={task.status}
         priority={task.priority}
+        tagIds={task.tagIds}
+        customTags={task.customTags}
         deadline={task.deadline}
         completedAt={task.completedAt}
         recurrenceRule={task.recurrenceRule}

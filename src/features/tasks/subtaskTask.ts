@@ -27,6 +27,8 @@ export function taskFromSubtask(subtask: TaskSubtask, root: Task): Task {
     title: subtask.title,
     status: subtask.status,
     priority: subtask.priority,
+    tagIds: subtask.tagIds ?? [],
+    customTags: subtask.customTags ?? [],
     deadline: subtask.deadline,
     completedAt: subtask.completedAt,
     assigneeIds: subtask.assigneeIds,
@@ -72,6 +74,8 @@ export function subtaskPatchFromTaskPatch(patch: TaskPatch): Partial<TaskSubtask
   if (patch.title !== undefined) out.title = patch.title;
   if (patch.status !== undefined) out.status = patch.status;
   if (patch.priority !== undefined) out.priority = patch.priority;
+  if (patch.tagIds !== undefined) out.tagIds = patch.tagIds;
+  if (patch.customTags !== undefined) out.customTags = patch.customTags;
   if (patch.deadline !== undefined) out.deadline = patch.deadline;
   if (patch.completedAt !== undefined) out.completedAt = patch.completedAt;
   if (patch.assigneeIds !== undefined) out.assigneeIds = patch.assigneeIds;
@@ -98,6 +102,8 @@ export function createNewSubtask(projectId: string | null, id?: string): TaskSub
     title: 'Нова підзадача',
     status: 'new',
     priority: null,
+    tagIds: [],
+    customTags: [],
     assigneeIds: [],
     projectId,
     deadline: null,

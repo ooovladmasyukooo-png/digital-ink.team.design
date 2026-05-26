@@ -8,17 +8,23 @@ import styles from '../tasks.module.css';
 import type { Priority, Status, TaskSubtask } from '../types';
 import {
   AssigneeCell,
+  TaskTagsCell,
+  TaskTagsEmptyMark,
   assigneePickerClearOption,
   assigneePickerItems,
   priorityPickerItems,
   statusPickerItems,
   SubtaskStatusIcon,
+  tagPickerClearOption,
+  tagPickerItems,
   toggleAssigneeIds,
+  toggleTaskTagIds,
 } from '../taskOptions';
+import { normalizeCustomTags, normalizeTaskTagIds, taskHasTags } from '../taskTags';
 import { TaskDeadlinePicker } from './TaskDeadlinePicker';
 import { TaskPickerPopover } from './TaskPickerPopover';
 
-type SubtaskPickerField = 'status' | 'priority' | 'assignee' | 'deadline';
+type SubtaskPickerField = 'status' | 'tags' | 'priority' | 'assignee' | 'deadline';
 type SubtaskPicker = { subtaskId: string; field: SubtaskPickerField } | null;
 
 interface SubtasksSectionProps {
@@ -121,6 +127,25 @@ export function SubtasksSection({ subtasks, rootProjectId, onChange, onOpenSubta
                 </button>
                 <button
                   type="button"
+                  className={styles['ts-subtask-meta-btn']}
+                  aria-label={
+                    taskHasTags(subtask.tagIds, subtask.customTags)
+                      ? `Теги: ${[...normalizeTaskTagIds(subtask.tagIds), ...normalizeCustomTags(subtask.customTags)].join(', ')}`
+                      : 'Обрати теги'
+                  }
+                  onClick={(e) => openPicker(subtask.id, 'tags', e.currentTarget)}
+                >
+                  {taskHasTags(subtask.tagIds, subtask.customTags) ? (
+                    <TaskTagsCell
+                      tagIds={normalizeTaskTagIds(subtask.tagIds)}
+                      customTags={subtask.customTags}
+                    />
+                  ) : (
+                    <TaskTagsEmptyMark />
+                  )}
+                </button>
+                <button
+                  type="button"
                   className={cx(
                     styles['ts-subtask-meta-btn'],
                     subtask.priority && styles[`ts-subtask-pri-${subtask.priority}`],
@@ -197,9 +222,17 @@ export function SubtasksSection({ subtasks, rootProjectId, onChange, onOpenSubta
             open
             anchorRef={anchorRef}
             searchable={picker.field === 'assignee'}
-            width={picker.field === 'assignee' ? 280 : picker.field === 'status' ? 220 : 200}
+            width={
+              picker.field === 'assignee'
+                ? 280
+                : picker.field === 'tags'
+                  ? 200
+                  : picker.field === 'status'
+                    ? 220
+                    : 200
+            }
             compact={picker.field === 'status'}
-            multiSelect={picker.field === 'assignee'}
+            multiSelect={picker.field === 'assignee' || picker.field === 'tags'}
             clearOption={
               picker.field === 'priority'
                 ? {
@@ -209,19 +242,33 @@ export function SubtasksSection({ subtasks, rootProjectId, onChange, onOpenSubta
                   }
                 : picker.field === 'assignee'
                   ? assigneePickerClearOption(active.assigneeIds)
-                  : undefined
+                  : picker.field === 'tags'
+                    ? tagPickerClearOption(
+                        normalizeTaskTagIds(active.tagIds),
+                        active.customTags,
+                      )
+                    : undefined
             }
             items={
               picker.field === 'status'
                 ? statusPickerItems(active.status)
-                : picker.field === 'priority'
-                  ? priorityPickerItems(active.priority)
-                  : assigneePickerItems(active.assigneeIds)
+                : picker.field === 'tags'
+                  ? tagPickerItems(normalizeTaskTagIds(active.tagIds))
+                  : picker.field === 'priority'
+                    ? priorityPickerItems(active.priority)
+                    : assigneePickerItems(active.assigneeIds)
             }
             onClose={() => setPicker(null)}
             onSelect={(id) => {
               if (picker.field === 'status') {
                 updateOne(active.id, { status: id as Status });
+              }
+              if (picker.field === 'tags') {
+                if (id === '__none__') updateOne(active.id, { tagIds: [], customTags: [] });
+                else
+                  updateOne(active.id, {
+                    tagIds: toggleTaskTagIds(normalizeTaskTagIds(active.tagIds), id),
+                  });
               }
               if (picker.field === 'priority') {
                 updateOne(active.id, { priority: id === '__none__' ? null : (id as Priority) });
