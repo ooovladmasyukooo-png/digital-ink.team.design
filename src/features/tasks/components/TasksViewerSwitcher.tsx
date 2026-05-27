@@ -81,6 +81,12 @@ export function TasksViewerSwitcher({ viewerId, onViewerChange }: TasksViewerSwi
     teamMembers.find((m) => m.id === viewerId) ??
     VIEWER_MEMBERS[0];
   const isSelf = viewerId === TASK_CREATOR_ASSIGNEE_ID;
+  const showClear = !isSelf && !isAll;
+
+  const resetToSelf = () => {
+    onViewerChange(TASK_CREATOR_ASSIGNEE_ID);
+    setOpen(false);
+  };
 
   const query = search.trim().toLowerCase();
   const filtered = useMemo(
@@ -221,38 +227,53 @@ export function TasksViewerSwitcher({ viewerId, onViewerChange }: TasksViewerSwi
 
   return (
     <div className={styles['ts-viewer-wrap']}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className={cx(
-          styles['ts-viewer'],
-          open && styles.on,
-          isAll && styles['ts-viewer-all-on'],
-          !isSelf && !isAll && styles['ts-viewer-other'],
-        )}
-        data-tasks-viewer-trigger
-        aria-expanded={open}
-        aria-haspopup="menu"
-        aria-label={
-          isAll ? 'Усі задачі команди' : isSelf ? 'Мій режим задач' : `Перегляд задач: ${viewer.name}`
-        }
-        onClick={() => setOpen((v) => !v)}
+      <div
+        className={cx(styles['ts-viewer-cluster'], showClear && styles['ts-viewer-cluster-filtered'])}
       >
-        {isAll ? (
-          <span className={styles['ts-viewer-all-i']}>{Icons.team}</span>
-        ) : (
-          <Avatar name={viewer.name} hue={viewer.hue} size="sm" />
-        )}
-        <span
-          className={styles['ts-viewer-label']}
-          title={isAll ? 'Усі' : isSelf ? 'Мій режим' : viewer.name}
+        <button
+          ref={triggerRef}
+          type="button"
+          className={cx(
+            styles['ts-viewer'],
+            open && styles.on,
+            isAll && styles['ts-viewer-all-on'],
+            showClear && styles['ts-viewer-with-clear'],
+            showClear && styles['ts-viewer-other'],
+          )}
+          data-tasks-viewer-trigger
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-label={
+            isAll ? 'Усі задачі команди' : isSelf ? 'Мій режим задач' : `Перегляд задач: ${viewer.name}`
+          }
+          onClick={() => setOpen((v) => !v)}
         >
-          {isAll ? 'Усі' : isSelf ? 'Мій' : viewer.name.split(' ')[0]}
-        </span>
-        <span className={styles['ts-viewer-chev']} aria-hidden>
-          {Icons.chevD}
-        </span>
-      </button>
+          {isAll ? (
+            <span className={styles['ts-viewer-all-i']}>{Icons.team}</span>
+          ) : (
+            <Avatar name={viewer.name} hue={viewer.hue} size="sm" />
+          )}
+          <span
+            className={styles['ts-viewer-label']}
+            title={isAll ? 'Усі' : isSelf ? 'Мій режим' : viewer.name}
+          >
+            {isAll ? 'Усі' : isSelf ? 'Мій' : viewer.name.split(' ')[0]}
+          </span>
+          <span className={styles['ts-viewer-chev']} aria-hidden>
+            {Icons.chevD}
+          </span>
+        </button>
+        {showClear ? (
+          <button
+            type="button"
+            className={styles['ts-viewer-clear']}
+            aria-label="Повернутися до мого режиму"
+            onClick={resetToSelf}
+          >
+            {Icons.close}
+          </button>
+        ) : null}
+      </div>
       {menu}
     </div>
   );

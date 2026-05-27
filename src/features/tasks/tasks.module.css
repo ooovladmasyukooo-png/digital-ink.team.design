@@ -182,6 +182,59 @@
   flex-shrink: 0;
 }
 
+.ts-viewer-cluster {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ts-viewer-clear {
+  display: inline-flex;
+  width: 0;
+  height: 22px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0 999px 999px 0;
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--red) 35%, var(--line));
+  color: var(--txt-3);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition:
+    width 0.12s ease,
+    opacity 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.ts-viewer-cluster-filtered:hover .ts-viewer-with-clear,
+.ts-viewer-cluster-filtered:focus-within .ts-viewer-with-clear {
+  padding-right: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.ts-viewer-cluster-filtered:hover .ts-viewer-clear,
+.ts-viewer-cluster-filtered:focus-within .ts-viewer-clear {
+  width: 20px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ts-viewer-clear:hover {
+  background: color-mix(in oklab, var(--red) 10%, var(--bg-2));
+  color: var(--txt);
+}
+
+.ts-viewer-clear :global(svg) {
+  width: 10px;
+  height: 10px;
+}
+
 .ts-viewer {
   display: inline-flex;
   height: 22px;
