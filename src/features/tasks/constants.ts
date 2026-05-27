@@ -104,6 +104,7 @@ export function createNewTaskForProject(
     subtasks: [],
     comments: [],
     activityLog: [],
+    published: false,
   };
 }
 

@@ -67,6 +67,21 @@ export function buildDesignBriefTaskLink(briefId: string): string {
   return `/design-brief?id=${encodeURIComponent(briefId)}`;
 }
 
+/** Публічне посилання (без авторизації в CRM). */
+export function buildDesignBriefPublicLink(briefId: string): string {
+  return `/design-brief/public?id=${encodeURIComponent(briefId)}`;
+}
+
+export function parseDesignBriefPublicSearch(search: string): string | null {
+  const { briefId } = parseDesignBriefSearch(search);
+  return briefId;
+}
+
+export function isDesignBriefPublicPath(pathname: string): boolean {
+  const path = pathname.replace(/\/$/, '') || '/';
+  return path === '/design-brief/public';
+}
+
 export type BuildDesignBriefUrlOpts = {
   brief?: string | null;
   full?: boolean;

@@ -212,6 +212,7 @@ export function spawnRecurringTask(task: Task, newId: string, now = new Date()):
     recurrenceRule: rule,
     comments: [],
     activityLog: [],
+    published: false,
     checkItems: task.checkItems.map((c) => ({ ...c, done: false })),
     subtasks: resetSubtasksForRecurrence(task.subtasks),
   };

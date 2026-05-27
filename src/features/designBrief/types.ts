@@ -104,6 +104,8 @@ export interface DesignBrief {
   subtasks: DesignBriefSubtask[];
   comments: DesignBriefComment[];
   activityLog: DesignBriefActivityEntry[];
+  /** Публічне посилання без входу в CRM */
+  published: boolean;
 }
 
 export type DesignBriefPatch = Partial<
@@ -130,5 +132,6 @@ export type DesignBriefPatch = Partial<
     | 'subtasks'
     | 'comments'
     | 'activityLog'
+    | 'published'
   >
 >;

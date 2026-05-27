@@ -2,9 +2,10 @@ import { initialTasks } from './data';
 import { normalizeCustomTags, normalizeTaskTagIds } from './taskTags';
 import type { Task, TaskSubtask, TaskTagId } from './types';
 
-type TaskSeed = Omit<Task, 'tagIds' | 'customTags' | 'subtasks'> & {
+type TaskSeed = Omit<Task, 'tagIds' | 'customTags' | 'subtasks' | 'published'> & {
   tagIds?: TaskTagId[];
   customTags?: string[];
+  published?: boolean;
   subtasks: TaskSubtaskSeed[];
 };
 
@@ -26,6 +27,7 @@ function hydrateSubtask(subtask: TaskSubtaskSeed): TaskSubtask {
 function hydrateTask(task: TaskSeed): Task {
   return {
     ...task,
+    published: task.published ?? false,
     tagIds: normalizeTaskTagIds(task.tagIds),
     customTags: normalizeCustomTags(task.customTags),
     subtasks: task.subtasks.map(hydrateSubtask),
@@ -42,6 +44,10 @@ function emit() {
 
 export function getTasks(): Task[] {
   return tasksState;
+}
+
+export function getTaskById(id: string): Task | null {
+  return tasksState.find((task) => task.id === id) ?? null;
 }
 
 export function setTasks(updater: Task[] | ((prev: Task[]) => Task[])): void {

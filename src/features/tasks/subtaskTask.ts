@@ -41,6 +41,7 @@ export function taskFromSubtask(subtask: TaskSubtask, root: Task): Task {
     subtasks: subtask.subtasks,
     comments: [],
     activityLog: [],
+    published: false,
   };
 }
 

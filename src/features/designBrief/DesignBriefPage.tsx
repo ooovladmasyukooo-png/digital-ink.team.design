@@ -9,6 +9,11 @@ import {
   parseDesignBriefSearch,
 } from './designBriefPaths';
 import { useDesignBriefWorkspace } from './useDesignBriefWorkspace';
+import {
+  readDesignBriefSortForTab,
+  writeDesignBriefSortForTab,
+  type DesignBriefSortField,
+} from './designBriefSort';
 import type { DesignBriefViewTabId } from './types';
 import styles from './designBrief.module.css';
 
@@ -40,6 +45,9 @@ export function DesignBriefPage() {
   const [urlSearch, setUrlSearch] = useState(() => window.location.search);
   const [viewerId, setViewerId] = useState(readViewerFromStorage);
   const [activeTab, setActiveTab] = useState<DesignBriefViewTabId>(readTabFromStorage);
+  const [sortField, setSortField] = useState<DesignBriefSortField>(() =>
+    readDesignBriefSortForTab(readTabFromStorage()),
+  );
   const workspace = useDesignBriefWorkspace(viewerId);
   const { panelBrief, selectedBriefId, openBrief, closeDetail } = workspace;
 
@@ -106,8 +114,17 @@ export function DesignBriefPage() {
     [closeDetail],
   );
 
+  const onSortChange = useCallback(
+    (field: DesignBriefSortField) => {
+      setSortField(field);
+      writeDesignBriefSortForTab(activeTab, field);
+    },
+    [activeTab],
+  );
+
   const onTab = useCallback((tabId: DesignBriefViewTabId) => {
     setActiveTab(tabId);
+    setSortField(readDesignBriefSortForTab(tabId));
     try {
       sessionStorage.setItem(DESIGN_BRIEF_TAB_STORAGE_KEY, tabId);
     } catch {
@@ -182,6 +199,8 @@ export function DesignBriefPage() {
           onTab={onTab}
           viewerId={viewerId}
           onViewerChange={onViewerChange}
+          sortField={sortField}
+          onSortChange={onSortChange}
           onCreate={onCreate}
         />
       </div>

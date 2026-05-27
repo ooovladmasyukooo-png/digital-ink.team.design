@@ -57,6 +57,7 @@ export function TaskDetailPage({
           taskLinkId={taskLinkId}
           variant="page"
           onClose={onClose}
+          onUpdate={(patch) => onUpdate(task.id, patch)}
           creatorName={creatorName}
           creatorHue={creator?.hue ?? 0}
           createdAtIso={createdAtIso}

@@ -3,7 +3,9 @@ import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import styles from '../designBrief.module.css';
 import type { DesignBriefViewTabId } from '../types';
+import { DesignBriefSortSwitcher } from './DesignBriefSortSwitcher';
 import { DesignBriefViewerSwitcher } from './DesignBriefViewerSwitcher';
+import type { DesignBriefSortField } from '../designBriefSort';
 
 const DESIGN_BRIEF_TABS: { id: DesignBriefViewTabId; label: string; icon: ReactNode }[] = [
   { id: 'by-date', label: 'За датами', icon: Icons.calendar },
@@ -17,9 +19,18 @@ interface DesignBriefTabsBarProps {
   onTab: (tabId: DesignBriefViewTabId) => void;
   viewerId: string;
   onViewerChange: (memberId: string) => void;
+  sortField: DesignBriefSortField;
+  onSortChange: (field: DesignBriefSortField) => void;
 }
 
-export function DesignBriefTabsBar({ activeTab, onTab, viewerId, onViewerChange }: DesignBriefTabsBarProps) {
+export function DesignBriefTabsBar({
+  activeTab,
+  onTab,
+  viewerId,
+  onViewerChange,
+  sortField,
+  onSortChange,
+}: DesignBriefTabsBarProps) {
   return (
     <div className={styles['db-stacked-tabs-bar']}>
       <nav className={styles['db-stacked-tabs']} aria-label="Вкладки ТЗ">
@@ -35,6 +46,9 @@ export function DesignBriefTabsBar({ activeTab, onTab, viewerId, onViewerChange 
           </button>
         ))}
       </nav>
+      {activeTab !== 'archive' ? (
+        <DesignBriefSortSwitcher sortField={sortField} onSortChange={onSortChange} />
+      ) : null}
       <DesignBriefViewerSwitcher viewerId={viewerId} onViewerChange={onViewerChange} />
     </div>
   );

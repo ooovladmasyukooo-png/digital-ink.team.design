@@ -213,6 +213,7 @@ export function spawnRecurringDesignBrief(brief: DesignBrief, newId: string, now
     recurrenceRule: rule,
     comments: [],
     activityLog: [],
+    published: false,
     checkItems: brief.checkItems.map((c) => ({ ...c, done: false })),
     subtasks: resetSubtasksForRecurrence(brief.subtasks),
   };

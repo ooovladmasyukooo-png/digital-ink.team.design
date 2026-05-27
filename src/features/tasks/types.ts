@@ -102,6 +102,8 @@ export interface Task {
   subtasks: TaskSubtask[];
   comments: TaskComment[];
   activityLog: TaskActivityEntry[];
+  /** Публічне посилання без входу в CRM */
+  published: boolean;
 }
 
 export type TaskPatch = Partial<
@@ -124,6 +126,7 @@ export type TaskPatch = Partial<
     | 'subtasks'
     | 'comments'
     | 'activityLog'
+    | 'published'
   >
 >;
 

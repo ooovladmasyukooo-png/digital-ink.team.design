@@ -1,14 +1,7 @@
-import { PRIORITIES, STATUS_META } from './constants';
+import { STATUS_META } from './constants';
 import { designBriefForActiveList } from './designBriefCompletion';
-import type { Priority, Status, DesignBrief } from './types';
-
-const PRIORITY_SORT_RANK: Record<Priority, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
-
-const NO_PRIORITY_SORT_RANK = 99;
+import { sortDesignBriefs, type DesignBriefSortField } from './designBriefSort';
+import type { Status, DesignBrief } from './types';
 
 export const TASK_STATUS_TAB_ORDER: Status[] = ['new', 'ready', 'in_design', 'approve', 'done'];
 
@@ -18,16 +11,10 @@ export type StatusTaskGroup = {
   tasks: DesignBrief[];
 };
 
-function compareByPriority(a: DesignBrief, b: DesignBrief): number {
-  const rankA = a.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[a.priority];
-  const rankB = b.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[b.priority];
-  if (rankA !== rankB) return rankA - rankB;
-  return a.id.localeCompare(b.id);
-}
-
 export function buildStatusTabGroups(
   briefs: DesignBrief[],
   matches: (brief: DesignBrief) => boolean,
+  sort: DesignBriefSortField = 'priority',
 ): StatusTaskGroup[] {
   const buckets = new Map<Status, DesignBrief[]>();
   for (const status of TASK_STATUS_TAB_ORDER) {
@@ -46,7 +33,7 @@ export function buildStatusTabGroups(
     return {
       status,
       label: STATUS_META[status].label,
-      tasks: [...raw].sort(compareByPriority).map(designBriefForActiveList),
+      tasks: sortDesignBriefs(raw, sort).map(designBriefForActiveList),
     };
   });
 }

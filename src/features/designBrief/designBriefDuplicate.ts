@@ -49,6 +49,7 @@ export function cloneDesignBrief(brief: DesignBrief, newId: string, now = new Da
     completedAt: null,
     status: brief.status === 'done' || brief.status === 'closed' ? 'new' : brief.status,
     activityLog: [],
+    published: false,
     comments: brief.comments.map(
       (comment): DesignBriefComment => ({
         ...comment,

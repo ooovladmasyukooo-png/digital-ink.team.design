@@ -3,9 +3,9 @@ import { Avatar } from '../../../shared/components/Avatar';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { formatTaskRef } from '../taskRef';
-import { buildTaskLink } from '../tasksPaths';
+import { buildTaskLink, buildTaskPublicLink } from '../tasksPaths';
 import styles from '../tasks.module.css';
-import type { Task } from '../types';
+import type { Task, TaskPatch } from '../types';
 
 interface TaskDetailToolbarProps {
   task: Task;
@@ -15,6 +15,7 @@ interface TaskDetailToolbarProps {
   onClose: () => void;
   onExpand?: () => void;
   onCollapse?: () => void;
+  onUpdate?: (patch: TaskPatch) => void;
   creatorName: string;
   creatorHue: number;
   createdAtIso: string;
@@ -27,7 +28,7 @@ export function TaskDetailToolbar({
   variant,
   onClose,
   onExpand,
-  onCollapse,
+  onUpdate,
   creatorName,
   creatorHue,
   createdAtIso,
@@ -36,13 +37,15 @@ export function TaskDetailToolbar({
   const [shareNote, setShareNote] = useState<string | null>(null);
 
   const fullPageHref = buildTaskLink(taskLinkId);
+  const publicHref = buildTaskPublicLink(taskLinkId);
 
   const onShare = async () => {
-    const url = `${window.location.origin}${fullPageHref}`;
+    const path = task.published ? publicHref : fullPageHref;
+    const url = `${window.location.origin}${path}`;
     const text = `${task.title}\n${url}`;
     try {
       await navigator.clipboard.writeText(text);
-      setShareNote('Скопійовано');
+      setShareNote(task.published ? 'Публічне посилання' : 'Скопійовано');
       window.setTimeout(() => setShareNote(null), 2000);
     } catch {
       setShareNote('Не вдалося скопіювати');
@@ -50,14 +53,33 @@ export function TaskDetailToolbar({
     }
   };
 
+  const publishToggle = onUpdate ? (
+    <label
+      className={cx(styles['ts-publish-toggle'], task.published && styles['ts-publish-toggle-on'])}
+      title="Доступ без входу в CRM"
+    >
+      <input
+        type="checkbox"
+        className={styles['ts-publish-toggle-input']}
+        checked={task.published}
+        onChange={(event) => onUpdate({ published: event.target.checked })}
+      />
+      <span className={styles['ts-publish-track']} aria-hidden>
+        <span className={styles['ts-publish-thumb']} />
+      </span>
+      <span className={styles['ts-publish-toggle-label']}>
+        {task.published ? 'Опубліковано' : 'Публікувати'}
+      </span>
+    </label>
+  ) : null;
+
   const meta = (
     <div className={styles['ts-detail-top-meta']}>
-      {variant === 'page' ? (
-        <button type="button" className={styles['ts-drawer-share']} onClick={onShare}>
-          <span className={styles['ts-drawer-share-i']}>{Icons.share}</span>
-          <span>{shareNote ?? 'Поділитися'}</span>
-        </button>
-      ) : null}
+      {publishToggle}
+      <button type="button" className={styles['ts-drawer-share']} onClick={onShare}>
+        <span className={styles['ts-drawer-share-i']}>{Icons.share}</span>
+        <span>{shareNote ?? 'Поділитися'}</span>
+      </button>
       <span className={styles['ts-drawer-creator-av']} title={creatorName} aria-label={`Автор: ${creatorName}`}>
         <Avatar name={creatorName} hue={creatorHue} size="sm" />
       </span>
@@ -87,10 +109,6 @@ export function TaskDetailToolbar({
               {Icons.openExternal}
             </a>
           ) : null}
-          <button type="button" className={styles['ts-drawer-share']} onClick={onShare}>
-            <span className={styles['ts-drawer-share-i']}>{Icons.share}</span>
-            <span>{shareNote ?? 'Поділитися'}</span>
-          </button>
         </div>
         {meta}
       </header>
@@ -102,7 +120,7 @@ export function TaskDetailToolbar({
       <div className={styles['ts-detail-head-row']}>
         <nav className={styles['ts-detail-crumb']} aria-label="Навігація">
           <button type="button" className={cx(styles['ts-detail-crumb-text'], styles['ts-detail-crumb-root'])} onClick={onClose}>
-            Задача
+            Задачі
           </button>
           <span className={cx(styles['ts-detail-crumb-text'], styles['ts-detail-crumb-sep'])} aria-hidden>
             /

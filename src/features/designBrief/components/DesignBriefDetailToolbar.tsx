@@ -3,9 +3,9 @@ import { Avatar } from '../../../shared/components/Avatar';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { formatDesignBriefRef } from '../designBriefRef';
-import { buildDesignBriefTaskLink } from '../designBriefPaths';
+import { buildDesignBriefPublicLink, buildDesignBriefTaskLink } from '../designBriefPaths';
 import styles from '../designBrief.module.css';
-import type { DesignBrief } from '../types';
+import type { DesignBrief, DesignBriefPatch } from '../types';
 
 interface DesignBriefDetailToolbarProps {
   brief: DesignBrief;
@@ -15,6 +15,7 @@ interface DesignBriefDetailToolbarProps {
   onClose: () => void;
   onExpand?: () => void;
   onCollapse?: () => void;
+  onUpdate?: (patch: DesignBriefPatch) => void;
   creatorName: string;
   creatorHue: number;
   createdAtIso: string;
@@ -27,7 +28,7 @@ export function DesignBriefDetailToolbar({
   variant,
   onClose,
   onExpand,
-  onCollapse,
+  onUpdate,
   creatorName,
   creatorHue,
   createdAtIso,
@@ -36,13 +37,15 @@ export function DesignBriefDetailToolbar({
   const [shareNote, setShareNote] = useState<string | null>(null);
 
   const fullPageHref = buildDesignBriefTaskLink(briefLinkId);
+  const publicHref = buildDesignBriefPublicLink(briefLinkId);
 
   const onShare = async () => {
-    const url = `${window.location.origin}${fullPageHref}`;
+    const path = brief.published ? publicHref : fullPageHref;
+    const url = `${window.location.origin}${path}`;
     const text = `${brief.title}\n${url}`;
     try {
       await navigator.clipboard.writeText(text);
-      setShareNote('Скопійовано');
+      setShareNote(brief.published ? 'Публічне посилання' : 'Скопійовано');
       window.setTimeout(() => setShareNote(null), 2000);
     } catch {
       setShareNote('Не вдалося скопіювати');
@@ -51,14 +54,33 @@ export function DesignBriefDetailToolbar({
     onExpand?.();
   };
 
+  const publishToggle = onUpdate ? (
+    <label
+      className={cx(styles['db-publish-toggle'], brief.published && styles['db-publish-toggle-on'])}
+      title="Доступ без входу в CRM"
+    >
+      <input
+        type="checkbox"
+        className={styles['db-publish-toggle-input']}
+        checked={brief.published}
+        onChange={(event) => onUpdate({ published: event.target.checked })}
+      />
+      <span className={styles['db-publish-track']} aria-hidden>
+        <span className={styles['db-publish-thumb']} />
+      </span>
+      <span className={styles['db-publish-toggle-label']}>
+        {brief.published ? 'Опубліковано' : 'Публікувати'}
+      </span>
+    </label>
+  ) : null;
+
   const meta = (
     <div className={styles['db-detail-top-meta']}>
-      {variant === 'page' ? (
-        <button type="button" className={styles['db-drawer-share']} onClick={onShare}>
-          <span className={styles['db-drawer-share-i']}>{Icons.share}</span>
-          <span>{shareNote ?? 'Поділитися'}</span>
-        </button>
-      ) : null}
+      {publishToggle}
+      <button type="button" className={styles['db-drawer-share']} onClick={onShare}>
+        <span className={styles['db-drawer-share-i']}>{Icons.share}</span>
+        <span>{shareNote ?? 'Поділитися'}</span>
+      </button>
       <span className={styles['db-drawer-creator-av']} title={creatorName} aria-label={`Автор: ${creatorName}`}>
         <Avatar name={creatorName} hue={creatorHue} size="sm" />
       </span>
@@ -88,10 +110,6 @@ export function DesignBriefDetailToolbar({
               {Icons.openExternal}
             </a>
           ) : null}
-          <button type="button" className={styles['db-drawer-share']} onClick={onShare}>
-            <span className={styles['db-drawer-share-i']}>{Icons.share}</span>
-            <span>{shareNote ?? 'Поділитися'}</span>
-          </button>
         </div>
         {meta}
       </header>

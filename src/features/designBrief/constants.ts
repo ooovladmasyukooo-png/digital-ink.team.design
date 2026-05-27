@@ -101,6 +101,7 @@ export function createNewDesignBrief(
     subtasks: [],
     comments: [],
     activityLog: [],
+    published: false,
   };
 }
 

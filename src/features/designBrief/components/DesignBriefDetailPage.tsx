@@ -57,6 +57,7 @@ export function DesignBriefDetailPage({
           briefLinkId={briefLinkId}
           variant="page"
           onClose={onClose}
+          onUpdate={(patch) => onUpdate(brief.id, patch)}
           creatorName={creatorName}
           creatorHue={creator?.hue ?? 0}
           createdAtIso={createdAtIso}

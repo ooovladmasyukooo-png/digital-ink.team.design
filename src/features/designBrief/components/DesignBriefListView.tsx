@@ -6,6 +6,7 @@ import { buildDesignBriefGroups } from '../designBriefGroups';
 import { buildDesignBriefPeopleGroups } from '../designBriefPeopleGroups';
 import type { DesignBriefWorkspace } from '../useDesignBriefWorkspace';
 import styles from '../designBrief.module.css';
+import type { DesignBriefSortField } from '../designBriefSort';
 import type { DesignBriefViewTabId } from '../types';
 import { DesignBriefArchiveGroupSection } from './DesignBriefArchiveGroupSection';
 import { DesignBriefDateGroupSection } from './DesignBriefDateGroupSection';
@@ -20,6 +21,8 @@ interface DesignBriefListViewProps {
   onTab: (tabId: DesignBriefViewTabId) => void;
   viewerId: string;
   onViewerChange: (memberId: string) => void;
+  sortField: DesignBriefSortField;
+  onSortChange: (field: DesignBriefSortField) => void;
   onCreate: () => void;
 }
 
@@ -29,6 +32,8 @@ export function DesignBriefListView({
   onTab,
   viewerId,
   onViewerChange,
+  sortField,
+  onSortChange,
   onCreate,
 }: DesignBriefListViewProps) {
   const {
@@ -49,18 +54,18 @@ export function DesignBriefListView({
   } = workspace;
 
   const statusGroups = useMemo(
-    () => buildDesignBriefGroups(briefs, viewerId),
-    [briefs, viewerId],
+    () => buildDesignBriefGroups(briefs, viewerId, sortField),
+    [briefs, sortField, viewerId],
   );
 
   const dateGrouped = useMemo(
-    () => groupDesignBriefsByDate(briefs, new Date(), viewerId),
-    [briefs, viewerId],
+    () => groupDesignBriefsByDate(briefs, new Date(), viewerId, sortField),
+    [briefs, sortField, viewerId],
   );
 
   const peopleGroups = useMemo(
-    () => buildDesignBriefPeopleGroups(briefs, viewerId),
-    [briefs, viewerId],
+    () => buildDesignBriefPeopleGroups(briefs, viewerId, sortField),
+    [briefs, sortField, viewerId],
   );
 
   const archiveGrouped = useMemo(
@@ -104,6 +109,8 @@ export function DesignBriefListView({
           onTab={onTab}
           viewerId={viewerId}
           onViewerChange={onViewerChange}
+          sortField={sortField}
+          onSortChange={onSortChange}
         />
       </header>
       <div className={listClassName}>

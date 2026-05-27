@@ -114,6 +114,9 @@ function describePatch(prev: Task, patch: TaskPatch): string | null {
     const checkText = describeCheckItemsChange(prev.checkItems, patch.checkItems);
     if (checkText) parts.push(checkText);
   }
+  if (patch.published !== undefined && patch.published !== prev.published) {
+    parts.push(patch.published ? 'опублікувала задачу' : 'зняла публікацію задачі');
+  }
 
   if (parts.length === 0) return null;
   return parts.join(', ');

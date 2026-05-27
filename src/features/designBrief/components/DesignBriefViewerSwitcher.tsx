@@ -81,6 +81,12 @@ export function DesignBriefViewerSwitcher({ viewerId, onViewerChange }: DesignBr
     teamMembers.find((m) => m.id === viewerId) ??
     VIEWER_MEMBERS[0];
   const isSelf = viewerId === DESIGN_BRIEF_CREATOR_ID;
+  const showClear = !isSelf && !isAll;
+
+  const resetToSelf = () => {
+    onViewerChange(DESIGN_BRIEF_CREATOR_ID);
+    setOpen(false);
+  };
 
   const query = search.trim().toLowerCase();
   const filtered = useMemo(
@@ -130,7 +136,7 @@ export function DesignBriefViewerSwitcher({ viewerId, onViewerChange }: DesignBr
       if (
         triggerRef.current?.contains(target) ||
         menuRef.current?.contains(target) ||
-        target.closest('[data-tasks-viewer-trigger]')
+        target.closest('[data-design-brief-viewer-trigger]')
       ) {
         return;
       }
@@ -221,38 +227,53 @@ export function DesignBriefViewerSwitcher({ viewerId, onViewerChange }: DesignBr
 
   return (
     <div className={styles['db-viewer-wrap']}>
-      <button
-        ref={triggerRef}
-        type="button"
-        className={cx(
-          styles['db-viewer'],
-          open && styles.on,
-          isAll && styles['db-viewer-all-on'],
-          !isSelf && !isAll && styles['db-viewer-other'],
-        )}
-        data-tasks-viewer-trigger
-        aria-expanded={open}
-        aria-haspopup="menu"
-        aria-label={
-          isAll ? 'Усі задачі команди' : isSelf ? 'Мій режим задач' : `Перегляд задач: ${viewer.name}`
-        }
-        onClick={() => setOpen((v) => !v)}
+      <div
+        className={cx(styles['db-viewer-cluster'], showClear && styles['db-viewer-cluster-filtered'])}
       >
-        {isAll ? (
-          <span className={styles['db-viewer-all-i']}>{Icons.team}</span>
-        ) : (
-          <Avatar name={viewer.name} hue={viewer.hue} size="sm" />
-        )}
-        <span
-          className={styles['db-viewer-label']}
-          title={isAll ? 'Усі' : isSelf ? 'Мій режим' : viewer.name}
+        <button
+          ref={triggerRef}
+          type="button"
+          className={cx(
+            styles['db-viewer'],
+            open && styles.on,
+            isAll && styles['db-viewer-all-on'],
+            showClear && styles['db-viewer-with-clear'],
+            showClear && styles['db-viewer-other'],
+          )}
+          data-design-brief-viewer-trigger
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-label={
+            isAll ? 'Усі ТЗ команди' : isSelf ? 'Мій режим ТЗ' : `Перегляд ТЗ: ${viewer.name}`
+          }
+          onClick={() => setOpen((v) => !v)}
         >
-          {isAll ? 'Усі' : isSelf ? 'Мій' : viewer.name.split(' ')[0]}
-        </span>
-        <span className={styles['db-viewer-chev']} aria-hidden>
-          {Icons.chevD}
-        </span>
-      </button>
+          {isAll ? (
+            <span className={styles['db-viewer-all-i']}>{Icons.team}</span>
+          ) : (
+            <Avatar name={viewer.name} hue={viewer.hue} size="sm" />
+          )}
+          <span
+            className={styles['db-viewer-label']}
+            title={isAll ? 'Усі' : isSelf ? 'Мій режим' : viewer.name}
+          >
+            {isAll ? 'Усі' : isSelf ? 'Мій' : viewer.name.split(' ')[0]}
+          </span>
+          <span className={styles['db-viewer-chev']} aria-hidden>
+            {Icons.chevD}
+          </span>
+        </button>
+        {showClear ? (
+          <button
+            type="button"
+            className={styles['db-viewer-clear']}
+            aria-label="Повернутися до мого режиму"
+            onClick={resetToSelf}
+          >
+            {Icons.close}
+          </button>
+        ) : null}
+      </div>
       {menu}
     </div>
   );

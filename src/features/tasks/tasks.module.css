@@ -2349,17 +2349,24 @@
 }
 
 .ts-detail-head-page {
+  flex-direction: row;
+  align-items: center;
   gap: 0;
-  padding: 8px 20px 10px var(--ts-content-x);
+  min-height: 40px;
+  padding: 8px 18px 10px calc(var(--ts-content-x) + 10px);
 }
 
 .ts-detail-head-page .ts-detail-head-row {
+  width: 100%;
   gap: 12px;
+  min-height: 22px;
 }
 
 .ts-detail-head-page .ts-detail-crumb {
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 22px;
+  align-items: center;
 }
 
 .ts-detail-head-row {
@@ -2423,6 +2430,9 @@
 }
 
 .ts-detail-page {
+  --ts-line: color-mix(in oklab, var(--line) 28%, transparent);
+  --ts-drawer-x: 24px;
+  --ts-drawer-divider: 1px dashed color-mix(in oklab, var(--line) 58%, transparent);
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -2551,6 +2561,90 @@
 .ts-drawer-share-i :global(svg) {
   width: 13px;
   height: 13px;
+}
+
+.ts-publish-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  color: var(--txt-3);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  user-select: none;
+}
+
+.ts-publish-toggle:hover {
+  background: var(--bg-2);
+  color: var(--txt);
+}
+
+.ts-publish-toggle-on {
+  color: var(--txt-2);
+}
+
+.ts-publish-toggle-on:hover {
+  color: var(--txt);
+}
+
+.ts-publish-toggle-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.ts-publish-track {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--line) 55%, var(--bg-2));
+  transition: background 0.15s ease;
+}
+
+.ts-publish-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 22%);
+  transition: transform 0.15s ease;
+}
+
+.ts-publish-toggle-input:checked + .ts-publish-track {
+  background: var(--green);
+}
+
+.ts-publish-toggle-input:checked + .ts-publish-track .ts-publish-thumb {
+  transform: translateX(14px);
+}
+
+.ts-publish-toggle-input:focus-visible + .ts-publish-track {
+  outline: 2px solid color-mix(in oklab, var(--blue) 55%, transparent);
+  outline-offset: 2px;
+}
+
+.ts-publish-toggle-label {
+  white-space: nowrap;
+}
+
+.ts-publish-toggle-on .ts-publish-toggle-label {
+  color: var(--green);
 }
 
 .ts-drawer-body {
@@ -3700,4 +3794,128 @@ button.ts-comment-attachment-link {
 .ts-detail-add :global(svg) {
   width: 12px;
   height: 12px;
+}
+
+.ts-public-page {
+  min-height: 100vh;
+  padding: 24px 20px 48px;
+  background: var(--bg);
+  color: var(--txt);
+}
+
+.ts-public-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 50%, transparent);
+}
+
+.ts-public-brand {
+  color: var(--txt-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ts-public-ref {
+  color: var(--txt-4);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+
+.ts-public-main {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.ts-public-title {
+  margin: 0 0 14px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.ts-public-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px 16px;
+  margin: 0 0 20px;
+}
+
+.ts-public-meta dt {
+  margin: 0 0 2px;
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ts-public-meta dd {
+  margin: 0;
+  color: var(--txt-2);
+  font-size: 12px;
+}
+
+.ts-public-block {
+  margin-bottom: 18px;
+}
+
+.ts-public-k {
+  margin: 0 0 8px;
+  color: var(--txt-3);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.ts-public-text {
+  margin: 0;
+  color: var(--txt-2);
+  font-size: 13px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.ts-public-checklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ts-public-checklist li {
+  position: relative;
+  padding: 4px 0 4px 18px;
+  color: var(--txt-2);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.ts-public-checklist li::before {
+  position: absolute;
+  left: 0;
+  color: var(--txt-4);
+  content: '○';
+}
+
+.ts-public-check-done {
+  color: var(--txt-4);
+  text-decoration: line-through;
+}
+
+.ts-public-check-done::before {
+  content: '✓';
+  color: var(--green);
+}
+
+.ts-public-empty {
+  max-width: 420px;
+  margin: 48px auto;
+  color: var(--txt-3);
+  font-size: 14px;
+  text-align: center;
 }

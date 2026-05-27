@@ -29,6 +29,7 @@ export function cloneTask(task: Task, newId: string, now = new Date()): Task {
     completedAt: null,
     status: task.status === 'done' || task.status === 'archive' ? 'new' : task.status,
     activityLog: [],
+    published: false,
     comments: task.comments.map(
       (comment): TaskComment => ({
         ...comment,

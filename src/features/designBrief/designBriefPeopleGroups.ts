@@ -1,23 +1,8 @@
 import { teamMembers } from '../team/data';
-import { PRIORITIES } from './constants';
 import { designBriefForActiveList, isCompletedStatus } from './designBriefCompletion';
+import { sortDesignBriefs, type DesignBriefSortField } from './designBriefSort';
 import { isDesignBriefViewerAll, passesDesignBriefViewerFilter } from './designBriefViewer';
-import type { DesignBrief, Priority } from './types';
-
-const PRIORITY_SORT_RANK: Record<Priority, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
-
-const NO_PRIORITY_SORT_RANK = 99;
-
-function compareByPriority(a: DesignBrief, b: DesignBrief): number {
-  const rankA = a.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[a.priority];
-  const rankB = b.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[b.priority];
-  if (rankA !== rankB) return rankA - rankB;
-  return a.id.localeCompare(b.id);
-}
+import type { DesignBrief } from './types';
 
 export type DesignBriefPeopleGroup = {
   memberId: string;
@@ -25,7 +10,11 @@ export type DesignBriefPeopleGroup = {
   tasks: DesignBrief[];
 };
 
-export function buildDesignBriefPeopleGroups(briefs: DesignBrief[], viewerId: string): DesignBriefPeopleGroup[] {
+export function buildDesignBriefPeopleGroups(
+  briefs: DesignBrief[],
+  viewerId: string,
+  sort: DesignBriefSortField = 'priority',
+): DesignBriefPeopleGroup[] {
   const buckets = new Map<string, DesignBrief[]>();
 
   for (const brief of briefs) {
@@ -55,7 +44,7 @@ export function buildDesignBriefPeopleGroups(briefs: DesignBrief[], viewerId: st
     groups.push({
       memberId,
       label: member?.name ?? memberId,
-      tasks: [...raw].sort(compareByPriority).map(designBriefForActiveList),
+      tasks: sortDesignBriefs(raw, sort).map(designBriefForActiveList),
     });
   }
 

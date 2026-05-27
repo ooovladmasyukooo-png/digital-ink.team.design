@@ -5,9 +5,10 @@ type SeedSubtask = Omit<TaskSubtask, 'tagIds' | 'customTags' | 'subtasks'> & {
   customTags?: string[];
   subtasks: SeedSubtask[];
 };
-type SeedTask = Omit<Task, 'tagIds' | 'customTags' | 'subtasks'> & {
+type SeedTask = Omit<Task, 'tagIds' | 'customTags' | 'subtasks' | 'published'> & {
   tagIds?: TaskTagId[];
   customTags?: string[];
+  published?: boolean;
   subtasks: SeedSubtask[];
 };
 
@@ -101,6 +102,7 @@ export const initialTasks: SeedTask[] = [
   },
   {
     id: 't4',
+    published: true,
     title: 'Узгодити креативи з клієнтом',
     status: 'control',
     priority: 'medium',

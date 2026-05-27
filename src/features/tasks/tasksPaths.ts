@@ -105,6 +105,20 @@ export function buildTaskLink(taskId: string): string {
   return `/tasks${buildTaskSearch(taskId)}`;
 }
 
+/** Публічне посилання (без авторизації в CRM). */
+export function buildTaskPublicLink(taskId: string): string {
+  return `/tasks/public?id=${encodeURIComponent(taskId)}`;
+}
+
+export function parseTaskPublicSearch(search: string): string | null {
+  return parseTasksSearch(search).taskId;
+}
+
+export function isTaskPublicPath(pathname: string): boolean {
+  const path = pathname.replace(/\/$/, '') || '/';
+  return path === '/tasks/public';
+}
+
 /** Список задач: /tasks?day або drawer /tasks?day&id=t1 */
 export function buildTasksSearch(view: TasksViewQuery, opts?: BuildTasksSearchOpts): string {
   if (opts?.full && opts.task) {

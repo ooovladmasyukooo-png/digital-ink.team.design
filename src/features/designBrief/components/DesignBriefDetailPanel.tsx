@@ -58,6 +58,7 @@ export function DesignBriefDetailPanel({
           variant="drawer"
           onClose={onClose}
           onExpand={onExpand}
+          onUpdate={(patch) => onUpdate(brief.id, patch)}
           creatorName={creatorName}
           creatorHue={creator?.hue ?? 0}
           createdAtIso={createdAtIso}

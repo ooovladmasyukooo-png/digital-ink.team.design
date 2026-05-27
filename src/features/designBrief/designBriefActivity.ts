@@ -63,6 +63,9 @@ function describePatch(prev: DesignBrief, patch: DesignBriefPatch): string | nul
   if (patch.checkItems !== undefined) {
     parts.push('оновила чеклист');
   }
+  if (patch.published !== undefined && patch.published !== prev.published) {
+    parts.push(patch.published ? 'опублікувала ТЗ' : 'зняла публікацію ТЗ');
+  }
 
   if (parts.length === 0) return null;
   return parts.join(', ');

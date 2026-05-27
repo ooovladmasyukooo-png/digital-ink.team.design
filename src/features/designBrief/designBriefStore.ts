@@ -13,6 +13,10 @@ export function getDesignBriefs(): DesignBrief[] {
   return briefsState;
 }
 
+export function getDesignBriefById(id: string): DesignBrief | null {
+  return briefsState.find((brief) => brief.id === id) ?? null;
+}
+
 export function setDesignBriefs(
   updater: DesignBrief[] | ((prev: DesignBrief[]) => DesignBrief[]),
 ): void {

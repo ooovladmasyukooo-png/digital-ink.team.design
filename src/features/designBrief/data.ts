@@ -35,6 +35,7 @@ export const initialDesignBriefs: DesignBrief[] = [
     subtasks: [],
     comments: [],
     activityLog: [],
+    published: false,
   },
   {
     id: 'db2',
@@ -59,6 +60,7 @@ export const initialDesignBriefs: DesignBrief[] = [
     subtasks: [],
     comments: [],
     activityLog: [],
+    published: true,
   },
   {
     id: 'db3',
@@ -83,6 +85,7 @@ export const initialDesignBriefs: DesignBrief[] = [
     subtasks: [],
     comments: [],
     activityLog: [],
+    published: false,
   },
 ];
 

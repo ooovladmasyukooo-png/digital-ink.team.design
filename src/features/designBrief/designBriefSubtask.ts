@@ -45,6 +45,7 @@ export function designBriefFromSubtask(subtask: DesignBriefSubtask, root: Design
     subtasks: subtask.subtasks,
     comments: [],
     activityLog: [],
+    published: false,
   };
 }
 

@@ -6,8 +6,11 @@ import { FinancePage } from '../features/finance/FinancePage';
 import type { ProjectSubtabId } from '../features/projects2/types';
 import { Projects2Page } from '../features/projects2/Projects2Page';
 import { DesignBriefPage } from '../features/designBrief/DesignBriefPage';
+import { DesignBriefPublicPage } from '../features/designBrief/components/DesignBriefPublicPage';
+import { isDesignBriefPublicPath } from '../features/designBrief/designBriefPaths';
 import { TasksPage } from '../features/tasks/TasksPage';
-import { buildTaskLink } from '../features/tasks/tasksPaths';
+import { TaskPublicPage } from '../features/tasks/components/TaskPublicPage';
+import { buildTaskLink, isTaskPublicPath } from '../features/tasks/tasksPaths';
 import type { TeamSubtabId } from '../features/team/types';
 import { TeamPage } from '../features/team/TeamPage';
 import type { FeatureId } from '../shared/types/common';
@@ -41,7 +44,15 @@ const featurePages: Record<
 };
 
 export function App() {
-  const initial = parseLocation(window.location.pathname, window.location.search);
+  const pathname = window.location.pathname;
+  if (isDesignBriefPublicPath(pathname)) {
+    return <DesignBriefPublicPage />;
+  }
+  if (isTaskPublicPath(pathname)) {
+    return <TaskPublicPage />;
+  }
+
+  const initial = parseLocation(pathname, window.location.search);
   const [active, setActive] = useState<FeatureId>(() => initial.feature);
   const [teamProfileId, setTeamProfileId] = useState<string | null>(() => initial.teamProfileId);
   const [teamSubtab, setTeamSubtab] = useState<TeamSubtabId>(() => initial.teamSubtab);
