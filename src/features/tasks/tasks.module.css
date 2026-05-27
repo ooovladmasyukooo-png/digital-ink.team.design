@@ -1438,6 +1438,10 @@
   color: #c084fc;
 }
 
+.ts-tag-icon.ts-tag-slow {
+  color: #7dd3fc;
+}
+
 .ts-tag-chip-wrap {
   display: inline-flex;
 }

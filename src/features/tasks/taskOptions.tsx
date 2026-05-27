@@ -53,7 +53,7 @@ export function statusPickerItems(current: Status): TaskPickerItem[] {
   }));
 }
 
-const TAG_CHIP_TONE = { quick: 'orange', client: 'purple' } as const;
+const TAG_CHIP_TONE = { quick: 'orange', client: 'purple', slow: 'cold' } as const;
 
 export function TaskTagChip({ id }: { id: TaskTagId }) {
   return (

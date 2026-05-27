@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { Icons } from '../../shared/components/Icon';
 import type { TaskTagId } from './types';
 
-export type TaskTagTone = 'orange' | 'cyan';
+export type TaskTagTone = 'orange' | 'cyan' | 'cold';
 
 export const TASK_TAGS: Record<
   TaskTagId,
@@ -10,10 +10,11 @@ export const TASK_TAGS: Record<
 > = {
   quick: { label: 'Quick', tone: 'orange', icon: Icons.bolt },
   client: { label: 'Client', tone: 'cyan', icon: Icons.client },
+  slow: { label: 'Slow', tone: 'cold', icon: Icons.snowflake },
 };
 
 /** Порядок відображення та вибору в picker. */
-export const TASK_TAG_OPTIONS: TaskTagId[] = ['quick', 'client'];
+export const TASK_TAG_OPTIONS: TaskTagId[] = ['quick', 'client', 'slow'];
 
 export function normalizeTaskTagIds(tagIds?: TaskTagId[] | null): TaskTagId[] {
   if (!tagIds?.length) return [];

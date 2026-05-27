@@ -3,7 +3,7 @@ export type TasksViewTabId = 'by-date' | 'by-area' | 'personal' | 'delegated' | 
 export type Status = 'inbox' | 'new' | 'doing' | 'control' | 'done' | 'archive';
 export type Priority = 'high' | 'medium' | 'low';
 
-export type TaskTagId = 'quick' | 'client';
+export type TaskTagId = 'quick' | 'client' | 'slow';
 
 export type DateGroupId = 'overdue' | 'today' | 'tomorrow' | 'week' | 'later' | 'none';
 
