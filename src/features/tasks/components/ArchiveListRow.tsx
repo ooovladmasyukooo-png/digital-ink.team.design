@@ -25,6 +25,7 @@ export function ArchiveListRow({ item, workspace }: ArchiveListRowProps) {
       parentTaskTitle={item.isSubtask ? item.parentTitle : null}
       title={item.title}
       description={item.description}
+      checkItems={item.checkItems}
       status={item.status}
       priority={item.priority}
       tagIds={item.tagIds}

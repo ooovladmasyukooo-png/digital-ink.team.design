@@ -1,17 +1,10 @@
 import { projects } from '../projects2/data';
-import { PRIORITIES, STATUS_META, TASK_CREATOR_ASSIGNEE_ID } from './constants';
+import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { taskForActiveList } from './taskCompletion';
 import { projectById } from './taskOptions';
+import { sortTasks } from './taskSort';
 import { passesViewerAssigneeFilter } from './taskViewer';
-import type { Priority, Task } from './types';
-
-const PRIORITY_SORT_RANK: Record<Priority, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
-
-const NO_PRIORITY_SORT_RANK = 99;
+import type { Task, TasksSortField } from './types';
 
 export type ProjectGroup = {
   id: string;
@@ -23,17 +16,6 @@ export type ProjectGroup = {
   tasks: Task[];
 };
 
-function compareTasksByStatusThenPriority(a: Task, b: Task): number {
-  const statusDiff = STATUS_META[a.status].rank - STATUS_META[b.status].rank;
-  if (statusDiff !== 0) return statusDiff;
-
-  const rankA = a.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[a.priority];
-  const rankB = b.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[b.priority];
-  if (rankA !== rankB) return rankA - rankB;
-
-  return a.id.localeCompare(b.id);
-}
-
 export function projectGroupLabels(projectId: string | null): { label: string; fullLabel: string } {
   if (!projectId) return { label: 'Без проєкту', fullLabel: 'Без проєкту' };
   const p = projectById[projectId];
@@ -42,7 +24,11 @@ export function projectGroupLabels(projectId: string | null): { label: string; f
 }
 
 /** Групи за проєктом; у групі — від Inbox до Done (без Archive). */
-export function buildProjectGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGNEE_ID): ProjectGroup[] {
+export function buildProjectGroups(
+  tasks: Task[],
+  viewerId = TASK_CREATOR_ASSIGNEE_ID,
+  sort: TasksSortField = 'status',
+): ProjectGroup[] {
   const buckets = new Map<string, Task[]>();
 
   for (const task of tasks) {
@@ -69,7 +55,7 @@ export function buildProjectGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGN
     if (!raw?.length) continue;
 
     const projectId = key;
-    const sorted = [...raw].sort(compareTasksByStatusThenPriority).map(taskForActiveList);
+    const sorted = sortTasks(raw, sort).map(taskForActiveList);
 
     const { label, fullLabel } = projectGroupLabels(projectId);
     groups.push({

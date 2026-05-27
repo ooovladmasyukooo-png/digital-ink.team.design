@@ -1,5 +1,7 @@
 export type TasksViewTabId = 'by-date' | 'by-area' | 'personal' | 'delegated' | 'archive';
 
+export type TasksSortField = 'deadline' | 'status' | 'priority';
+
 export type Status = 'inbox' | 'new' | 'doing' | 'control' | 'done' | 'archive';
 export type Priority = 'high' | 'medium' | 'low';
 
@@ -59,6 +61,13 @@ export interface TaskActivityEntry {
   text: string;
 }
 
+export interface TaskCommentAttachment {
+  id: string;
+  name: string;
+  dataUrl: string;
+  mimeType: string;
+}
+
 export interface TaskComment {
   id: string;
   /** ISO datetime */
@@ -66,6 +75,7 @@ export interface TaskComment {
   authorId: string;
   body: string;
   mentionIds?: string[];
+  attachments?: TaskCommentAttachment[];
 }
 
 export interface Task {
@@ -127,6 +137,7 @@ export interface ArchiveListItem {
   rootTitle: string;
   title: string;
   description: string;
+  checkItems: TaskCheckItem[];
   status: Status;
   priority: Priority | null;
   tagIds: TaskTagId[];

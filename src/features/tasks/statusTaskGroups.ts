@@ -1,14 +1,7 @@
-import { PRIORITIES, STATUS_META } from './constants';
+import { STATUS_META } from './constants';
 import { taskForActiveList } from './taskCompletion';
-import type { Priority, Status, Task } from './types';
-
-const PRIORITY_SORT_RANK: Record<Priority, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
-
-const NO_PRIORITY_SORT_RANK = 99;
+import { sortTasks } from './taskSort';
+import type { Status, Task, TasksSortField } from './types';
 
 export const TASK_STATUS_TAB_ORDER: Status[] = ['inbox', 'new', 'doing', 'control', 'done'];
 
@@ -18,16 +11,10 @@ export type StatusTaskGroup = {
   tasks: Task[];
 };
 
-function compareTasksByPriority(a: Task, b: Task): number {
-  const rankA = a.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[a.priority];
-  const rankB = b.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[b.priority];
-  if (rankA !== rankB) return rankA - rankB;
-  return a.id.localeCompare(b.id);
-}
-
 export function buildStatusTabGroups(
   tasks: Task[],
   matches: (task: Task) => boolean,
+  sort: TasksSortField = 'priority',
 ): StatusTaskGroup[] {
   const buckets = new Map<Status, Task[]>();
   for (const status of TASK_STATUS_TAB_ORDER) {
@@ -46,7 +33,7 @@ export function buildStatusTabGroups(
     return {
       status,
       label: STATUS_META[status].label,
-      tasks: [...raw].sort(compareTasksByPriority).map(taskForActiveList),
+      tasks: sortTasks(raw, sort).map(taskForActiveList),
     };
   });
 }

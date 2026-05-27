@@ -1,7 +1,7 @@
 import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { buildStatusTabGroups, TASK_STATUS_TAB_ORDER } from './statusTaskGroups';
 import { isTasksViewerAll } from './taskViewer';
-import type { Task } from './types';
+import type { Task, TasksSortField } from './types';
 
 export { TASK_STATUS_TAB_ORDER as PERSONAL_STATUS_ORDER };
 export type { StatusTaskGroup as PersonalStatusGroup } from './statusTaskGroups';
@@ -19,9 +19,13 @@ export function isTeamPersonalTask(task: Task): boolean {
   return task.projectId === null;
 }
 
-export function buildPersonalGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGNEE_ID) {
+export function buildPersonalGroups(
+  tasks: Task[],
+  viewerId = TASK_CREATOR_ASSIGNEE_ID,
+  sort: TasksSortField = 'priority',
+) {
   const match = isTasksViewerAll(viewerId)
     ? isTeamPersonalTask
     : (task: Task) => isPersonalTask(task, viewerId);
-  return buildStatusTabGroups(tasks, match);
+  return buildStatusTabGroups(tasks, match, sort);
 }

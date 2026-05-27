@@ -26,8 +26,8 @@ export function TasksDelegatedView({ workspace }: TasksDelegatedViewProps) {
   } = workspace;
 
   const groups = useMemo(
-    () => buildDelegatedGroups(tasks, workspace.viewerId),
-    [tasks, workspace.viewerId],
+    () => buildDelegatedGroups(tasks, workspace.viewerId, workspace.sortField),
+    [tasks, workspace.viewerId, workspace.sortField],
   );
 
   return (

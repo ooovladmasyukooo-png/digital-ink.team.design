@@ -26,8 +26,8 @@ export function TasksPersonalView({ workspace }: TasksPersonalViewProps) {
   } = workspace;
 
   const groups = useMemo(
-    () => buildPersonalGroups(tasks, workspace.viewerId),
-    [tasks, workspace.viewerId],
+    () => buildPersonalGroups(tasks, workspace.viewerId, workspace.sortField),
+    [tasks, workspace.viewerId, workspace.sortField],
   );
 
   return (

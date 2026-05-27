@@ -1,25 +1,8 @@
 import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { isCompletedStatus } from './taskCompletion';
+import { sortTasks } from './taskSort';
 import { passesViewerAssigneeFilter } from './taskViewer';
-import type { DateGroupId, Priority, Task } from './types';
-
-/** Відповідає rank у PRIORITIES (constants.ts): high → low, без пріоритету — в кінці. */
-const PRIORITY_SORT_RANK: Record<Priority, number> = {
-  high: 0,
-  medium: 1,
-  low: 2,
-};
-
-const NO_PRIORITY_SORT_RANK = 99;
-
-const DATE_GROUPS_BY_PRIORITY: DateGroupId[] = ['overdue', 'today', 'tomorrow'];
-
-function compareTasksByPriority(a: Task, b: Task): number {
-  const rankA = a.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[a.priority];
-  const rankB = b.priority === null ? NO_PRIORITY_SORT_RANK : PRIORITY_SORT_RANK[b.priority];
-  if (rankA !== rankB) return rankA - rankB;
-  return a.id.localeCompare(b.id);
-}
+import type { DateGroupId, Task, TasksSortField } from './types';
 
 export const DATE_GROUP_ORDER: DateGroupId[] = ['overdue', 'today', 'tomorrow', 'week', 'later', 'none'];
 
@@ -103,6 +86,7 @@ export function groupTasksByDate(
   tasks: Task[],
   now = new Date(),
   viewerId = TASK_CREATOR_ASSIGNEE_ID,
+  sort: TasksSortField = 'priority',
 ): Record<DateGroupId, Task[]> {
   const buckets = Object.fromEntries(DATE_GROUP_ORDER.map((id) => [id, [] as Task[]])) as Record<
     DateGroupId,
@@ -116,8 +100,8 @@ export function groupTasksByDate(
     buckets[group].push(task);
   }
 
-  for (const groupId of DATE_GROUPS_BY_PRIORITY) {
-    buckets[groupId].sort(compareTasksByPriority);
+  for (const groupId of DATE_GROUP_ORDER) {
+    buckets[groupId] = sortTasks(buckets[groupId], sort);
   }
 
   return buckets;

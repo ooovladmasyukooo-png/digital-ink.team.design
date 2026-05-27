@@ -3,7 +3,9 @@ import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import type { TasksViewTabId } from '../types';
 import styles from '../tasks.module.css';
+import { TasksSortSwitcher } from './TasksSortSwitcher';
 import { TasksViewerSwitcher } from './TasksViewerSwitcher';
+import type { TasksSortField } from '../types';
 
 const TASK_TABS: { id: TasksViewTabId; label: string; icon: ReactNode }[] = [
   { id: 'by-date', label: 'За датами', icon: Icons.calendar },
@@ -20,6 +22,8 @@ interface TasksPageHeaderProps {
   onCreateTask: () => void;
   viewerId: string;
   onViewerChange: (memberId: string) => void;
+  sortField: TasksSortField;
+  onSortChange: (field: TasksSortField) => void;
 }
 
 export function TasksPageHeader({
@@ -29,6 +33,8 @@ export function TasksPageHeader({
   onCreateTask,
   viewerId,
   onViewerChange,
+  sortField,
+  onSortChange,
 }: TasksPageHeaderProps) {
   return (
     <header className={styles['ts-stacked-header']}>
@@ -55,6 +61,9 @@ export function TasksPageHeader({
             </button>
           ))}
         </nav>
+        {activeTab !== 'archive' ? (
+          <TasksSortSwitcher sortField={sortField} onSortChange={onSortChange} />
+        ) : null}
         <TasksViewerSwitcher viewerId={viewerId} onViewerChange={onViewerChange} />
       </div>
     </header>

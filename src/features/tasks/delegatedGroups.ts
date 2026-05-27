@@ -1,7 +1,7 @@
 import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { buildStatusTabGroups, TASK_STATUS_TAB_ORDER } from './statusTaskGroups';
 import { isTasksViewerAll } from './taskViewer';
-import type { Task } from './types';
+import type { Task, TasksSortField } from './types';
 
 export { TASK_STATUS_TAB_ORDER as DELEGATED_STATUS_ORDER };
 export type { StatusTaskGroup as DelegatedStatusGroup } from './statusTaskGroups';
@@ -19,9 +19,13 @@ export function isTeamDelegatedTask(task: Task): boolean {
   return task.assigneeIds.some((id) => id !== task.creatorId);
 }
 
-export function buildDelegatedGroups(tasks: Task[], viewerId = TASK_CREATOR_ASSIGNEE_ID) {
+export function buildDelegatedGroups(
+  tasks: Task[],
+  viewerId = TASK_CREATOR_ASSIGNEE_ID,
+  sort: TasksSortField = 'priority',
+) {
   const match = isTasksViewerAll(viewerId)
     ? isTeamDelegatedTask
     : (task: Task) => isDelegatedTask(task, viewerId);
-  return buildStatusTabGroups(tasks, match);
+  return buildStatusTabGroups(tasks, match, sort);
 }

@@ -99,6 +99,7 @@ function SubtaskBranch({
         isSubtask
         title={subtask.title}
         description={subtask.description}
+        checkItems={subtask.checkItems}
         status={subtask.status}
         priority={subtask.priority}
         tagIds={subtask.tagIds}
@@ -180,6 +181,7 @@ export function TaskListTree({
         isSubtask={false}
         title={task.title}
         description={task.description}
+        checkItems={task.checkItems}
         status={task.status}
         priority={task.priority}
         tagIds={task.tagIds}

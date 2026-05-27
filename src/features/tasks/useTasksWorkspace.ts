@@ -28,19 +28,28 @@ import {
 } from './subtaskTask';
 import { duplicateTaskTarget } from './taskDuplicate';
 import { collapseTreeBranch, expandTreeBranch, treeRowKey } from './taskTree';
-import type { DateGroupId, Status, Task, TaskPatch, TaskSubtask } from './types';
+import type { DateGroupId, Status, Task, TaskPatch, TaskSubtask, TasksSortField } from './types';
 
-export function useTasksWorkspace(viewerId = TASK_CREATOR_ASSIGNEE_ID) {
+export function useTasksWorkspace(
+  viewerId = TASK_CREATOR_ASSIGNEE_ID,
+  sortField: TasksSortField = 'priority',
+) {
   const tasks = useSyncExternalStore(subscribeTasks, getTasks, getTasks);
   const [armedDeleteId, setArmedDeleteId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [subtaskPath, setSubtaskPath] = useState<string[]>([]);
   const [expandedTreeKeys, setExpandedTreeKeys] = useState<Set<string>>(() => new Set());
 
-  const grouped = useMemo(() => groupTasksByDate(tasks, new Date(), viewerId), [tasks, viewerId]);
-  const projectGroups = useMemo(() => buildProjectGroups(tasks, viewerId), [tasks, viewerId]);
+  const grouped = useMemo(
+    () => groupTasksByDate(tasks, new Date(), viewerId, sortField),
+    [tasks, viewerId, sortField],
+  );
+  const projectGroups = useMemo(
+    () => buildProjectGroups(tasks, viewerId, sortField),
+    [tasks, viewerId, sortField],
+  );
   const archiveGrouped = useMemo(
-    () => groupArchiveItems(collectArchiveItemsForViewer(tasks, viewerId)),
+    () => groupArchiveItems(collectArchiveItemsForViewer(tasks, viewerId), new Date()),
     [tasks, viewerId],
   );
 
@@ -249,6 +258,7 @@ export function useTasksWorkspace(viewerId = TASK_CREATOR_ASSIGNEE_ID) {
 
   return {
     viewerId,
+    sortField,
     tasks,
     grouped,
     projectGroups,

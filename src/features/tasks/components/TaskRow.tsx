@@ -4,9 +4,9 @@ import { cx } from '../../../shared/styles/cx';
 import { PRIORITIES, STATUS_META } from '../constants';
 import { formatTaskCompletedAt, formatTaskDeadline, getTaskDeadlineRelativeKind, isCompletedAfterDeadline } from '../dateDisplay';
 import { isCompletedStatus } from '../taskCompletion';
-import { hasTaskDescription } from '../taskTree';
+import { getChecklistProgress, hasTaskDescription } from '../taskTree';
 import styles from '../tasks.module.css';
-import type { Priority, Status, TaskPatch, TaskRecurrenceRule, TaskTagId } from '../types';
+import type { Priority, Status, TaskCheckItem, TaskPatch, TaskRecurrenceRule, TaskTagId } from '../types';
 import {
   AssigneeCell,
   PriorityBadge,
@@ -39,6 +39,7 @@ interface TaskRowProps {
   parentTaskTitle?: string | null;
   title: string;
   description: string;
+  checkItems?: TaskCheckItem[];
   status: Status;
   priority: Priority | null;
   tagIds?: TaskTagId[];
@@ -70,6 +71,7 @@ export function TaskRow({
   parentTaskTitle = null,
   title,
   description,
+  checkItems = [],
   status,
   priority,
   tagIds: tagIdsProp,
@@ -137,6 +139,8 @@ export function TaskRow({
   const showDelete = Boolean(deleteTaskId && onArmDelete && onDelete);
   const showDuplicate = Boolean(duplicateTaskId && onDuplicate);
   const showDescription = hasTaskDescription(description);
+  const checklistProgress = getChecklistProgress(checkItems);
+  const showTitleBadges = showDescription || childCount > 0 || checklistProgress !== null;
   const deadlineRelativeKind = getTaskDeadlineRelativeKind(deadline);
 
   const deadlineTextClassName = (late: boolean) =>
@@ -207,7 +211,7 @@ export function TaskRow({
         <button type="button" className={styles['ts-title-btn']} onClick={onOpen} aria-label={`Відкрити: ${title}`}>
           <span className={styles['ts-title-inner']}>
             <span className={styles['ts-title-t']}>{title}</span>
-            {showDescription || childCount > 0 ? (
+            {showTitleBadges ? (
               <span className={styles['ts-title-badges']}>
                 {showDescription ? (
                   <span className={styles['ts-desc-badge']} aria-label="Є опис">
@@ -222,6 +226,16 @@ export function TaskRow({
                       {Icons.subtree}
                     </span>
                     <span className={styles['ts-subtree-badge-n']}>{childCount}</span>
+                  </span>
+                ) : null}
+                {checklistProgress ? (
+                  <span
+                    className={styles['ts-checklist-badge']}
+                    aria-label={`Чекліст: ${checklistProgress.done} з ${checklistProgress.total}`}
+                  >
+                    <span className={styles['ts-checklist-badge-n']}>
+                      {checklistProgress.done}/{checklistProgress.total}
+                    </span>
                   </span>
                 ) : null}
               </span>

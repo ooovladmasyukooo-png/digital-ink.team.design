@@ -1,3 +1,5 @@
+import type { TaskCheckItem } from './types';
+
 /** Ключ рядка дерева для expand/collapse (root id + шлях підзадач). */
 export function treeRowKey(rootTaskId: string, subtaskPath: string[]): string {
   return subtaskPath.length === 0 ? rootTaskId : `${rootTaskId}/${subtaskPath.join('/')}`;
@@ -9,6 +11,12 @@ export function countDirectSubtasks(subtasks: { subtasks: unknown[] }[]): number
 
 export function hasTaskDescription(description: string): boolean {
   return description.trim().length > 0;
+}
+
+export function getChecklistProgress(checkItems: TaskCheckItem[]): { done: number; total: number } | null {
+  if (checkItems.length === 0) return null;
+  const done = checkItems.filter((item) => item.done).length;
+  return { done, total: checkItems.length };
 }
 
 /** Розгортає гілку: корінь + усі предки шляху. */

@@ -260,7 +260,12 @@ export function TaskDetailContent({
             onOpenSubtask={onOpenSubtask}
           />
           <ChecklistSection checkItems={task.checkItems} onChange={(checkItems) => patch({ checkItems })} />
-          <CommentsSection taskId={task.id} comments={task.comments} onChange={(comments) => patch({ comments })} />
+          <CommentsSection
+            taskId={task.id}
+            comments={task.comments}
+            activityLog={task.activityLog}
+            onChange={(comments) => patch({ comments })}
+          />
         </footer>
       </div>
 

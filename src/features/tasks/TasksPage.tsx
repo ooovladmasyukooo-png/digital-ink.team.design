@@ -22,7 +22,8 @@ import {
 } from './tasksPaths';
 import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { useTasksWorkspace } from './useTasksWorkspace';
-import type { TasksViewTabId } from './types';
+import { readTasksSortForTab, writeTasksSortForTab } from './taskSort';
+import type { TasksSortField, TasksViewTabId } from './types';
 import styles from './tasks.module.css';
 
 const TASKS_VIEWER_STORAGE_KEY = 'tasks-viewer-id';
@@ -48,7 +49,10 @@ export function TasksPage() {
   const [activeTab, setActiveTab] = useState<TasksViewTabId>(readTabFromUrl);
   const [urlSearch, setUrlSearch] = useState(readSearchFromUrl);
   const [viewerId, setViewerId] = useState(readViewerFromStorage);
-  const workspace = useTasksWorkspace(viewerId);
+  const [sortField, setSortField] = useState<TasksSortField>(() =>
+    readTasksSortForTab(readTabFromUrl()),
+  );
+  const workspace = useTasksWorkspace(viewerId, sortField);
   const {
     panelTask,
     selectedTaskId,
@@ -67,15 +71,21 @@ export function TasksPage() {
       case 'by-area':
         return projectGroups.reduce((sum, group) => sum + group.tasks.length, 0);
       case 'personal':
-        return buildPersonalGroups(tasks, viewerId).reduce((sum, group) => sum + group.tasks.length, 0);
+        return buildPersonalGroups(tasks, viewerId, sortField).reduce(
+          (sum, group) => sum + group.tasks.length,
+          0,
+        );
       case 'delegated':
-        return buildDelegatedGroups(tasks, viewerId).reduce((sum, group) => sum + group.tasks.length, 0);
+        return buildDelegatedGroups(tasks, viewerId, sortField).reduce(
+          (sum, group) => sum + group.tasks.length,
+          0,
+        );
       case 'archive':
         return ARCHIVE_GROUP_ORDER.reduce((sum, groupId) => sum + archiveGrouped[groupId].length, 0);
       default:
         return 0;
     }
-  }, [activeTab, archiveGrouped, grouped, projectGroups, tasks, viewerId]);
+  }, [activeTab, archiveGrouped, grouped, projectGroups, sortField, tasks, viewerId]);
 
   const parsed = parseTasksSearch(urlSearch);
   const taskFull = parsed.full;
@@ -125,6 +135,7 @@ export function TasksPage() {
 
     const tab = QUERY_TO_TAB_ID[view] ?? 'by-date';
     setActiveTab(tab);
+    setSortField(readTasksSortForTab(tab));
     if (taskId) openTask(taskId, []);
     const root = workspace.tasks.find((t) => t.id === taskId);
     if (full && taskId && root) {
@@ -142,6 +153,7 @@ export function TasksPage() {
       const { view, taskId, full } = parseTasksSearch(search);
       const tab = QUERY_TO_TAB_ID[view] ?? 'by-date';
       setActiveTab(tab);
+      setSortField(readTasksSortForTab(tab));
       if (taskId) openTask(taskId, []);
       else closeDetail();
       const root = workspace.tasks.find((t) => t.id === taskId);
@@ -154,6 +166,14 @@ export function TasksPage() {
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
   }, [closeDetail, openTask, workspace.tasks]);
+
+  const onSortChange = useCallback(
+    (field: TasksSortField) => {
+      setSortField(field);
+      writeTasksSortForTab(activeTab, field);
+    },
+    [activeTab],
+  );
 
   const onViewerChange = useCallback((memberId: string) => {
     setViewerId(memberId);
@@ -168,6 +188,7 @@ export function TasksPage() {
   const onTab = useCallback(
     (tabId: TasksViewTabId) => {
       setActiveTab(tabId);
+      setSortField(readTasksSortForTab(tabId));
       const { taskId, full } = parseTasksSearch(urlSearch);
       const view = TAB_ID_TO_QUERY[tabId];
       pushTasksUrl({ view, task: taskId, full });
@@ -248,6 +269,8 @@ export function TasksPage() {
         onCreateTask={onCreateTask}
         viewerId={viewerId}
         onViewerChange={onViewerChange}
+        sortField={sortField}
+        onSortChange={onSortChange}
       />
       <div className={styles['ts-main']}>
         {activeTab === 'by-date' ? (

@@ -76,10 +76,110 @@
   border-top: 1px dashed color-mix(in oklab, var(--line) 58%, transparent);
 }
 
-.ts-viewer-wrap {
+.ts-sort-wrap {
   position: relative;
   flex-shrink: 0;
   margin-left: auto;
+}
+
+.ts-sort {
+  display: inline-flex;
+  height: 22px;
+  max-width: 118px;
+  align-items: center;
+  gap: 4px;
+  padding: 0 6px 0 5px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--txt-2);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ts-sort:hover,
+.ts-sort.on {
+  background: var(--bg-3);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  color: var(--txt);
+}
+
+.ts-sort-i {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--txt-3);
+}
+
+.ts-sort-i :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-sort.on .ts-sort-i,
+.ts-sort:hover .ts-sort-i {
+  color: var(--txt-2);
+}
+
+.ts-sort-label {
+  overflow: hidden;
+  min-width: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-sort-chev {
+  display: flex;
+  flex-shrink: 0;
+  color: var(--txt-3);
+}
+
+.ts-sort-chev :global(svg) {
+  width: 10px;
+  height: 10px;
+}
+
+.ts-sort-menu {
+  position: fixed;
+  top: auto;
+  right: auto;
+  left: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--line) 85%, transparent);
+  border-radius: 12px;
+  background: var(--bg-1);
+  box-shadow:
+    0 4px 6px -2px rgb(0 0 0 / 12%),
+    0 16px 40px -12px rgb(0 0 0 / 35%);
+}
+
+.ts-sort-menu .ts-picker-item-body {
+  gap: 8px;
+}
+
+.ts-sort-picker-i {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  color: var(--txt-3);
+}
+
+.ts-sort-picker-i :global(svg) {
+  width: 13px;
+  height: 13px;
+}
+
+.ts-picker-item-on .ts-sort-picker-i {
+  color: var(--txt-2);
+}
+
+.ts-viewer-wrap {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .ts-viewer {
@@ -924,7 +1024,8 @@
 }
 
 .ts-desc-badge,
-.ts-subtree-badge {
+.ts-subtree-badge,
+.ts-checklist-badge {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
@@ -955,7 +1056,8 @@
   opacity: 0.85;
 }
 
-.ts-subtree-badge-n {
+.ts-subtree-badge-n,
+.ts-checklist-badge-n {
   font-variant-numeric: tabular-nums;
 }
 
@@ -2627,6 +2729,37 @@
   font-weight: 500;
 }
 
+.ts-drawer-block-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.ts-drawer-block-tab {
+  padding: 3px 9px;
+  border: 1px solid color-mix(in oklab, var(--line) 35%, transparent);
+  border-radius: 6px;
+  background: color-mix(in oklab, var(--bg-2) 40%, var(--bg));
+  color: var(--txt-3);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+.ts-drawer-block-tab:hover {
+  border-color: color-mix(in oklab, var(--line) 50%, transparent);
+  color: var(--txt);
+}
+
+.ts-drawer-block-tab-on {
+  border-color: color-mix(in oklab, var(--blue) 40%, transparent);
+  background: color-mix(in oklab, var(--blue) 10%, var(--bg));
+  color: var(--txt);
+}
+
 .ts-drawer-block-body {
   min-width: 0;
 }
@@ -2988,22 +3121,66 @@
 }
 
 .ts-activity-item {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 8px 10px;
-  align-items: baseline;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--bg-2) 35%, var(--bg));
+}
+
+.ts-activity-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ts-activity-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ts-activity-who-row {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+}
+
+.ts-activity-who-row :global(.av-sm),
+.ts-activity-who-row :global(.av-img-sm) {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  font-size: 8.5px;
+}
+
+.ts-activity-who {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--txt);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .ts-activity-t {
+  flex-shrink: 0;
   color: var(--txt-4);
   font-size: 10.5px;
+  line-height: 1.35;
   white-space: nowrap;
 }
 
 .ts-activity-x {
+  margin: 0;
+  padding-left: 28px;
   color: var(--txt-3);
   font-size: 12px;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .ts-activity-more {
@@ -3072,24 +3249,222 @@
   margin-bottom: 10px;
 }
 
-.ts-comment-in {
-  display: block;
-  width: 100%;
-  min-height: 52px;
-  padding: 10px 12px;
+.ts-comment-compose-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
   border: 1px solid color-mix(in oklab, var(--line) 28%, transparent);
   border-radius: 10px;
   background: color-mix(in oklab, var(--bg-2) 38%, var(--bg));
+}
+
+.ts-comment-compose-box:focus-within {
+  border-color: color-mix(in oklab, var(--line) 50%, transparent);
+  background: var(--bg-1);
+}
+
+.ts-comment-compose-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.ts-comment-compose-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  padding-bottom: 1px;
+}
+
+.ts-comment-file-input {
+  display: none;
+}
+
+.ts-comment-attach-btn,
+.ts-comment-send-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid color-mix(in oklab, var(--line) 30%, transparent);
+  border-radius: 7px;
+  background: color-mix(in oklab, var(--bg-2) 55%, var(--bg));
+  color: var(--txt-3);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, opacity 0.12s ease;
+}
+
+.ts-comment-attach-btn:hover {
+  border-color: color-mix(in oklab, var(--line) 50%, transparent);
+  color: var(--txt);
+}
+
+.ts-comment-send-btn {
+  border-color: color-mix(in oklab, var(--red) 45%, transparent);
+  background: rgb(239 68 68 / 18%);
+  color: var(--txt);
+}
+
+.ts-comment-send-btn:hover:not(:disabled) {
+  border-color: color-mix(in oklab, var(--red) 60%, transparent);
+  background: rgb(239 68 68 / 28%);
+}
+
+.ts-comment-send-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ts-comment-attach-btn :global(svg),
+.ts-comment-send-btn :global(svg) {
+  width: 13px;
+  height: 13px;
+}
+
+.ts-comment-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ts-comment-attachments-compact {
+  gap: 4px;
+  padding-bottom: 2px;
+}
+
+.ts-comment-attachments-compact .ts-comment-attachment-img {
+  width: 34px;
+  height: 34px;
+}
+
+.ts-comment-attachment {
+  position: relative;
+}
+
+.ts-comment-attachment-link {
+  display: block;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid color-mix(in oklab, var(--line) 28%, transparent);
+  border-radius: 5px;
+  background: transparent;
+  line-height: 0;
+  cursor: pointer;
+}
+
+button.ts-comment-attachment-link {
+  font: inherit;
+  color: inherit;
+}
+
+.ts-comment-attachment-img {
+  display: block;
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+}
+
+.ts-comment-attachment-remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 55%);
+  color: #fff;
+  cursor: pointer;
+}
+
+.ts-comment-attachment-remove :global(svg) {
+  width: 8px;
+  height: 8px;
+}
+
+.ts-comment-main .ts-comment-attachments-compact {
+  margin-bottom: 6px;
+}
+
+.ts-comment-in {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  min-height: 28px;
+  max-height: 160px;
+  overflow-y: auto;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--txt);
   font-size: 13px;
-  line-height: 1.45;
+  line-height: 1.4;
   outline: none;
-  resize: vertical;
+  resize: none;
+  field-sizing: content;
 }
 
 .ts-comment-in:focus {
-  border-color: color-mix(in oklab, var(--line) 50%, transparent);
-  background: var(--bg-1);
+  border-color: transparent;
+  background: transparent;
+}
+
+.ts-image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 82%);
+}
+
+.ts-image-lightbox-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.ts-image-lightbox-close:hover {
+  background: rgb(255 255 255 / 22%);
+}
+
+.ts-image-lightbox-close :global(svg) {
+  width: 18px;
+  height: 18px;
+}
+
+.ts-image-lightbox-img {
+  display: block;
+  max-width: min(100%, 1200px);
+  max-height: calc(100vh - 48px);
+  border-radius: 8px;
+  object-fit: contain;
 }
 
 .ts-comment-mention {
