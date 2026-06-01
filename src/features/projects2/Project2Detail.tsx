@@ -3,17 +3,18 @@ import { cx } from '../../shared/styles/cx';
 import { Project2DetailHeader } from './components/Project2DetailHeader';
 import { ProjectComingSoon } from './components/ProjectComingSoon';
 import { ProfileTab } from './tabs/ProfileTab';
+import { SettingsTab } from './tabs/SettingsTab';
+import { DesignBriefTab } from './tabs/DesignBriefTab';
+import { DocumentsTab } from './tabs/DocumentsTab';
+import { ProjectTasksTab } from './tabs/ProjectTasksTab';
 import styles from './projects2.module.css';
 import type { Project, ProjectPatch, ProjectSubtabId } from './types';
 
 const COMING_SOON_SUBTITLE: Partial<Record<ProjectSubtabId, string>> = {
   tasks: 'Задачі проєкту у розробці.',
-  documents: 'Документи проєкту у розробці.',
   'daily-reports': 'Щоденна звітність у розробці.',
   bookings: 'Букінги у розробці.',
-  'design-brief': 'ТЗ дизайнеру для проєкту у розробці.',
   invoices: 'Інвойси у розробці.',
-  settings: 'Додаткові налаштування проєкту у розробці.',
 };
 
 interface Project2DetailProps {
@@ -27,9 +28,11 @@ interface Project2DetailProps {
   onSubtabChange: (tab: ProjectSubtabId) => void;
   onSwitchProject: (projectId: string) => void;
   onSave: (projectId: string, field: keyof ProjectPatch, value: string) => void;
+  onPatch: (projectId: string, patch: ProjectPatch) => void;
   onAvatarChange: (projectId: string, src: string) => void;
   onProjectPhotoChange: (projectId: string, src: string) => void;
   onDeleteProject: (projectId: string) => void;
+  onOpenTaskFullPage: (taskId: string) => void;
 }
 
 export function Project2Detail({
@@ -43,9 +46,11 @@ export function Project2Detail({
   onSubtabChange,
   onSwitchProject,
   onSave,
+  onPatch,
   onAvatarChange,
   onProjectPhotoChange,
   onDeleteProject,
+  onOpenTaskFullPage,
 }: Project2DetailProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const projectPhotoRef = useRef<HTMLInputElement>(null);
@@ -82,8 +87,16 @@ export function Project2Detail({
   };
 
   const save = (field: keyof ProjectPatch, value: string) => onSave(project.id, field, value);
+  const patch = (patchFields: ProjectPatch) => onPatch(project.id, patchFields);
 
-  const isComingSoonView = subtab !== 'profile';
+  const isTasksView = subtab === 'tasks';
+  const isDocumentsView = subtab === 'documents';
+  const isDesignBriefView = subtab === 'design-brief';
+  const isTasksLikeView = isTasksView || isDesignBriefView;
+  const isDocWorkspaceView = isDocumentsView;
+  const isWorkspaceView = isTasksLikeView || isDocWorkspaceView;
+  const isComingSoonView = subtab !== 'profile' && subtab !== 'settings' && !isWorkspaceView;
+  const isFlushMain = isComingSoonView || isWorkspaceView;
 
   return (
     <div className={styles['p2-shell']}>
@@ -96,23 +109,54 @@ export function Project2Detail({
         onBack={onBack}
         onSubtabChange={onSubtabChange}
         onSwitchProject={onSwitchProject}
+        onPatch={(patchFields) => onPatch(project.id, patchFields)}
+        onSave={save}
+        onDeleteProject={() => onDeleteProject(project.id)}
       />
-      <main className={cx(styles['team-main'], styles['team-main-full'], isComingSoonView && styles['team-main-flush'])}>
+      <main
+        className={cx(
+          styles['team-main'],
+          styles['team-main-full'],
+          isFlushMain && styles['team-main-flush'],
+          isDocWorkspaceView && styles['team-main-documents'],
+        )}
+      >
         <input ref={fileRef} type="file" accept="image/*" className="sr-only" onChange={handleAvatarFile} />
         <input ref={projectPhotoRef} type="file" accept="image/*" className="sr-only" onChange={handleProjectPhotoFile} />
-        <div className={cx(styles['td-body'], styles['td-body-wide'], isComingSoonView && styles['td-body-flush'])}>
+        <div
+          className={cx(
+            styles['td-body'],
+            isTasksLikeView
+              ? styles['td-body-tasks']
+              : isDocWorkspaceView
+                ? styles['td-body-documents']
+                : styles['td-body-wide'],
+            isComingSoonView && styles['td-body-flush'],
+          )}
+        >
           {subtab === 'profile' ? (
             <ProfileTab
               project={project}
               avatarSrc={avatarSrc}
-              projectPhotoSrc={projectPhotoSrc}
               onPickAvatar={pickAvatar}
-              onPickProjectPhoto={pickProjectPhoto}
               onSave={save}
+              onPatch={patch}
+            />
+          ) : null}
+          {subtab === 'settings' ? (
+            <SettingsTab
+              project={project}
+              onSave={save}
+              onPatch={patch}
               onDeleteProject={() => onDeleteProject(project.id)}
             />
           ) : null}
-          {subtab !== 'profile' ? (
+          {subtab === 'tasks' ? (
+            <ProjectTasksTab projectId={project.id} onOpenTaskFullPage={onOpenTaskFullPage} />
+          ) : null}
+          {subtab === 'documents' ? <DocumentsTab projectId={project.id} /> : null}
+          {subtab === 'design-brief' ? <DesignBriefTab projectId={project.id} /> : null}
+          {isComingSoonView ? (
             <ProjectComingSoon subtitle={COMING_SOON_SUBTITLE[subtab] ?? 'Розділ у розробці.'} />
           ) : null}
         </div>

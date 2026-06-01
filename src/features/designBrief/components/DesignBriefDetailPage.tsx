@@ -17,6 +17,7 @@ interface DesignBriefDetailPageProps {
   parentBrief?: Pick<DesignBrief, 'id' | 'title'>;
   parentBriefLabel?: string;
   onOpenParentTask?: () => void;
+  hideProjectField?: boolean;
 }
 
 export function DesignBriefDetailPage({
@@ -28,6 +29,7 @@ export function DesignBriefDetailPage({
   parentBrief,
   parentBriefLabel,
   onOpenParentTask,
+  hideProjectField,
 }: DesignBriefDetailPageProps) {
   const creator = teamById[brief.creatorId];
   const creatorName = creator?.name ?? brief.creatorId;
@@ -74,6 +76,7 @@ export function DesignBriefDetailPage({
             scrollClassName={styles['db-detail-page-scroll']}
             bodyClassName={styles['db-drawer-body']}
             footerClassName={styles['db-drawer-footer']}
+            hideProjectField={hideProjectField}
           />
         </div>
       </div>

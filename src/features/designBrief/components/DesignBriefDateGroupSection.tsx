@@ -10,6 +10,7 @@ import { DesignBriefListTree } from './DesignBriefListTree';
 
 interface DesignBriefDateGroupSectionProps {
   groupId: DateGroupId;
+  listVariant?: 'default' | 'personal' | 'withCompleted';
   tasks: DesignBrief[];
   armedDeleteId: string | null;
   expandedTreeKeys: ReadonlySet<string>;
@@ -26,6 +27,7 @@ interface DesignBriefDateGroupSectionProps {
 
 export function DesignBriefDateGroupSection({
   groupId,
+  listVariant = 'default',
   tasks,
   armedDeleteId,
   expandedTreeKeys,
@@ -80,12 +82,13 @@ export function DesignBriefDateGroupSection({
 
       {!collapsed ? (
         <>
-          <DesignBriefColumnsHeader inGroup />
+          <DesignBriefColumnsHeader inGroup variant={listVariant === 'personal' ? 'personal' : 'default'} />
           <div className={styles['db-rows']}>
             {tasks.map((brief) => (
               <DesignBriefListTree
                 key={brief.id}
                 brief={brief}
+                listVariant={listVariant}
                 expandedKeys={expandedTreeKeys}
                 onToggleExpand={onToggleTreeExpand}
                 armedDeleteId={armedDeleteId}

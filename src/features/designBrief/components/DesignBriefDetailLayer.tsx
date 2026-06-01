@@ -8,9 +8,17 @@ interface DesignBriefDetailLayerProps {
   onExpand: () => void;
   onCollapse: () => void;
   onClose: () => void;
+  hideProjectField?: boolean;
 }
 
-export function DesignBriefDetailLayer({ workspace, full, onExpand, onCollapse, onClose }: DesignBriefDetailLayerProps) {
+export function DesignBriefDetailLayer({
+  workspace,
+  full,
+  onExpand,
+  onCollapse,
+  onClose,
+  hideProjectField,
+}: DesignBriefDetailLayerProps) {
   const { panelBrief, parentLink, subtaskPath, selectedBriefId, updateDetail, setSubtaskPath } = workspace;
 
   if (!panelBrief) return null;
@@ -28,11 +36,17 @@ export function DesignBriefDetailLayer({ workspace, full, onExpand, onCollapse, 
 
   if (full) {
     return (
-      <DesignBriefDetailPage brief={panelBrief} onClose={onClose} {...parentProps} />
+      <DesignBriefDetailPage brief={panelBrief} onClose={onClose} hideProjectField={hideProjectField} {...parentProps} />
     );
   }
 
   return (
-    <DesignBriefDetailPanel brief={panelBrief} onClose={onClose} onExpand={onExpand} {...parentProps} />
+    <DesignBriefDetailPanel
+      brief={panelBrief}
+      onClose={onClose}
+      onExpand={onExpand}
+      hideProjectField={hideProjectField}
+      {...parentProps}
+    />
   );
 }

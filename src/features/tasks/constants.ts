@@ -64,6 +64,20 @@ export function createNewTaskForMemberStatus(status: Status, id: string, memberI
   };
 }
 
+/** Задача проєкту: прив’язка до проєкту, статус з групи. */
+export function createNewTaskForProjectStatus(
+  projectId: string,
+  status: Status,
+  id: string,
+  assigneeId = TASK_CREATOR_ASSIGNEE_ID,
+): Task {
+  return {
+    ...createNewTaskForProject(projectId, id, assigneeId),
+    status,
+    assigneeIds: [assigneeId],
+  };
+}
+
 /** Делегована: автор — поточний користувач, відповідальний — інший (демо: Дарія). */
 export function createNewTaskForDelegatedStatus(
   status: Status,

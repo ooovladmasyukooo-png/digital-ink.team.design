@@ -82,6 +82,37 @@
   margin-left: auto;
 }
 
+.ts-project-tasks.ts-by-date {
+  padding-top: 8px;
+  padding-bottom: 48px;
+}
+
+.ts-project-tasks .ts-table {
+  width: 100%;
+}
+
+.ts-project-tasks .ts-group:first-of-type {
+  margin-top: 0;
+}
+
+.ts-project-filters {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 22px;
+  margin: 0 0 8px;
+  padding: 0 8px 0 0;
+}
+
+.ts-project-filters .ts-sort-wrap {
+  margin-left: 0;
+}
+
+.ts-project-assignee-menu {
+  padding: 4px 0;
+}
+
 .ts-sort {
   display: inline-flex;
   height: 22px;

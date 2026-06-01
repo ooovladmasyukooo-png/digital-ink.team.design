@@ -1,3 +1,7 @@
+import { normalizeChurnRisk } from './projectChurnRisk';
+import { DEFAULT_TEAM_ASSIGNMENTS } from './projectTeam';
+import { parseCountryFromCity, cityWithoutCountrySuffix } from './projectCountries';
+import { DEFAULT_LINK_ORDER } from './projectLinks';
 import type { Project, ProjectQuickLinks } from './types';
 
 function instagramFromUsername(username: string): string {
@@ -10,10 +14,75 @@ function defaultQuickLinks(username: string, slug: string): ProjectQuickLinks {
     instagram: instagramFromUsername(username),
     facebookAds: `https://business.facebook.com/adsmanager/manage/campaigns?project=${slug}`,
     googleDrive: `https://drive.google.com/drive/folders/${slug}`,
+    reporting: `https://looker.example.com/projects/${slug}`,
+    website: `https://${slug.replace(/-/g, '')}.example.com`,
   };
 }
 
-export const projects: Project[] = [
+type ProjectSeed = Omit<
+  Project,
+  | 'country'
+  | 'pipelineStatus'
+  | 'churnRisk'
+  | 'result'
+  | 'niche'
+  | 'aboutClient'
+  | 'mbPmComment'
+  | 'hasTestimonials'
+  | 'hasCase'
+  | 'paidAt'
+  | 'startDate'
+  | 'activeDate'
+  | 'endDate'
+  | 'chatId'
+  | 'chatType'
+  | 'teamAssignments'
+  | 'settingExtras'
+  | 'customLinks'
+  | 'linkOrder'
+> & {
+  city: string;
+};
+
+function withProfileDefaults(seed: ProjectSeed): Project {
+  const country = parseCountryFromCity(seed.city) ?? 'UA';
+  const city = cityWithoutCountrySuffix(seed.city);
+  const pipelineStatus =
+    seed.status === 'paused' ? 'Pause' : seed.status === 'active' ? 'Active' : 'Draft';
+
+  return {
+    ...seed,
+    country,
+    city,
+    pipelineStatus,
+    churnRisk: 'Medium',
+    teamAssignments: DEFAULT_TEAM_ASSIGNMENTS.map((row) => ({
+      ...row,
+      positions: [...row.positions],
+    })),
+    result: seed.status === 'paused' ? 'В процесі' : 'В процесі',
+    niche: 'Tattoo studio',
+    aboutClient: seed.comments,
+    mbPmComment: seed.conditions,
+    hasTestimonials: false,
+    hasCase: false,
+    paidAt: '',
+    startDate: seed.joined,
+    activeDate: seed.joined,
+    endDate: '',
+    chatId: seed.telegramId,
+    chatType: 'Telegram',
+    quickLinks: {
+      ...defaultQuickLinks(seed.username, seed.id),
+      ...seed.quickLinks,
+    },
+    linkOrder: [...DEFAULT_LINK_ORDER],
+    settingExtras: [],
+    customLinks: [],
+  };
+}
+
+const projectSeeds: ProjectSeed[] = [
   {
     id: 'black-ritual',
     username: '@black.ritual.kyiv',
@@ -141,3 +210,5 @@ export const projects: Project[] = [
     quickLinks: defaultQuickLinks('@sakura.hand', 'sakura-hand'),
   },
 ];
+
+export const projects: Project[] = projectSeeds.map(withProfileDefaults);

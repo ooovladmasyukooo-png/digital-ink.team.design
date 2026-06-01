@@ -4,6 +4,8 @@ import { CrmPage } from '../features/crm/CrmPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { FinancePage } from '../features/finance/FinancePage';
 import type { ProjectSubtabId } from '../features/projects2/types';
+import { DocumentPublicPage } from '../features/projects2/components/DocumentPublicPage';
+import { isDocumentPublicPath } from '../features/projects2/documents/documentPaths';
 import { Projects2Page } from '../features/projects2/Projects2Page';
 import { DesignBriefPage } from '../features/designBrief/DesignBriefPage';
 import { DesignBriefPublicPage } from '../features/designBrief/components/DesignBriefPublicPage';
@@ -50,6 +52,9 @@ export function App() {
   }
   if (isTaskPublicPath(pathname)) {
     return <TaskPublicPage />;
+  }
+  if (isDocumentPublicPath(pathname)) {
+    return <DocumentPublicPage />;
   }
 
   const initial = parseLocation(pathname, window.location.search);
@@ -159,6 +164,7 @@ export function App() {
           projectSubtab={project2Subtab}
           onNavigateProject={navigateProject2}
           onNavigateSubtab={navigateProject2Subtab}
+          onOpenTaskFullPage={navigateToTask}
         />
       ) : active === 'tasks' ? (
         <TasksPage />

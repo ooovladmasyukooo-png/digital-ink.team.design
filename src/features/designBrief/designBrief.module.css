@@ -7,6 +7,51 @@
   background: var(--bg);
 }
 
+.db-shell-embed {
+  --db-content-x: 22px;
+  display: flex;
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.db-shell-embed .db-main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+/* Вкладка «ТЗ дизайнеру» всередині проєкту — відступ зверху = між групами статусів */
+.db-by-date.db-project-status-list {
+  --db-content-x: var(--p2-content-x, 22px);
+  --db-rail-x: var(--p2-rail-x, 14px);
+  --db-project-group-gap: 28px;
+  width: 100%;
+  max-width: none;
+  padding: var(--db-project-group-gap) var(--db-content-x) 48px;
+}
+
+.db-by-date.db-project-status-list .db-table {
+  width: 100%;
+}
+
+.db-by-date.db-project-status-list .db-group {
+  margin-top: var(--db-project-group-gap);
+}
+
+.db-by-date.db-project-status-list .db-group:first-of-type {
+  margin-top: 0;
+}
+
+.db-by-date.db-project-status-list .db-empty-state {
+  margin: 12px 0 0;
+  padding: 0 8px;
+  text-align: left;
+}
+
 .db-stacked-header {
   display: flex;
   flex-direction: column;

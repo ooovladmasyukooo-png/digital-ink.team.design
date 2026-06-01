@@ -49,6 +49,7 @@ export interface DesignBriefDetailContentProps {
   scrollClassName?: string;
   bodyClassName?: string;
   footerClassName?: string;
+  hideProjectField?: boolean;
 }
 
 function syncTextareaHeight(el: HTMLTextAreaElement | null) {
@@ -86,6 +87,7 @@ export function DesignBriefDetailContent({
   scrollClassName,
   bodyClassName,
   footerClassName,
+  hideProjectField = false,
 }: DesignBriefDetailContentProps) {
   const [picker, setPicker] = useState<PickerField>(null);
   const titleRef = useRef<HTMLTextAreaElement>(null);
@@ -191,9 +193,11 @@ export function DesignBriefDetailContent({
               <AssigneeCell assigneeIds={brief.assigneeIds} />
             </DetailRow>
 
-            <DetailRow label="Проєкт" ariaLabel="Проєкт" buttonRef={projectRef} onClick={() => togglePicker('project')}>
-              <ProjectCell projectId={brief.projectId} />
-            </DetailRow>
+            {!hideProjectField ? (
+              <DetailRow label="Проєкт" ariaLabel="Проєкт" buttonRef={projectRef} onClick={() => togglePicker('project')}>
+                <ProjectCell projectId={brief.projectId} />
+              </DetailRow>
+            ) : null}
 
             {!parentBrief ? (
               <DesignBriefFormatSizeRows

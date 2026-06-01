@@ -6,6 +6,7 @@ import {
   createNewTaskForMemberStatus,
   createNewTaskForPersonalStatus,
   createNewTaskForProject,
+  createNewTaskForProjectStatus,
   TASK_CREATOR_ASSIGNEE_ID,
 } from './constants';
 import { DATE_GROUP_ORDER, groupTasksByDate } from './dateGroups';
@@ -179,6 +180,14 @@ export function useTasksWorkspace(
     [viewerId],
   );
 
+  const addTaskForProjectStatus = useCallback(
+    (projectId: string, status: Status) => {
+      const id = allocateTaskId();
+      setTasks((prev) => [...prev, createNewTaskForProjectStatus(projectId, status, id, viewerId)]);
+    },
+    [viewerId],
+  );
+
   const addTaskForPersonal = useCallback(
     (status: Status) => {
       const id = allocateTaskId();
@@ -283,6 +292,7 @@ export function useTasksWorkspace(
     duplicateTask,
     addTask,
     addTaskForProject,
+    addTaskForProjectStatus,
     addTaskForPersonal,
     addTaskForDelegated,
     addTaskForMember,

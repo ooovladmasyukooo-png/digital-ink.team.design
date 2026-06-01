@@ -2,8 +2,12 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Avatar } from '../../../shared/components/Avatar';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
+import type { ProjectPipelineStatus } from '../projectPipelineStatus';
 import styles from '../projects2.module.css';
-import type { Project, ProjectQuickLinks, ProjectSubtabId } from '../types';
+import type { Project, ProjectPatch, ProjectSubtabId } from '../types';
+import { ProjectCrumbSettingsButton } from './ProjectCrumbSettingsButton';
+import { ProjectProfileQuickLinks } from './ProjectProfileQuickLinks';
+import { ProjectStatusControl } from './ProjectStatusControl';
 
 const DETAIL_TABS: { id: ProjectSubtabId; label: string; icon: ReactNode }[] = [
   { id: 'profile', label: 'Головна', icon: Icons.dashboard },
@@ -16,12 +20,6 @@ const DETAIL_TABS: { id: ProjectSubtabId; label: string; icon: ReactNode }[] = [
   { id: 'settings', label: 'Налаштування', icon: Icons.settings },
 ];
 
-const QUICK_LINK_ITEMS: { key: keyof ProjectQuickLinks; label: string }[] = [
-  { key: 'instagram', label: 'Інстаграм' },
-  { key: 'facebookAds', label: 'Facebook Ads' },
-  { key: 'googleDrive', label: 'Google Drive' },
-];
-
 interface Project2DetailHeaderProps {
   project: Project;
   activeProjects: Project[];
@@ -31,6 +29,9 @@ interface Project2DetailHeaderProps {
   onBack: () => void;
   onSubtabChange: (tab: ProjectSubtabId) => void;
   onSwitchProject: (projectId: string) => void;
+  onPatch: (patch: ProjectPatch) => void;
+  onSave: (field: keyof ProjectPatch, value: string) => void;
+  onDeleteProject: () => void;
 }
 
 export function Project2DetailHeader({
@@ -42,13 +43,15 @@ export function Project2DetailHeader({
   onBack,
   onSubtabChange,
   onSwitchProject,
+  onPatch,
+  onSave,
+  onDeleteProject,
 }: Project2DetailHeaderProps) {
   const [projectMenuOpen, setProjectMenuOpen] = useState(false);
-  const [quickLinksOpen, setQuickLinksOpen] = useState(false);
+  const [settingsPopOpen, setSettingsPopOpen] = useState(false);
   const [projectMenuSearch, setProjectMenuSearch] = useState('');
   const projectMenuSearchRef = useRef<HTMLInputElement>(null);
   const projectMenuWrapRef = useRef<HTMLDivElement>(null);
-  const quickLinksWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!projectMenuOpen) {
@@ -61,30 +64,32 @@ export function Project2DetailHeader({
 
   useEffect(() => {
     setProjectMenuOpen(false);
-    setQuickLinksOpen(false);
   }, [project.id]);
 
   useEffect(() => {
-    if (!projectMenuOpen && !quickLinksOpen) return;
+    if (!projectMenuOpen) return;
 
     const handleMouseDown = (event: MouseEvent) => {
       const target = event.target as Element;
       if (
         projectMenuWrapRef.current?.contains(target) ||
-        quickLinksWrapRef.current?.contains(target) ||
         target.closest('.pop') ||
         target.closest('[data-p2-project-trigger]') ||
-        target.closest('[data-p2-quick-links-trigger]')
+        target.closest('[data-p2-settings-trigger]')
       ) {
         return;
       }
       setProjectMenuOpen(false);
-      setQuickLinksOpen(false);
     };
 
     document.addEventListener('mousedown', handleMouseDown);
     return () => document.removeEventListener('mousedown', handleMouseDown);
-  }, [projectMenuOpen, quickLinksOpen]);
+  }, [projectMenuOpen]);
+
+  useEffect(() => {
+    if (!settingsPopOpen) return;
+    setProjectMenuOpen(false);
+  }, [settingsPopOpen]);
 
   const searchQuery = projectMenuSearch.trim().toLowerCase();
   const filteredProjects = activeProjects.filter((item) => {
@@ -108,22 +113,35 @@ export function Project2DetailHeader({
             /
           </span>
           <div ref={projectMenuWrapRef} className={styles['p2-crumb-project-wrap']}>
-            <button
-              type="button"
-              className={cx(styles['p2-crumb-project'], projectMenuOpen && styles.on)}
-              data-p2-project-trigger
-              aria-expanded={projectMenuOpen}
-              aria-haspopup="menu"
-              onClick={() => setProjectMenuOpen((open) => !open)}
-            >
-              <Avatar name={project.name} hue={project.hue} src={avatarSrc} size="sm" />
-              <span className={cx(styles['p2-crumb-text'], styles['p2-crumb-label'])} title={project.name}>
-                {project.name}
-              </span>
-              <span className={styles['p2-crumb-chev']} aria-hidden>
-                {Icons.chevD}
-              </span>
-            </button>
+            <div className={styles['p2-crumb-project-row']}>
+              <button
+                type="button"
+                className={cx(styles['p2-crumb-project'], projectMenuOpen && styles.on)}
+                data-p2-project-trigger
+                aria-expanded={projectMenuOpen}
+                aria-haspopup="menu"
+                onClick={() => {
+                  setSettingsPopOpen(false);
+                  setProjectMenuOpen((open) => !open);
+                }}
+              >
+                <Avatar name={project.name} hue={project.hue} src={avatarSrc} size="sm" />
+                <span className={cx(styles['p2-crumb-text'], styles['p2-crumb-label'])} title={project.name}>
+                  {project.name}
+                </span>
+                <span className={styles['p2-crumb-chev']} aria-hidden>
+                  {Icons.chevD}
+                </span>
+              </button>
+              <ProjectCrumbSettingsButton
+                project={project}
+                open={settingsPopOpen}
+                onOpenChange={setSettingsPopOpen}
+                onSave={onSave}
+                onPatch={onPatch}
+                onDeleteProject={onDeleteProject}
+              />
+            </div>
             {projectMenuOpen ? (
               <div className={cx('pop', 'pop-tab-menu', styles['p2-project-menu'])} role="menu">
                 <div className="pop-tab-menu-search">
@@ -171,44 +189,16 @@ export function Project2DetailHeader({
             ) : null}
           </div>
         </nav>
-        <div
-          ref={quickLinksWrapRef}
-          className={cx(styles['p2-quick-links-wrap'], quickLinksOpen && styles.on)}
-        >
-          <button
-            type="button"
-            className="red-out-btn"
-            data-p2-quick-links-trigger
-            aria-label="Швидкі лінки"
-            aria-expanded={quickLinksOpen}
-            aria-haspopup="menu"
-            onClick={() => {
-              setQuickLinksOpen((open) => !open);
-              setProjectMenuOpen(false);
-            }}
-          >
-            {Icons.plus} Швидкі лінки
-          </button>
-          {quickLinksOpen ? (
-            <div className={cx('pop', 'pop-tab-menu', styles['p2-quick-links-menu'])} role="menu">
-              <div className="pop-tab-list">
-                {QUICK_LINK_ITEMS.map((item) => (
-                  <a
-                    key={item.key}
-                    className="pop-row"
-                    role="menuitem"
-                    href={project.quickLinks[item.key]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setQuickLinksOpen(false)}
-                  >
-                    <span className="pop-row-i">{Icons.openExternal}</span>
-                    <span className="pop-row-t">{item.label}</span>
-                  </a>
-                ))}
-              </div>
-            </div>
-          ) : null}
+        <div className={styles['p2-detail-head-end']}>
+          <ProjectStatusControl
+            pipelineStatus={project.pipelineStatus}
+            onChange={(status: ProjectPipelineStatus) => onPatch({ pipelineStatus: status })}
+          />
+          <ProjectProfileQuickLinks
+            quickLinks={project.quickLinks}
+            customLinks={project.customLinks}
+            linkOrder={project.linkOrder}
+          />
         </div>
       </div>
       <nav className={styles['p2-stacked-tabs']} aria-label="Розділи проєкту">

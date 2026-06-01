@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { projects as projectCatalog } from './data';
+import { normalizeLinkOrder } from './projectLinks';
+import { normalizeTeamAssignments } from './projectTeam';
 import { Project2Detail } from './Project2Detail';
 import { Project2List } from './Project2List';
 import type { ProjectPatch, ProjectSubtabId } from './types';
@@ -17,10 +19,8 @@ const SUBTAB_DOC_TITLE: Record<ProjectSubtabId, string> = {
 
 const COMING_SOON_SUBTITLE: Partial<Record<ProjectSubtabId, string>> = {
   tasks: 'Задачі проєкту у розробці.',
-  documents: 'Документи проєкту у розробці.',
   'daily-reports': 'Щоденна звітність у розробці.',
   bookings: 'Букінги у розробці.',
-  'design-brief': 'ТЗ дизайнеру для проєкту у розробці.',
   invoices: 'Інвойси у розробці.',
   settings: 'Додаткові налаштування проєкту у розробці.',
 };
@@ -30,6 +30,7 @@ interface Projects2PageProps {
   projectSubtab: ProjectSubtabId;
   onNavigateProject: (projectId: string | null, replaceHistory?: boolean, keepSubtab?: boolean) => void;
   onNavigateSubtab: (tab: ProjectSubtabId) => void;
+  onOpenTaskFullPage: (taskId: string) => void;
 }
 
 export function Projects2Page({
@@ -37,6 +38,7 @@ export function Projects2Page({
   projectSubtab,
   onNavigateProject,
   onNavigateSubtab,
+  onOpenTaskFullPage,
 }: Projects2PageProps) {
   const [removedProjectIds, setRemovedProjectIds] = useState<Set<string>>(() => new Set());
   const [overrides, setOverrides] = useState<Record<string, ProjectPatch>>({});
@@ -45,7 +47,16 @@ export function Projects2Page({
 
   const items = projectCatalog
     .filter((project) => !removedProjectIds.has(project.id))
-    .map((project) => ({ ...project, ...(overrides[project.id] ?? {}) }));
+    .map((project) => {
+      const merged = { ...project, ...(overrides[project.id] ?? {}) };
+      return {
+        ...merged,
+        teamAssignments: normalizeTeamAssignments(merged),
+        settingExtras: merged.settingExtras ?? [],
+        customLinks: merged.customLinks ?? [],
+        linkOrder: normalizeLinkOrder(merged.linkOrder, merged.customLinks ?? []),
+      };
+    });
   const selectedProject = selectedProjectId
     ? items.find((project) => project.id === selectedProjectId) ?? null
     : null;
@@ -80,6 +91,34 @@ export function Projects2Page({
     }));
   };
 
+  const patchProject = (projectId: string, patch: ProjectPatch) => {
+    setOverrides((current) => {
+      const prev = current[projectId] ?? {};
+      const base = projectCatalog.find((p) => p.id === projectId);
+      const mergedQuickLinks = patch.quickLinks
+        ? {
+            ...(base?.quickLinks ?? {}),
+            ...(prev.quickLinks ?? {}),
+            ...patch.quickLinks,
+          }
+        : undefined;
+      const mergedSettingExtras = patch.settingExtras ?? prev.settingExtras ?? base?.settingExtras;
+      const mergedCustomLinks = patch.customLinks ?? prev.customLinks ?? base?.customLinks;
+      const mergedLinkOrder = patch.linkOrder ?? prev.linkOrder ?? base?.linkOrder;
+      return {
+        ...current,
+        [projectId]: {
+          ...prev,
+          ...patch,
+          ...(mergedQuickLinks ? { quickLinks: mergedQuickLinks } : {}),
+          ...(mergedSettingExtras ? { settingExtras: mergedSettingExtras } : {}),
+          ...(mergedCustomLinks ? { customLinks: mergedCustomLinks } : {}),
+          ...(mergedLinkOrder ? { linkOrder: mergedLinkOrder } : {}),
+        },
+      };
+    });
+  };
+
   const deleteProject = (projectId: string) => {
     setRemovedProjectIds((current) => new Set(current).add(projectId));
     onNavigateProject(null);
@@ -101,11 +140,13 @@ export function Projects2Page({
       onSubtabChange={onNavigateSubtab}
       onSwitchProject={(projectId) => onNavigateProject(projectId, false, true)}
       onSave={saveField}
+      onPatch={patchProject}
       onAvatarChange={(projectId, src) => setAvatars((current) => ({ ...current, [projectId]: src }))}
       onProjectPhotoChange={(projectId, src) =>
         setProjectPhotos((current) => ({ ...current, [projectId]: src }))
       }
       onDeleteProject={deleteProject}
+      onOpenTaskFullPage={onOpenTaskFullPage}
     />
   );
 }

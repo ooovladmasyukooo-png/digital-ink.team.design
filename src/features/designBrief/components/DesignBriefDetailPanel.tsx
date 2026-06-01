@@ -18,6 +18,7 @@ interface DesignBriefDetailPanelProps {
   parentBrief?: Pick<DesignBrief, 'id' | 'title'>;
   parentBriefLabel?: string;
   onOpenParentTask?: () => void;
+  hideProjectField?: boolean;
 }
 
 export function DesignBriefDetailPanel({
@@ -30,6 +31,7 @@ export function DesignBriefDetailPanel({
   parentBrief,
   parentBriefLabel,
   onOpenParentTask,
+  hideProjectField,
 }: DesignBriefDetailPanelProps) {
   const creator = teamById[brief.creatorId];
   const creatorName = creator?.name ?? brief.creatorId;
@@ -71,6 +73,7 @@ export function DesignBriefDetailPanel({
           parentBrief={parentBrief}
           parentBriefLabel={parentBriefLabel}
           onOpenParentTask={onOpenParentTask}
+          hideProjectField={hideProjectField}
         />
       </aside>
     </>,

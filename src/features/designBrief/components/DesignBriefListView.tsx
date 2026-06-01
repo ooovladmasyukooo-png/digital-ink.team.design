@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { ARCHIVE_GROUP_ORDER, groupDesignBriefArchive } from '../designBriefArchiveGroups';
 import { DATE_GROUP_ORDER, groupDesignBriefsByDate } from '../designBriefDateGroups';
@@ -24,6 +25,9 @@ interface DesignBriefListViewProps {
   sortField: DesignBriefSortField;
   onSortChange: (field: DesignBriefSortField) => void;
   onCreate: () => void;
+  /** У вкладці проєкту — без дубльованого заголовка, без колонки «Проєкт». */
+  embeddedInProject?: boolean;
+  emptyStateLabel?: string;
 }
 
 export function DesignBriefListView({
@@ -35,6 +39,8 @@ export function DesignBriefListView({
   sortField,
   onSortChange,
   onCreate,
+  embeddedInProject = false,
+  emptyStateLabel = 'Немає ТЗ для цього проєкту.',
 }: DesignBriefListViewProps) {
   const {
     briefs,
@@ -96,14 +102,26 @@ export function DesignBriefListView({
   const listClassName = cx(
     styles['db-by-date'],
     styles['db-design-brief-list'],
-    activeTab === 'by-status' && styles['db-personal'],
+    (activeTab === 'by-status' || embeddedInProject) && styles['db-personal'],
     activeTab === 'archive' && styles['db-archive'],
+    embeddedInProject && styles['db-project-embed'],
   );
+
+  const dateListVariant = embeddedInProject ? 'personal' : 'default';
 
   return (
     <div className={styles['db-design-brief-shell']}>
       <header className={styles['db-stacked-header']}>
-        <DesignBriefListHeader count={totalCount} onCreate={onCreate} />
+        {embeddedInProject ? (
+          <div className={styles['db-project-embed-bar']}>
+            <span className={styles['db-project-embed-count']}>{totalCount} ТЗ</span>
+            <button className="red-out-btn" type="button" onClick={onCreate}>
+              {Icons.plus} Нове ТЗ
+            </button>
+          </div>
+        ) : (
+          <DesignBriefListHeader count={totalCount} onCreate={onCreate} />
+        )}
         <DesignBriefTabsBar
           activeTab={activeTab}
           onTab={onTab}
@@ -114,12 +132,17 @@ export function DesignBriefListView({
         />
       </header>
       <div className={listClassName}>
-        {activeTab === 'by-date' ? (
+        {totalCount === 0 && activeTab !== 'archive' ? (
+          <p className={styles['db-empty-state']}>{emptyStateLabel}</p>
+        ) : null}
+
+        {activeTab === 'by-date' && totalCount > 0 ? (
           <div className={styles['db-table']}>
             {DATE_GROUP_ORDER.map((groupId) => (
               <DesignBriefDateGroupSection
                 key={groupId}
                 groupId={groupId}
+                listVariant={dateListVariant}
                 tasks={dateGrouped[groupId]}
                 armedDeleteId={armedDeleteId}
                 expandedTreeKeys={expandedTreeKeys}
@@ -137,13 +160,14 @@ export function DesignBriefListView({
           </div>
         ) : null}
 
-        {activeTab === 'by-status' ? (
+        {activeTab === 'by-status' && totalCount > 0 ? (
           <div className={styles['db-table']}>
             {statusGroups.map((group) => (
               <DesignBriefStatusGroupSection
                 key={group.status}
                 status={group.status}
                 label={group.label}
+                listVariant="personal"
                 tasks={group.tasks}
                 armedDeleteId={armedDeleteId}
                 expandedTreeKeys={expandedTreeKeys}
@@ -156,13 +180,12 @@ export function DesignBriefListView({
                 onAddSubtask={addSubtaskAtPath}
                 onAdd={addDesignBriefForStatus}
                 onOpenTask={openBrief}
-                listVariant="personal"
               />
             ))}
           </div>
         ) : null}
 
-        {activeTab === 'by-people' ? (
+        {activeTab === 'by-people' && totalCount > 0 ? (
           <div className={styles['db-table']}>
             {peopleGroups.map((group) => (
               <DesignBriefPeopleGroupSection

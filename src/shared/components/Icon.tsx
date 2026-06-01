@@ -74,11 +74,39 @@ export const Icons = {
   search: <Icon d={<><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></>} />,
   filter: <Icon d={<path d="M3 5h18M6 12h12M10 19h4" />} />,
   plus: <Icon d={<path d="M12 5v14M5 12h14" />} />,
+  link: (
+    <Icon
+      size={14}
+      d={
+        <>
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+        </>
+      }
+    />
+  ),
   bell: <Icon d={<><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a2 2 0 0 0 3.4 0" /></>} />,
   chevD: <Icon d={<path d="m6 9 6 6 6-6" />} size={14} />,
   arrowU: <Icon d={<path d="M12 19V5M5 12l7-7 7 7" />} size={14} />,
   arrowD: <Icon d={<path d="M12 5v14M19 12l-7 7-7-7" />} size={14} />,
   more: <Icon d={<><circle cx="5" cy="12" r="1.2" /><circle cx="12" cy="12" r="1.2" /><circle cx="19" cy="12" r="1.2" /></>} />,
+  /** Ручка перетягування (6 крапок). */
+  grip: (
+    <Icon
+      size={12}
+      sw={0}
+      d={
+        <>
+          <circle cx="8" cy="6" r="1.15" fill="currentColor" stroke="none" />
+          <circle cx="8" cy="12" r="1.15" fill="currentColor" stroke="none" />
+          <circle cx="8" cy="18" r="1.15" fill="currentColor" stroke="none" />
+          <circle cx="14" cy="6" r="1.15" fill="currentColor" stroke="none" />
+          <circle cx="14" cy="12" r="1.15" fill="currentColor" stroke="none" />
+          <circle cx="14" cy="18" r="1.15" fill="currentColor" stroke="none" />
+        </>
+      }
+    />
+  ),
   call: <Icon d={<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2Z" />} size={14} />,
   mail: <Icon d={<><rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 6-10 7L2 6" /></>} size={14} />,
   check: <Icon d={<path d="M20 6 9 17l-5-5" />} size={14} />,

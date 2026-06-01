@@ -69,7 +69,7 @@ export function EditableField({
   };
 
   return (
-    <div className={cx(styles.field, multiline && !date && styles['field-long'])}>
+    <div className={cx(styles.field, styles['p2-field'], multiline && !date && styles['field-long'])}>
       <div className={styles['field-l']}>
         <span className={styles['field-i']}>{icon}</span>
         <span className={styles['field-k']}>{label}</span>

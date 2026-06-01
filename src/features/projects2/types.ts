@@ -13,6 +13,35 @@ export interface ProjectQuickLinks {
   instagram: string;
   facebookAds: string;
   googleDrive: string;
+  reporting: string;
+  website: string;
+}
+
+export interface ProjectSettingExtra {
+  id: string;
+  label: string;
+  value: string;
+}
+
+export interface ProjectCustomLink {
+  id: string;
+  label: string;
+  url: string;
+}
+
+export type ProjectTeamPositionId =
+  | 'media_buyer'
+  | 'pm'
+  | 'team_lead'
+  | 'designer'
+  | 'booking'
+  | 'strategist'
+  | 'analyst';
+
+export interface ProjectTeamAssignment {
+  id: string;
+  memberId: string;
+  positions: ProjectTeamPositionId[];
 }
 
 export interface Project {
@@ -23,7 +52,22 @@ export interface Project {
   tier: string;
   hue: number;
   status: ProjectStatus;
+  country: string;
   city: string;
+  pipelineStatus: string;
+  churnRisk: string;
+  result: string;
+  niche: string;
+  aboutClient: string;
+  mbPmComment: string;
+  hasTestimonials: boolean;
+  hasCase: boolean;
+  paidAt: string;
+  startDate: string;
+  activeDate: string;
+  endDate: string;
+  chatId: string;
+  chatType: string;
   birthday: string;
   joined: string;
   conditions: string;
@@ -34,7 +78,12 @@ export interface Project {
   telegram: string;
   telegramId: string;
   comments: string;
+  teamAssignments: ProjectTeamAssignment[];
   quickLinks: ProjectQuickLinks;
+  /** Порядок посилань у налаштуваннях і в меню Links (builtin keys + custom ids) */
+  linkOrder: string[];
+  settingExtras: ProjectSettingExtra[];
+  customLinks: ProjectCustomLink[];
 }
 
 export type ProjectPatch = Partial<Omit<Project, 'id' | 'hue' | 'status'>>;
