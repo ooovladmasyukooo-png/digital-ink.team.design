@@ -5,7 +5,7 @@ import { TaskDetailLayer } from '../../tasks/components/TaskDetailLayer';
 import { TaskStatusGroupSection } from '../../tasks/components/TaskStatusGroupSection';
 import {
   buildProjectStatusGroups,
-  collectProjectAssigneeIds,
+  collectProjectAssigneePickerIds,
 } from '../../tasks/projectStatusGroups';
 import { readProjectTasksSort, writeProjectTasksSort } from '../../tasks/projectTaskSort';
 import taskStyles from '../../tasks/tasks.module.css';
@@ -14,10 +14,15 @@ import type { Status, TasksSortField } from '../../tasks/types';
 
 interface ProjectTasksTabProps {
   projectId: string;
+  projectTeamMemberIds: string[];
   onOpenTaskFullPage: (taskId: string) => void;
 }
 
-export function ProjectTasksTab({ projectId, onOpenTaskFullPage }: ProjectTasksTabProps) {
+export function ProjectTasksTab({
+  projectId,
+  projectTeamMemberIds,
+  onOpenTaskFullPage,
+}: ProjectTasksTabProps) {
   const [sortField, setSortField] = useState<TasksSortField>(() => readProjectTasksSort());
   const [assigneeFilterId, setAssigneeFilterId] = useState<string | null>(null);
   const workspace = useTasksWorkspace();
@@ -38,7 +43,10 @@ export function ProjectTasksTab({ projectId, onOpenTaskFullPage }: ProjectTasksT
     selectedTaskId,
   } = workspace;
 
-  const assigneeIds = useMemo(() => collectProjectAssigneeIds(tasks, projectId), [tasks, projectId]);
+  const assigneePickerIds = useMemo(
+    () => collectProjectAssigneePickerIds(tasks, projectId, projectTeamMemberIds),
+    [tasks, projectId, projectTeamMemberIds],
+  );
 
   const groups = useMemo(
     () => buildProjectStatusGroups(tasks, projectId, sortField, assigneeFilterId),
@@ -51,10 +59,10 @@ export function ProjectTasksTab({ projectId, onOpenTaskFullPage }: ProjectTasksT
   }, [projectId, closeDetail]);
 
   useEffect(() => {
-    if (assigneeFilterId && !assigneeIds.includes(assigneeFilterId)) {
+    if (assigneeFilterId && !assigneePickerIds.includes(assigneeFilterId)) {
       setAssigneeFilterId(null);
     }
-  }, [assigneeFilterId, assigneeIds]);
+  }, [assigneeFilterId, assigneePickerIds]);
 
   const onSortChange = useCallback((field: TasksSortField) => {
     setSortField(field);
@@ -65,6 +73,11 @@ export function ProjectTasksTab({ projectId, onOpenTaskFullPage }: ProjectTasksT
     (status: Status) => addTaskForProjectStatus(projectId, status),
     [addTaskForProjectStatus, projectId],
   );
+
+  const onCreateTask = useCallback(() => {
+    const id = addTaskForProjectStatus(projectId, 'inbox');
+    openTask(id, []);
+  }, [addTaskForProjectStatus, openTask, projectId]);
 
   const expandTask = useCallback(() => {
     const id = selectedTaskId ?? workspace.panelTask?.id;
@@ -77,38 +90,34 @@ export function ProjectTasksTab({ projectId, onOpenTaskFullPage }: ProjectTasksT
       <div className={cx(taskStyles['ts-by-date'], taskStyles['ts-personal'], taskStyles['ts-project-tasks'])}>
         <div className={taskStyles['ts-table']}>
           <ProjectTasksListToolbar
-            assigneeIds={assigneeIds}
+            assigneeIds={assigneePickerIds}
             activeAssigneeId={assigneeFilterId}
             onAssigneeChange={setAssigneeFilterId}
             sortField={sortField}
             onSortChange={onSortChange}
+            onCreateTask={onCreateTask}
           />
-          {groups.length === 0 ? (
-            <p className={taskStyles['ts-empty-state']}>
-              {assigneeFilterId ? 'Немає задач для обраного відповідального.' : 'Немає задач у цьому проєкті.'}
-            </p>
-          ) : (
-            groups.map((group) => (
-              <TaskStatusGroupSection
-                key={group.status}
-                status={group.status}
-                label={group.label}
-                tasks={group.tasks}
-                armedDeleteId={armedDeleteId}
-                expandedTreeKeys={expandedTreeKeys}
-                onToggleTreeExpand={toggleTreeExpand}
-                onArmDelete={setArmedDeleteId}
-                onDelete={deleteTask}
-                onDuplicate={duplicateTask}
-                onUpdate={updateTask}
-                onUpdateSubtask={updateSubtaskAtPath}
-                onAddSubtask={addSubtaskAtPath}
-                onAdd={onAdd}
-                onOpenTask={openTask}
-                listVariant={group.status === 'done' ? 'withCompleted' : 'personal'}
-              />
-            ))
-          )}
+          {groups.map((group) => (
+            <TaskStatusGroupSection
+              key={group.status}
+              status={group.status}
+              label={group.label}
+              tasks={group.tasks}
+              armedDeleteId={armedDeleteId}
+              expandedTreeKeys={expandedTreeKeys}
+              onToggleTreeExpand={toggleTreeExpand}
+              onArmDelete={setArmedDeleteId}
+              onDelete={deleteTask}
+              onDuplicate={duplicateTask}
+              onUpdate={updateTask}
+              onUpdateSubtask={updateSubtaskAtPath}
+              onAddSubtask={addSubtaskAtPath}
+              onAdd={onAdd}
+              onOpenTask={openTask}
+              listVariant={group.status === 'done' ? 'withCompleted' : 'personal'}
+              projectGroupMode
+            />
+          ))}
         </div>
       </div>
       <TaskDetailLayer

@@ -4,6 +4,11 @@ import styles from '../projects2.module.css';
 import type { ProjectPatch } from '../types';
 import { ProjectDatePicker } from './ProjectDatePicker';
 
+function telHref(phone: string): string | null {
+  const normalized = phone.replace(/[^\d+]/g, '');
+  return normalized ? `tel:${normalized}` : null;
+}
+
 interface EditableFieldProps {
   icon: ReactNode;
   label: string;
@@ -12,6 +17,8 @@ interface EditableFieldProps {
   multiline?: boolean;
   /** Календар у стилі CRM; значення DD.MM.YYYY */
   date?: boolean;
+  /** Іконка відкриває дзвінок (tel:) */
+  dial?: boolean;
   onSave: (field: keyof ProjectPatch, value: string) => void;
 }
 
@@ -22,6 +29,7 @@ export function EditableField({
   fieldKey,
   multiline,
   date,
+  dial,
   onSave,
 }: EditableFieldProps) {
   const [draft, setDraft] = useState(value);
@@ -60,6 +68,7 @@ export function EditableField({
   const className = cx(styles['field-in'], focused && styles.focus);
 
   const dateFieldId = `project2-field-date-${String(fieldKey)}`;
+  const phoneHref = dial ? telHref(value) : null;
 
   const bind = {
     className,
@@ -71,7 +80,19 @@ export function EditableField({
   return (
     <div className={cx(styles.field, styles['p2-field'], multiline && !date && styles['field-long'])}>
       <div className={styles['field-l']}>
-        <span className={styles['field-i']}>{icon}</span>
+        {phoneHref ? (
+          <a
+            href={phoneHref}
+            className={styles['p2-field-tel-link']}
+            aria-label={`Зателефонувати: ${value}`}
+            title={value}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <span className={styles['field-i']}>{icon}</span>
+          </a>
+        ) : (
+          <span className={styles['field-i']}>{icon}</span>
+        )}
         <span className={styles['field-k']}>{label}</span>
       </div>
       <div className={styles['field-v-wrap']}>

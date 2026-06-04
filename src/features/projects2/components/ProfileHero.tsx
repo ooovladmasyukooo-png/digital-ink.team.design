@@ -1,4 +1,4 @@
-import { Avatar } from '../../../shared/components/Avatar';
+import { ProjectAvatar } from './ProjectAvatar';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import styles from '../projects2.module.css';
@@ -24,7 +24,13 @@ export function ProfileHero({ project, avatarSrc, projectPhotoSrc, onPickAvatar,
             aria-label="Змінити аватарку"
           >
             <span className={styles['avatar-upload-ring']}>
-              <Avatar name={project.name} hue={project.hue} src={avatarSrc} size="lg" />
+              <ProjectAvatar
+                projectId={project.id}
+                name={project.name}
+                churnRisk={project.churnRisk}
+                src={avatarSrc}
+                size="lg"
+              />
             </span>
             <span className={styles['avatar-upload-overlay']} aria-hidden>
               <span className={styles['avatar-upload-overlay-ic']}>{Icons.camera}</span>

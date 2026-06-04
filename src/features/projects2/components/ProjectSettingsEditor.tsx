@@ -33,7 +33,14 @@ export function ProjectSettingsEditor({ project, onSave, onPatch }: ProjectSetti
           onSave={onSave}
         />
         <EditableField label="Email" value={project.email} fieldKey="email" onSave={onSave} icon={Icons.mail} />
-        <EditableField label="Телефон" value={project.phone} fieldKey="phone" onSave={onSave} icon={Icons.call} />
+        <EditableField
+          label="Телефон"
+          value={project.phone}
+          fieldKey="phone"
+          onSave={onSave}
+          icon={Icons.call}
+          dial
+        />
       </section>
 
       <section className={styles['p2-settings-sect']}>

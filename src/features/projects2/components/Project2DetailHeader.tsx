@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Avatar } from '../../../shared/components/Avatar';
+import { ProjectAvatar } from './ProjectAvatar';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import type { ProjectPipelineStatus } from '../projectPipelineStatus';
@@ -13,11 +13,9 @@ const DETAIL_TABS: { id: ProjectSubtabId; label: string; icon: ReactNode }[] = [
   { id: 'profile', label: 'Головна', icon: Icons.dashboard },
   { id: 'tasks', label: 'Задачі', icon: Icons.tasks },
   { id: 'documents', label: 'Документи', icon: Icons.briefcase },
-  { id: 'daily-reports', label: 'Щоденна звітність', icon: Icons.calendar },
+  { id: 'daily-reports', label: 'Звітність', icon: Icons.calendar },
   { id: 'bookings', label: 'Букінги', icon: Icons.call },
   { id: 'design-brief', label: 'ТЗ дизайнеру', icon: Icons.spark },
-  { id: 'invoices', label: 'Інвойси', icon: Icons.finance },
-  { id: 'settings', label: 'Налаштування', icon: Icons.settings },
 ];
 
 interface Project2DetailHeaderProps {
@@ -125,7 +123,13 @@ export function Project2DetailHeader({
                   setProjectMenuOpen((open) => !open);
                 }}
               >
-                <Avatar name={project.name} hue={project.hue} src={avatarSrc} size="sm" />
+                <ProjectAvatar
+                  projectId={project.id}
+                  name={project.name}
+                  churnRisk={project.churnRisk}
+                  src={avatarSrc}
+                  size="sm"
+                />
                 <span className={cx(styles['p2-crumb-text'], styles['p2-crumb-label'])} title={project.name}>
                   {project.name}
                 </span>
@@ -171,9 +175,10 @@ export function Project2DetailHeader({
                         }}
                       >
                         <span className="pop-row-i">
-                          <Avatar
+                          <ProjectAvatar
+                            projectId={item.id}
                             name={item.name}
-                            hue={item.hue}
+                            churnRisk={item.churnRisk}
                             src={projectAvatars[item.id]}
                             size="sm"
                           />

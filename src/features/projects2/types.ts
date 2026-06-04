@@ -5,9 +5,7 @@ export type ProjectSubtabId =
   | 'documents'
   | 'daily-reports'
   | 'bookings'
-  | 'design-brief'
-  | 'invoices'
-  | 'settings';
+  | 'design-brief';
 
 export interface ProjectQuickLinks {
   instagram: string;
@@ -38,10 +36,11 @@ export type ProjectTeamPositionId =
   | 'strategist'
   | 'analyst';
 
+/** Один запис = спеціаліст + одна роль на проєкті (той самий людина може мати кілька записів). */
 export interface ProjectTeamAssignment {
   id: string;
   memberId: string;
-  positions: ProjectTeamPositionId[];
+  position: ProjectTeamPositionId;
 }
 
 export interface Project {

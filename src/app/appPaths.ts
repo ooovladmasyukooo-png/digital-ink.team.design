@@ -23,8 +23,6 @@ const PROJECT_SUBTAB_IDS: ProjectSubtabId[] = [
   'daily-reports',
   'bookings',
   'design-brief',
-  'invoices',
-  'settings',
 ];
 
 /** Старі pathname-підвкладки: /team/tasks?id=… */
@@ -35,8 +33,6 @@ const PROJECT_PATH_SUBTAB_IDS: Exclude<ProjectSubtabId, 'profile'>[] = [
   'daily-reports',
   'bookings',
   'design-brief',
-  'invoices',
-  'settings',
 ];
 
 export function parseTeamSubtab(raw: string | null): TeamSubtabId {

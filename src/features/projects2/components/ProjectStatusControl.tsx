@@ -1,12 +1,12 @@
 import { useRef, useState } from 'react';
-import { ProfileMetricStepper } from './ProfileMetricStepper';
+import { cx } from '../../../shared/styles/cx';
 import { ProjectPipelineStatusPopover } from './ProjectPipelineStatusPopover';
 import {
   PipelineStatusChip,
   normalizePipelineStatus,
-  stepPipelineStatus,
   type ProjectPipelineStatus,
 } from '../projectPipelineStatus';
+import styles from '../projects2.module.css';
 
 interface ProjectStatusControlProps {
   pipelineStatus: string;
@@ -20,17 +20,19 @@ export function ProjectStatusControl({ pipelineStatus: rawStatus, onChange }: Pr
 
   return (
     <>
-      <ProfileMetricStepper
-        label="Статус"
-        valueLabel={pipelineStatus}
-        onPrev={() => onChange(stepPipelineStatus(pipelineStatus, 'prev'))}
-        onNext={() => onChange(stepPipelineStatus(pipelineStatus, 'next'))}
-        onOpenPicker={() => setOpen((current) => !current)}
-        pickerOpen={open}
-        valueRef={statusRef}
-      >
-        <PipelineStatusChip status={pipelineStatus} size="compact" />
-      </ProfileMetricStepper>
+      <div className={styles['p2-profile-metric']}>
+        <span className={styles['p2-profile-metric-k']}>Статус</span>
+        <button
+          ref={statusRef}
+          type="button"
+          className={cx(styles['p2-profile-status-chip'], open && styles['p2-profile-status-chip-on'])}
+          aria-label={`Статус: ${pipelineStatus}. Відкрити список`}
+          aria-expanded={open}
+          onClick={() => setOpen((current) => !current)}
+        >
+          <PipelineStatusChip status={pipelineStatus} size="compact" />
+        </button>
+      </div>
 
       {open ? (
         <ProjectPipelineStatusPopover

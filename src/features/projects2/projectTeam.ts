@@ -22,8 +22,8 @@ export function positionMeta(positionId: ProjectTeamPositionId) {
   return POSITION_BY_ID[positionId];
 }
 
-export function createTeamAssignmentId(memberId: string): string {
-  return `ta-${memberId}-${Math.random().toString(36).slice(2, 8)}`;
+export function createTeamAssignmentId(memberId: string, position: ProjectTeamPositionId): string {
+  return `ta-${memberId}-${position}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
 type TeamSource = Pick<Project, 'teamAssignments'> & {
@@ -32,13 +32,29 @@ type TeamSource = Pick<Project, 'teamAssignments'> & {
   teamLeadId?: string;
 };
 
+type LegacyTeamRow = {
+  id: string;
+  memberId: string;
+  positions?: ProjectTeamPositionId[];
+  position?: ProjectTeamPositionId;
+};
+
+function flattenTeamRow(row: LegacyTeamRow): ProjectTeamAssignment[] {
+  if (row.position) {
+    return [{ id: row.id, memberId: row.memberId, position: row.position }];
+  }
+  const positions = row.positions ?? [];
+  if (positions.length === 0) return [];
+  return positions.map((position) => ({
+    id: positions.length === 1 ? row.id : createTeamAssignmentId(row.memberId, position),
+    memberId: row.memberId,
+    position,
+  }));
+}
+
 export function normalizeTeamAssignments(source: TeamSource): ProjectTeamAssignment[] {
   if (source.teamAssignments?.length) {
-    return source.teamAssignments.map((row) => ({
-      id: row.id,
-      memberId: row.memberId,
-      positions: [...row.positions],
-    }));
+    return source.teamAssignments.flatMap((row) => flattenTeamRow(row as LegacyTeamRow));
   }
 
   const legacy: { memberId: string; position: ProjectTeamPositionId }[] = [];
@@ -46,18 +62,19 @@ export function normalizeTeamAssignments(source: TeamSource): ProjectTeamAssignm
   if (source.pmId) legacy.push({ memberId: source.pmId, position: 'pm' });
   if (source.teamLeadId) legacy.push({ memberId: source.teamLeadId, position: 'team_lead' });
 
-  const byMember = new Map<string, ProjectTeamPositionId[]>();
-  for (const entry of legacy) {
-    const current = byMember.get(entry.memberId) ?? [];
-    if (!current.includes(entry.position)) current.push(entry.position);
-    byMember.set(entry.memberId, current);
-  }
-
-  return [...byMember.entries()].map(([memberId, positions]) => ({
-    id: createTeamAssignmentId(memberId),
-    memberId,
-    positions,
+  return legacy.map((entry) => ({
+    id: createTeamAssignmentId(entry.memberId, entry.position),
+    memberId: entry.memberId,
+    position: entry.position,
   }));
+}
+
+export function memberIdForPosition(
+  assignments: ProjectTeamAssignment[],
+  positionId: ProjectTeamPositionId,
+): string | null {
+  const row = assignments.find((assignment) => assignment.position === positionId);
+  return row?.memberId ?? null;
 }
 
 export function teamMemberIds(assignments: ProjectTeamAssignment[]): string[] {
@@ -75,9 +92,9 @@ export function memberPositionLabels(
   memberId: string,
   assignments: ProjectTeamAssignment[],
 ): string[] {
-  const row = assignments.find((a) => a.memberId === memberId);
-  if (!row?.positions.length) return [];
-  return row.positions.map((id) => positionMeta(id).short);
+  return assignments
+    .filter((row) => row.memberId === memberId)
+    .map((row) => positionMeta(row.position).short);
 }
 
 export function memberTooltip(memberId: string, assignments: ProjectTeamAssignment[], name: string): string {
@@ -86,40 +103,82 @@ export function memberTooltip(memberId: string, assignments: ProjectTeamAssignme
   return `${shorts.join(', ')} · ${name}`;
 }
 
-export function addTeamMember(
-  assignments: ProjectTeamAssignment[],
-  memberId: string,
-): ProjectTeamAssignment[] {
-  if (assignments.some((row) => row.memberId === memberId)) return assignments;
-  return [...assignments, { id: createTeamAssignmentId(memberId), memberId, positions: [] }];
+export function accessTooltip(row: ProjectTeamAssignment, name: string): string {
+  return `${positionMeta(row.position).short} · ${name}`;
 }
 
-export function removeTeamMember(
+export function isTeamAccessTaken(
   assignments: ProjectTeamAssignment[],
   memberId: string,
-): ProjectTeamAssignment[] {
-  return assignments.filter((row) => row.memberId !== memberId);
+  position: ProjectTeamPositionId,
+  exceptAccessId?: string,
+): boolean {
+  return assignments.some(
+    (row) =>
+      row.memberId === memberId && row.position === position && row.id !== exceptAccessId,
+  );
 }
 
-export function toggleMemberPosition(
+export function hasTeamAccess(
   assignments: ProjectTeamAssignment[],
   memberId: string,
-  positionId: ProjectTeamPositionId,
+  position: ProjectTeamPositionId,
+): boolean {
+  return isTeamAccessTaken(assignments, memberId, position);
+}
+
+export function addTeamAccess(
+  assignments: ProjectTeamAssignment[],
+  memberId: string,
+  position: ProjectTeamPositionId,
 ): ProjectTeamAssignment[] {
-  return assignments.map((row) => {
-    if (row.memberId !== memberId) return row;
-    const has = row.positions.includes(positionId);
-    return {
-      ...row,
-      positions: has
-        ? row.positions.filter((id) => id !== positionId)
-        : [...row.positions, positionId],
-    };
-  });
+  if (hasTeamAccess(assignments, memberId, position)) return assignments;
+  return [
+    ...assignments,
+    { id: createTeamAssignmentId(memberId, position), memberId, position },
+  ];
+}
+
+export function removeTeamAccess(
+  assignments: ProjectTeamAssignment[],
+  accessId: string,
+): ProjectTeamAssignment[] {
+  return assignments.filter((row) => row.id !== accessId);
+}
+
+export function updateTeamAccessPosition(
+  assignments: ProjectTeamAssignment[],
+  accessId: string,
+  position: ProjectTeamPositionId,
+): ProjectTeamAssignment[] {
+  const row = assignments.find((item) => item.id === accessId);
+  if (!row || row.position === position) return assignments;
+
+  const withoutMemberPositionDupes = assignments.filter(
+    (item) =>
+      !(item.memberId === row.memberId && item.position === position && item.id !== accessId),
+  );
+
+  return withoutMemberPositionDupes.map((item) =>
+    item.id === accessId ? { ...item, position } : item,
+  );
+}
+
+export function reorderTeamAccess(
+  assignments: ProjectTeamAssignment[],
+  fromIndex: number,
+  toIndex: number,
+): ProjectTeamAssignment[] {
+  if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return assignments;
+  if (fromIndex >= assignments.length || toIndex >= assignments.length) return assignments;
+  const next = [...assignments];
+  const [item] = next.splice(fromIndex, 1);
+  next.splice(toIndex, 0, item);
+  return next;
 }
 
 export const DEFAULT_TEAM_ASSIGNMENTS: ProjectTeamAssignment[] = [
-  { id: 'ta-daria', memberId: 'daria', positions: ['media_buyer'] },
-  { id: 'ta-sofia', memberId: 'sofia', positions: ['pm'] },
-  { id: 'ta-mira', memberId: 'mira', positions: ['team_lead'] },
+  { id: 'ta-daria-mb', memberId: 'daria', position: 'media_buyer' },
+  { id: 'ta-sofia-pm', memberId: 'sofia', position: 'pm' },
+  { id: 'ta-mira-tl', memberId: 'mira', position: 'team_lead' },
 ];

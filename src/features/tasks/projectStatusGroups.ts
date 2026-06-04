@@ -1,3 +1,4 @@
+import { TASK_CREATOR_ASSIGNEE_ID } from './constants';
 import { buildStatusTabGroups } from './statusTaskGroups';
 import type { Task, TasksSortField } from './types';
 
@@ -17,12 +18,27 @@ export function collectProjectAssigneeIds(tasks: Task[], projectId: string): str
   return [...ids].sort((a, b) => a.localeCompare(b));
 }
 
+/** Усі, хто в команді проєкту або вже є відповідальним у задачах (для меню фільтра). */
+export function collectProjectAssigneePickerIds(
+  tasks: Task[],
+  projectId: string,
+  projectTeamMemberIds: string[],
+): string[] {
+  const ids = new Set(projectTeamMemberIds);
+  ids.add(TASK_CREATOR_ASSIGNEE_ID);
+  for (const task of tasks) {
+    if (!isProjectTask(task, projectId)) continue;
+    for (const id of task.assigneeIds) ids.add(id);
+  }
+  return [...ids].sort((a, b) => a.localeCompare(b));
+}
+
 function matchesProjectAssigneeFilter(task: Task, assigneeId: string | null): boolean {
   if (assigneeId === null) return true;
   return task.assigneeIds.includes(assigneeId);
 }
 
-/** Групи за статусом; порожні не включаються. */
+/** Групи за статусом; усі статуси, включно з порожніми (вкладка задач проєкту). */
 export function buildProjectStatusGroups(
   tasks: Task[],
   projectId: string,
@@ -33,5 +49,5 @@ export function buildProjectStatusGroups(
     tasks,
     (task) => isProjectTask(task, projectId) && matchesProjectAssigneeFilter(task, assigneeId),
     sort,
-  ).filter((group) => group.tasks.length > 0);
+  );
 }

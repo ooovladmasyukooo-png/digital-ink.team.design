@@ -2,40 +2,80 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } fro
 import { createPortal } from 'react-dom';
 import { Icon, Icons } from '../../shared/components/Icon';
 import { cx } from '../../shared/styles/cx';
+import { teamById } from '../tasks/taskOptions';
 import { ProjectCard } from './components/ProjectCard';
 import { Project2ListHeader } from './components/Project2ListHeader';
+import { ProjectListCrmView } from './components/ProjectListCrmView';
+import { ProjectListToolbar } from './components/ProjectListToolbar';
 import { PROJECT_STYLE_OPTIONS } from './roleOptions';
+import type { ProjectPipelineStatus } from './projectPipelineStatus';
+import {
+  buildProjectListGroups,
+  collectListDirections,
+  filterProjects,
+  filterProjectsForCrmBoard,
+  DEFAULT_PROJECT_LIST_CHURN_ORDER,
+  readProjectListView,
+  writeProjectListView,
+  type ProjectListFilters,
+  type ProjectListGroupBy,
+  type ProjectListLayout,
+} from './projectListView';
 import styles from './projects2.module.css';
 import type { Project } from './types';
 
 interface Project2ListProps {
   projects: Project[];
   onSelect: (id: string) => void;
+  onMoveProject: (projectId: string, status: ProjectPipelineStatus) => void;
 }
 
-export function Project2List({ projects, onSelect }: Project2ListProps) {
-  const [filter, setFilter] = useState<string>('all');
-  const [roleOpen, setRoleOpen] = useState(false);
+export function Project2List({ projects, onSelect, onMoveProject }: Project2ListProps) {
+  const initialView = useMemo(() => readProjectListView(), []);
+  const [groupBy, setGroupBy] = useState<ProjectListGroupBy>(initialView.groupBy);
+  const [filters, setFilters] = useState<ProjectListFilters>(initialView.filters);
+  const [layout, setLayout] = useState<ProjectListLayout>(initialView.layout);
   const [query, setQuery] = useState('');
   const [inviteOpen, setInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [invitePosition, setInvitePosition] = useState(PROJECT_STYLE_OPTIONS[0] ?? '');
   const emailRef = useRef<HTMLInputElement>(null);
 
-  const roles = useMemo(() => {
-    const roleCounts = new Map<string, number>();
-    projects.forEach((project) => roleCounts.set(project.role, (roleCounts.get(project.role) ?? 0) + 1));
-    return Array.from(roleCounts, ([role, n]) => ({ role, n }));
-  }, [projects]);
+  const memberNameById = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(teamById).map(([id, member]) => [id, member.name]),
+      ) as Record<string, string>,
+    [],
+  );
 
-  const filtered = projects.filter((project) => {
-    if (filter !== 'all' && project.role !== filter) return false;
-    const searchText = `${project.name} ${project.username}`.toLowerCase();
-    return !query || searchText.includes(query.toLowerCase());
-  });
+  const directionOrder = useMemo(() => collectListDirections(projects), [projects]);
 
-  const activeProjects = filtered.filter((project) => project.status === 'active');
-  const inactiveProjects = filtered.filter((project) => project.status !== 'active');
+  const filtered = useMemo(
+    () => filterProjects(projects, filters, query, groupBy),
+    [projects, filters, query, groupBy],
+  );
+
+  const crmProjects = useMemo(
+    () => filterProjectsForCrmBoard(projects, filters, query, groupBy),
+    [projects, filters, query, groupBy],
+  );
+
+  const groups = useMemo(
+    () =>
+      buildProjectListGroups(
+        filtered,
+        groupBy,
+        memberNameById,
+        directionOrder,
+        DEFAULT_PROJECT_LIST_CHURN_ORDER,
+      ),
+    [filtered, groupBy, memberNameById, directionOrder],
+  );
+
+  useEffect(() => {
+    writeProjectListView(groupBy, filters, layout);
+  }, [groupBy, filters, layout]);
 
   const closeInvite = useCallback(() => {
     setInviteOpen(false);
@@ -163,39 +203,59 @@ export function Project2List({ projects, onSelect }: Project2ListProps) {
             </button>
           }
         />
-        <div className={styles['team-list-page']}>
-          <div className={styles['tlp-filter']}>
-            <div className={styles['tlp-search']}>
-              {Icons.search}
-              <input placeholder="Пошук проєктів..." value={query} onChange={(event) => setQuery(event.target.value)} />
-            </div>
-            <div className={styles['tlp-role-filter']}>
-              <button className={cx(styles['tlp-role-btn'], roleOpen && styles.on)} onClick={() => setRoleOpen((open) => !open)} type="button">
-                {Icons.filter}
-                <span>{filter === 'all' ? 'Усі стилі' : filter}</span>
-                <span className={styles['team-chip-n']}>{filtered.length}</span>
-                {Icons.chevD}
-              </button>
-              {roleOpen ? (
-                <div className={styles['tlp-role-menu']}>
-                  <button className={cx(styles['tlp-role-option'], filter === 'all' && styles.on)} onClick={() => { setFilter('all'); setRoleOpen(false); }} type="button">
-                    <span>Усі стилі</span><span className={styles['team-chip-n']}>{projects.length}</span>
-                  </button>
-                  {roles.map((role) => (
-                    <button key={role.role} className={cx(styles['tlp-role-option'], filter === role.role && styles.on)} onClick={() => { setFilter(role.role); setRoleOpen(false); }} type="button">
-                      <span>{role.role}</span><span className={styles['team-chip-n']}>{role.n}</span>
-                    </button>
-                  ))}
+        <div
+          className={cx(
+            styles['team-list-page'],
+            layout === 'crm' && styles['p2-list-page-crm'],
+          )}
+        >
+          <ProjectListToolbar
+            projects={projects}
+            filteredCount={layout === 'crm' ? crmProjects.length : filtered.length}
+            layout={layout}
+            groupBy={groupBy}
+            filters={filters}
+            query={query}
+            onQueryChange={setQuery}
+            onLayoutChange={setLayout}
+            onGroupByChange={setGroupBy}
+            onFiltersChange={setFilters}
+          />
+
+          {layout === 'crm' ? (
+            <ProjectListCrmView
+              projects={crmProjects}
+              groupBy={groupBy}
+              churnOrder={DEFAULT_PROJECT_LIST_CHURN_ORDER}
+              memberNameById={memberNameById}
+              directionOrder={directionOrder}
+              onSelect={onSelect}
+              onMoveProject={onMoveProject}
+            />
+          ) : (
+            <div className={styles['tlp-groups']}>
+              {groups.map((group) => (
+                <section key={group.key} className={styles['tlp-group']}>
+                  <div className={styles['tlp-group-h']}>
+                    {group.label}
+                    <span>{group.projects.length}</span>
+                  </div>
+                  <div className={styles['tlp-grid']}>
+                    {group.projects.map((project) => (
+                      <ProjectCard key={project.id} project={project} onSelect={onSelect} />
+                    ))}
+                  </div>
+                </section>
+              ))}
+              {!filtered.length ? (
+                <div className={styles['tlp-empty']}>
+                  <div className={styles['tlp-empty-i']}>{Icons.briefcase}</div>
+                  <div>Проєктів не знайдено</div>
+                  <div className="muted xs">Спробуй змінити фільтри або групування</div>
                 </div>
               ) : null}
             </div>
-          </div>
-
-          <div className={styles['tlp-groups']}>
-            {activeProjects.length ? <section className={styles['tlp-group']}><div className={styles['tlp-group-h']}>Активні<span>{activeProjects.length}</span></div><div className={styles['tlp-grid']}>{activeProjects.map((project) => <ProjectCard key={project.id} project={project} onSelect={onSelect} />)}</div></section> : null}
-            {inactiveProjects.length ? <section className={styles['tlp-group']}><div className={styles['tlp-group-h']}>Неактивні<span>{inactiveProjects.length}</span></div><div className={styles['tlp-grid']}>{inactiveProjects.map((project) => <ProjectCard key={project.id} project={project} onSelect={onSelect} />)}</div></section> : null}
-            {!filtered.length ? <div className={styles['tlp-empty']}><div className={styles['tlp-empty-i']}>{Icons.briefcase}</div><div>Проєктів не знайдено</div><div className="muted xs">Спробуй змінити фільтри</div></div> : null}
-          </div>
+          )}
         </div>
       </div>
       {inviteModal}

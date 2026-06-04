@@ -24,6 +24,14 @@ export const PROJECT_CHURN_RISK_META: Record<ProjectChurnRiskLevel, { chipTone: 
   Critical: { chipTone: 'red' },
 };
 
+export function churnRiskTone(level: ProjectChurnRiskLevel): Tone {
+  return PROJECT_CHURN_RISK_META[level].chipTone;
+}
+
+export function churnRiskToneClass(level: ProjectChurnRiskLevel): `tone-${Tone}` {
+  return `tone-${churnRiskTone(level)}`;
+}
+
 const LEGACY_CHURN_MAP: Record<string, ProjectChurnRiskLevel> = {
   'Дуже низький': 'Very low',
   'Very low': 'Very low',
@@ -52,9 +60,11 @@ export function stepChurnRisk(current: ProjectChurnRiskLevel, direction: 'prev' 
 export function ChurnRiskChip({
   level,
   size = 'md',
+  showFlag = true,
 }: {
   level: ProjectChurnRiskLevel;
   size?: 'md' | 'lg' | 'compact';
+  showFlag?: boolean;
 }) {
   const meta = PROJECT_CHURN_RISK_META[level];
   return (
@@ -65,9 +75,11 @@ export function ChurnRiskChip({
       )}
     >
       <Chip tone={meta.chipTone}>
-        <span className={taskStyles['ts-pri-flag']} aria-hidden>
-          {Icons.flag}
-        </span>
+        {showFlag ? (
+          <span className={taskStyles['ts-pri-flag']} aria-hidden>
+            {Icons.flag}
+          </span>
+        ) : null}
         {level}
       </Chip>
     </span>

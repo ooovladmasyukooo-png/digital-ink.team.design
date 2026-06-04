@@ -1,8 +1,43 @@
-import { normalizeChurnRisk } from './projectChurnRisk';
-import { DEFAULT_TEAM_ASSIGNMENTS } from './projectTeam';
-import { parseCountryFromCity, cityWithoutCountrySuffix } from './projectCountries';
+import {
+  PROJECT_PIPELINE_STATUS_OPTIONS,
+  type ProjectPipelineStatus,
+} from './projectPipelineStatus';
+import { normalizeChurnRisk, PROJECT_CHURN_RISK_LEVELS } from './projectChurnRisk';
 import { DEFAULT_LINK_ORDER } from './projectLinks';
-import type { Project, ProjectQuickLinks } from './types';
+import { parseCountryFromCity, cityWithoutCountrySuffix } from './projectCountries';
+import type {
+  Project,
+  ProjectQuickLinks,
+  ProjectStatus,
+  ProjectTeamAssignment,
+  ProjectTeamPositionId,
+} from './types';
+
+const PROJECT_COUNT = 40;
+
+const STUDIO_DIRECTIONS = [
+  'Blackwork',
+  'Realism',
+  'Fine Line',
+  'Traditional',
+  'Cyber Sigil',
+  'Irezumi',
+  'Color',
+  'Lettering',
+] as const;
+
+const CITIES = [
+  'Київ, UA',
+  'Львів, UA',
+  'Одеса, UA',
+  'Харків, UA',
+  'Дніпро, UA',
+  'Варшава, PL',
+  'Berlin, DE',
+  'Prague, CZ',
+] as const;
+
+const PM_ID = 'sofia';
 
 function instagramFromUsername(username: string): string {
   const handle = username.replace(/^@/, '');
@@ -19,196 +54,104 @@ function defaultQuickLinks(username: string, slug: string): ProjectQuickLinks {
   };
 }
 
-type ProjectSeed = Omit<
-  Project,
-  | 'country'
-  | 'pipelineStatus'
-  | 'churnRisk'
-  | 'result'
-  | 'niche'
-  | 'aboutClient'
-  | 'mbPmComment'
-  | 'hasTestimonials'
-  | 'hasCase'
-  | 'paidAt'
-  | 'startDate'
-  | 'activeDate'
-  | 'endDate'
-  | 'chatId'
-  | 'chatType'
-  | 'teamAssignments'
-  | 'settingExtras'
-  | 'customLinks'
-  | 'linkOrder'
-> & {
-  city: string;
-};
+function projectStatusFromPipeline(pipelineStatus: ProjectPipelineStatus): ProjectStatus {
+  if (
+    pipelineStatus === 'Pause' ||
+    pipelineStatus === 'Temporarily stopped' ||
+    pipelineStatus === 'Stopped working'
+  ) {
+    return 'paused';
+  }
+  return 'active';
+}
 
-function withProfileDefaults(seed: ProjectSeed): Project {
-  const country = parseCountryFromCity(seed.city) ?? 'UA';
-  const city = cityWithoutCountrySuffix(seed.city);
-  const pipelineStatus =
-    seed.status === 'paused' ? 'Pause' : seed.status === 'active' ? 'Active' : 'Draft';
+function assign(
+  id: string,
+  memberId: string,
+  position: ProjectTeamPositionId,
+): ProjectTeamAssignment {
+  return { id, memberId, position };
+}
+
+function teamAssignmentsForIndex(index: number): ProjectTeamAssignment[] {
+  const variant = index % 3;
+  const pm = assign(`ta-${index}-pm`, PM_ID, 'pm');
+  const direct = assign(`ta-${index}-dm`, 'direct-mgr', 'team_lead');
+
+  if (variant === 0) {
+    return [assign(`ta-${index}-fb`, 'facebook', 'media_buyer'), direct, pm];
+  }
+  if (variant === 1) {
+    return [assign(`ta-${index}-ga`, 'google-ads', 'media_buyer'), direct, pm];
+  }
+  return [
+    assign(`ta-${index}-fb`, 'facebook', 'media_buyer'),
+    assign(`ta-${index}-ga`, 'google-ads', 'media_buyer'),
+    direct,
+    pm,
+  ];
+}
+
+function pipelineStatusForIndex(index: number): ProjectPipelineStatus {
+  return PROJECT_PIPELINE_STATUS_OPTIONS[index % PROJECT_PIPELINE_STATUS_OPTIONS.length];
+}
+
+function buildProject(index: number): Project {
+  const n = index + 1;
+  const slug = `studio-${String(n).padStart(2, '0')}`;
+  const username = `@${slug.replace(/-/g, '.')}`;
+  const direction = STUDIO_DIRECTIONS[index % STUDIO_DIRECTIONS.length];
+  const cityRaw = CITIES[index % CITIES.length];
+  const country = parseCountryFromCity(cityRaw) ?? 'UA';
+  const city = cityWithoutCountrySuffix(cityRaw);
+  const pipelineStatus = pipelineStatusForIndex(index);
+  const status = projectStatusFromPipeline(pipelineStatus);
+  const joinedYear = 2021 + (index % 5);
+  const joinedMonth = String((index % 12) + 1).padStart(2, '0');
+  const joinedDay = String((index % 27) + 1).padStart(2, '0');
 
   return {
-    ...seed,
+    id: slug,
+    username,
+    name: `Ink Studio ${n}`,
+    role: direction,
+    tier: `L${50 + (index % 35)}`,
+    hue: 250,
+    status,
     country,
     city,
     pipelineStatus,
-    churnRisk: 'Medium',
-    teamAssignments: DEFAULT_TEAM_ASSIGNMENTS.map((row) => ({
-      ...row,
-      positions: [...row.positions],
-    })),
-    result: seed.status === 'paused' ? 'В процесі' : 'В процесі',
+    churnRisk: normalizeChurnRisk(PROJECT_CHURN_RISK_LEVELS[index % PROJECT_CHURN_RISK_LEVELS.length]),
+    teamAssignments: teamAssignmentsForIndex(index),
+    result: status === 'paused' ? 'На паузі' : 'В процесі',
     niche: 'Tattoo studio',
-    aboutClient: seed.comments,
-    mbPmComment: seed.conditions,
-    hasTestimonials: false,
-    hasCase: false,
-    paidAt: '',
-    startDate: seed.joined,
-    activeDate: seed.joined,
-    endDate: '',
-    chatId: seed.telegramId,
+    aboutClient: `Демо-проєкт ${n} · ${direction}. Статус: ${pipelineStatus}.`,
+    mbPmComment: `Facebook / Google / Direct Manager — ротація команди за шаблоном ${(index % 3) + 1}.`,
+    hasTestimonials: index % 4 === 0,
+    hasCase: index % 5 === 0,
+    paidAt: index % 3 === 0 ? `${joinedDay}.${joinedMonth}.${joinedYear}` : '',
+    startDate: `${joinedDay}.${joinedMonth}.${joinedYear}`,
+    activeDate: `${joinedDay}.${joinedMonth}.${joinedYear + 1}`,
+    endDate: pipelineStatus === 'Stopped working' ? `01.01.${joinedYear + 2}` : '',
+    chatId: slug,
     chatType: 'Telegram',
-    quickLinks: {
-      ...defaultQuickLinks(seed.username, seed.id),
-      ...seed.quickLinks,
-    },
+    birthday: `${joinedDay}.${joinedMonth}.${1988 + (index % 10)}`,
+    joined: `${joinedDay}.${joinedMonth}.${joinedYear}`,
+    conditions: `Студія · ${direction}. Pipeline: ${pipelineStatus}.`,
+    dream: 'Розширити онлайн-запис',
+    hobby: 'Креатив, соцмережі',
+    email: `${slug}@digitalink.team`,
+    phone: `+380 ${50 + (index % 40)} ${100 + index} ${10 + index} ${index}`,
+    telegram: `@${slug.replace(/-/g, '_')}`,
+    telegramId: `${500000000 + index}`,
+    comments: `Seed #${n} для Kanban / фільтрів.`,
+    quickLinks: defaultQuickLinks(username, slug),
     linkOrder: [...DEFAULT_LINK_ORDER],
     settingExtras: [],
     customLinks: [],
   };
 }
 
-const projectSeeds: ProjectSeed[] = [
-  {
-    id: 'black-ritual',
-    username: '@black.ritual.kyiv',
-    name: 'Black Ritual Studio',
-    role: 'Blackwork',
-    tier: 'L80',
-    hue: 20,
-    status: 'active',
-    city: 'Київ, UA',
-    birthday: '14.06.1991',
-    joined: '12.01.2022',
-    conditions: 'Студія · 3 кресла. Пріоритет на великі плечі та спину, бронь за 2 тижні.',
-    dream: 'Відкрити другу локацію у Львові',
-    hobby: 'Гравюра, джаз',
-    email: 'hello@blackritual.ink',
-    phone: '+380 67 100 22 11',
-    telegram: '@black_ritual',
-    telegramId: '671002211',
-    comments: 'Флагманський проєкт мережі Digital Ink.',
-    quickLinks: defaultQuickLinks('@black.ritual.kyiv', 'black-ritual'),
-  },
-  {
-    id: 'vlad-ink',
-    username: '@vlad.ink',
-    name: 'Влад «Ink» Коваленко',
-    role: 'Realism',
-    tier: 'L70',
-    hue: 200,
-    status: 'active',
-    city: 'Київ, UA',
-    birthday: '03.11.1993',
-    joined: '04.03.2022',
-    conditions: 'Майстер · 45% від чека. Портрети та cover-up, очікування 3–4 міс.',
-    dream: 'Конвенція Rome Ink Week',
-    hobby: 'Фотографія, мото',
-    email: 'vlad@digitalink.team',
-    phone: '+380 93 555 18 40',
-    telegram: '@vlad_ink',
-    telegramId: '935551840',
-    comments: 'Топ за відгуками клієнтів у 2025.',
-    quickLinks: defaultQuickLinks('@vlad.ink', 'vlad-ink'),
-  },
-  {
-    id: 'maya-lines',
-    username: '@maya.lines',
-    name: 'Maya Lines',
-    role: 'Fine Line',
-    tier: 'L60',
-    hue: 340,
-    status: 'active',
-    city: 'Львів, UA',
-    birthday: '22.08.1996',
-    joined: '19.07.2023',
-    conditions: 'Майстер · мінімалізм, рослинні орнаменти. Запис через Instagram DM.',
-    dream: 'Колаборація з fashion-брендом',
-    hobby: 'Акварель, подкасти',
-    email: 'maya@digitalink.team',
-    phone: '+380 67 880 12 09',
-    telegram: '@maya_lines',
-    telegramId: '678801209',
-    comments: 'Високий repeat-rate по рекомендаціях.',
-    quickLinks: defaultQuickLinks('@maya.lines', 'maya-lines'),
-  },
-  {
-    id: 'old-sailor',
-    username: '@old.sailor.od',
-    name: 'Old Sailor · Одеса',
-    role: 'Traditional',
-    tier: 'L65',
-    hue: 60,
-    status: 'active',
-    city: 'Одеса, UA',
-    birthday: '09.02.1988',
-    joined: '01.09.2021',
-    conditions: 'Студія · old school / neo-trad. Walk-in по пʼятницях.',
-    dream: 'Книга флешів власного авторства',
-    hobby: 'Вітрила, вініл',
-    email: 'book@oldsailor.ink',
-    phone: '+380 48 700 33 21',
-    telegram: '@old_sailor',
-    telegramId: '487003321',
-    comments: 'Найстаріший проєкт у портфелі.',
-    quickLinks: defaultQuickLinks('@old.sailor.od', 'old-sailor'),
-  },
-  {
-    id: 'neo-chrome',
-    username: '@neo.chrome',
-    name: 'Neo Chrome Lab',
-    role: 'Cyber Sigil',
-    tier: 'L55',
-    hue: 280,
-    status: 'paused',
-    city: 'Харків, UA',
-    birthday: '17.12.1994',
-    joined: '11.02.2024',
-    conditions: 'На паузі · релокація обладнання. Повернення Q3 2026.',
-    dream: 'AR-превʼю тату перед сеансом',
-    hobby: '3D, synthwave',
-    email: 'lab@neochrome.ink',
-    phone: '+380 50 412 90 77',
-    telegram: '@neo_chrome',
-    telegramId: '504129077',
-    comments: 'Тимчасово без онлайн-запису.',
-    quickLinks: defaultQuickLinks('@neo.chrome', 'neo-chrome'),
-  },
-  {
-    id: 'sakura-hand',
-    username: '@sakura.hand',
-    name: 'Sakura Hand · Tokyo pop-up',
-    role: 'Irezumi',
-    tier: 'L75',
-    hue: 160,
-    status: 'active',
-    city: 'Tokyo, JP',
-    birthday: '30.04.1990',
-    joined: '20.05.2024',
-    conditions: 'Гостьовий майстер · 2 слоти на місяць, депозит 30%.',
-    dream: 'Постійна студія в Києві',
-    hobby: 'Чай, каліграфія',
-    email: 'sakura@digitalink.team',
-    phone: '+81 90 1234 5678',
-    telegram: '@sakura_hand',
-    telegramId: '9012345678',
-    comments: 'Поп-ап формат, календар синхронізується вручну.',
-    quickLinks: defaultQuickLinks('@sakura.hand', 'sakura-hand'),
-  },
-];
-
-export const projects: Project[] = projectSeeds.map(withProfileDefaults);
+export const projects: Project[] = Array.from({ length: PROJECT_COUNT }, (_, index) =>
+  buildProject(index),
+);

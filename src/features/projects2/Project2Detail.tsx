@@ -3,18 +3,17 @@ import { cx } from '../../shared/styles/cx';
 import { Project2DetailHeader } from './components/Project2DetailHeader';
 import { ProjectComingSoon } from './components/ProjectComingSoon';
 import { ProfileTab } from './tabs/ProfileTab';
-import { SettingsTab } from './tabs/SettingsTab';
 import { DesignBriefTab } from './tabs/DesignBriefTab';
 import { DocumentsTab } from './tabs/DocumentsTab';
 import { ProjectTasksTab } from './tabs/ProjectTasksTab';
 import styles from './projects2.module.css';
+import { normalizeTeamAssignments, teamMemberIds } from './projectTeam';
 import type { Project, ProjectPatch, ProjectSubtabId } from './types';
 
 const COMING_SOON_SUBTITLE: Partial<Record<ProjectSubtabId, string>> = {
   tasks: 'Задачі проєкту у розробці.',
   'daily-reports': 'Щоденна звітність у розробці.',
   bookings: 'Букінги у розробці.',
-  invoices: 'Інвойси у розробці.',
 };
 
 interface Project2DetailProps {
@@ -95,7 +94,7 @@ export function Project2Detail({
   const isTasksLikeView = isTasksView || isDesignBriefView;
   const isDocWorkspaceView = isDocumentsView;
   const isWorkspaceView = isTasksLikeView || isDocWorkspaceView;
-  const isComingSoonView = subtab !== 'profile' && subtab !== 'settings' && !isWorkspaceView;
+  const isComingSoonView = subtab !== 'profile' && !isWorkspaceView;
   const isFlushMain = isComingSoonView || isWorkspaceView;
 
   return (
@@ -143,16 +142,12 @@ export function Project2Detail({
               onPatch={patch}
             />
           ) : null}
-          {subtab === 'settings' ? (
-            <SettingsTab
-              project={project}
-              onSave={save}
-              onPatch={patch}
-              onDeleteProject={() => onDeleteProject(project.id)}
-            />
-          ) : null}
           {subtab === 'tasks' ? (
-            <ProjectTasksTab projectId={project.id} onOpenTaskFullPage={onOpenTaskFullPage} />
+            <ProjectTasksTab
+              projectId={project.id}
+              projectTeamMemberIds={teamMemberIds(normalizeTeamAssignments(project))}
+              onOpenTaskFullPage={onOpenTaskFullPage}
+            />
           ) : null}
           {subtab === 'documents' ? <DocumentsTab projectId={project.id} /> : null}
           {subtab === 'design-brief' ? <DesignBriefTab projectId={project.id} /> : null}

@@ -105,8 +105,36 @@
   padding: 0 8px 0 0;
 }
 
+.ts-project-filters-end {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ts-project-add {
+  height: 22px;
+  min-height: 22px;
+  flex-shrink: 0;
+  padding: 0 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  gap: 4px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ts-project-add :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
 .ts-project-filters .ts-sort-wrap {
   margin-left: 0;
+}
+
+.ts-project-tasks .ts-group-add {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .ts-project-assignee-menu {
@@ -264,6 +292,54 @@
 .ts-viewer-clear :global(svg) {
   width: 10px;
   height: 10px;
+}
+
+.ts-viewer-swap {
+  display: inline-flex;
+  width: 0;
+  height: 22px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0 999px 999px 0;
+  background: var(--bg-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--txt-3);
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  cursor: pointer;
+  transition:
+    width 0.12s ease,
+    opacity 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.ts-viewer-cluster-all-swap:hover .ts-viewer-with-swap,
+.ts-viewer-cluster-all-swap:focus-within .ts-viewer-with-swap {
+  padding-right: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+.ts-viewer-cluster-all-swap:hover .ts-viewer-swap,
+.ts-viewer-cluster-all-swap:focus-within .ts-viewer-swap {
+  width: 20px;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.ts-viewer-swap:hover {
+  background: var(--bg-3);
+  color: var(--txt-2);
+}
+
+.ts-viewer-swap :global(svg) {
+  width: 11px;
+  height: 11px;
 }
 
 .ts-viewer {

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Avatar } from '../../../shared/components/Avatar';
-import { Icon, Icons } from '../../../shared/components/Icon';
+import { Icons } from '../../../shared/components/Icon';
+import { ProjectAvatar } from './ProjectAvatar';
 import { cx } from '../../../shared/styles/cx';
 import { teamById } from '../../tasks/taskOptions';
 import { TaskPickerPopover } from '../../tasks/components/TaskPickerPopover';
@@ -11,11 +12,7 @@ import {
   normalizeChurnRisk,
   type ProjectChurnRiskLevel,
 } from '../projectChurnRisk';
-import {
-  memberTooltip,
-  normalizeTeamAssignments,
-  teamMemberIds,
-} from '../projectTeam';
+import { accessTooltip, normalizeTeamAssignments } from '../projectTeam';
 import type { Project, ProjectPatch } from '../types';
 import { ProjectTeamPopover } from './ProjectTeamPopover';
 import styles from '../projects2.module.css';
@@ -54,10 +51,10 @@ export function ProjectProfileHeader({
   const countryRef = useRef<HTMLDivElement>(null);
   const churnRef = useRef<HTMLButtonElement>(null);
   const teamRef = useRef<HTMLButtonElement>(null);
+  const teamAnchorRef = useRef<HTMLSpanElement>(null);
 
   const churnLevel = normalizeChurnRisk(project.churnRisk);
   const teamAssignments = normalizeTeamAssignments(project);
-  const memberIds = teamMemberIds(teamAssignments);
   const countryOpen = picker === 'country';
   const churnOpen = picker === 'churn';
   const teamOpen = picker === 'team';
@@ -87,9 +84,6 @@ export function ProjectProfileHeader({
     setPicker((current) => (current === next ? null : next));
   };
 
-  const visibleMembers = memberIds.slice(0, 6);
-  const extraMembers = memberIds.length - visibleMembers.length;
-
   return (
     <header className={styles['p2-profile-head']}>
       <button
@@ -98,22 +92,13 @@ export function ProjectProfileHeader({
         onClick={onPickAvatar}
         aria-label="Змінити аватар проєкту"
       >
-        {avatarSrc ? (
-          <Avatar name={project.name} hue={project.hue} src={avatarSrc} size="lg" />
-        ) : (
-          <span className={styles['p2-profile-av-fallback']} aria-hidden>
-            <Icon
-              d={
-                <>
-                  <circle cx="12" cy="8" r="3.5" />
-                  <path d="M5 20a7 7 0 0 1 14 0" />
-                </>
-              }
-              size={24}
-              sw={1.35}
-            />
-          </span>
-        )}
+        <ProjectAvatar
+          projectId={project.id}
+          name={project.name}
+          churnRisk={project.churnRisk}
+          src={avatarSrc}
+          size="lg"
+        />
         <span className={styles['p2-profile-av-overlay']} aria-hidden>
           {Icons.camera}
         </span>
@@ -171,23 +156,6 @@ export function ProjectProfileHeader({
               </ul>
             ) : null}
           </div>
-
-          {project.phone.trim() ? (
-            <a
-              href={`tel:${project.phone.replace(/\s/g, '')}`}
-              className={styles['p2-profile-phone-link']}
-              aria-label={`Телефон: ${project.phone}`}
-              title={project.phone}
-            >
-              <span className={styles['p2-profile-phone-ico']} aria-hidden>
-                {Icons.call}
-              </span>
-            </a>
-          ) : (
-            <span className={styles['p2-profile-phone-ico']} aria-hidden title="Телефон не вказано">
-              {Icons.call}
-            </span>
-          )}
         </div>
 
         <button
@@ -198,26 +166,25 @@ export function ProjectProfileHeader({
           aria-expanded={teamOpen}
           onClick={() => togglePicker('team')}
         >
-          <span className={styles['p2-profile-team']} aria-hidden>
-            {visibleMembers.map((memberId, index) => {
-              const member = teamById[memberId];
-              const name = member?.name ?? '—';
-              return (
-                <span
-                  key={memberId}
-                  className={styles['p2-profile-team-av']}
-                  style={{ zIndex: visibleMembers.length - index }}
-                >
-                  <span className={styles['p2-profile-team-tip']} role="tooltip">
-                    {memberTooltip(memberId, teamAssignments, name)}
+          <span ref={teamAnchorRef} className={styles['p2-profile-team']} aria-hidden>
+            <span className={styles['p2-profile-team-stack']}>
+              {teamAssignments.map((row, index) => {
+                const member = teamById[row.memberId];
+                const name = member?.name ?? '—';
+                return (
+                  <span
+                    key={row.id}
+                    className={styles['p2-profile-team-av']}
+                    style={{ zIndex: teamAssignments.length - index }}
+                  >
+                    <span className={styles['p2-profile-team-tip']} role="tooltip">
+                      {accessTooltip(row, name)}
+                    </span>
+                    <Avatar name={name} hue={member?.hue ?? 0} size="sm" />
                   </span>
-                  <Avatar name={name} hue={member?.hue ?? 0} size="sm" />
-                </span>
-              );
-            })}
-            {extraMembers > 0 ? (
-              <span className={styles['p2-profile-team-more']}>+{extraMembers}</span>
-            ) : null}
+                );
+              })}
+            </span>
             <span className={styles['p2-profile-team-add']} aria-hidden>
               {Icons.plus}
             </span>
@@ -255,7 +222,8 @@ export function ProjectProfileHeader({
       {teamOpen ? (
         <ProjectTeamPopover
           open
-          anchorRef={teamRef}
+          anchorRef={teamAnchorRef}
+          triggerRef={teamRef}
           assignments={teamAssignments}
           onClose={() => setPicker(null)}
           onChange={(next) => onPatch({ teamAssignments: next })}

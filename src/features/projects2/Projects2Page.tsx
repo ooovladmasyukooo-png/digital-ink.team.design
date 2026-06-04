@@ -10,19 +10,15 @@ const SUBTAB_DOC_TITLE: Record<ProjectSubtabId, string> = {
   profile: 'Головна',
   tasks: 'Задачі',
   documents: 'Документи',
-  'daily-reports': 'Щоденна звітність',
+  'daily-reports': 'Звітність',
   bookings: 'Букінги',
   'design-brief': 'ТЗ дизайнеру',
-  invoices: 'Інвойси',
-  settings: 'Налаштування',
 };
 
 const COMING_SOON_SUBTITLE: Partial<Record<ProjectSubtabId, string>> = {
   tasks: 'Задачі проєкту у розробці.',
   'daily-reports': 'Щоденна звітність у розробці.',
   bookings: 'Букінги у розробці.',
-  invoices: 'Інвойси у розробці.',
-  settings: 'Додаткові налаштування проєкту у розробці.',
 };
 
 interface Projects2PageProps {
@@ -125,7 +121,13 @@ export function Projects2Page({
   };
 
   if (!selectedProject) {
-    return <Project2List projects={items} onSelect={(id) => onNavigateProject(id)} />;
+    return (
+      <Project2List
+        projects={items}
+        onSelect={(id) => onNavigateProject(id)}
+        onMoveProject={(projectId, status) => patchProject(projectId, { pipelineStatus: status })}
+      />
+    );
   }
 
   return (

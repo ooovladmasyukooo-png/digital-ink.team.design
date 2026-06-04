@@ -301,5 +301,17 @@ export const Icons = {
       }
     />
   ),
+  /** Перемикання режиму (напр. Усі → Мій). */
+  swapArrows: (
+    <Icon
+      size={12}
+      d={
+        <>
+          <path d="M7 7H3l4-4M3 7l4 4" />
+          <path d="M17 17h4l-4 4M21 17l-4-4" />
+        </>
+      }
+    />
+  ),
   close: <Icon d={<path d="M18 6 6 18M6 6l12 12" />} size={14} />,
 };

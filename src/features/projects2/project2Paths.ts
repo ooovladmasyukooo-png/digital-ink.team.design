@@ -7,9 +7,7 @@ export type ProjectViewQuery =
   | 'documents'
   | 'daily-reports'
   | 'bookings'
-  | 'design-brief'
-  | 'invoices'
-  | 'settings';
+  | 'design-brief';
 
 export const PROJECT_VIEW_QUERIES: ProjectViewQuery[] = [
   'profil',
@@ -18,8 +16,6 @@ export const PROJECT_VIEW_QUERIES: ProjectViewQuery[] = [
   'daily-reports',
   'bookings',
   'design-brief',
-  'invoices',
-  'settings',
 ];
 
 export const QUERY_TO_PROJECT_SUBTAB: Record<ProjectViewQuery, ProjectSubtabId> = {
@@ -29,8 +25,6 @@ export const QUERY_TO_PROJECT_SUBTAB: Record<ProjectViewQuery, ProjectSubtabId> 
   'daily-reports': 'daily-reports',
   bookings: 'bookings',
   'design-brief': 'design-brief',
-  invoices: 'invoices',
-  settings: 'settings',
 };
 
 export const PROJECT_SUBTAB_TO_QUERY: Record<ProjectSubtabId, ProjectViewQuery> = {
@@ -40,8 +34,6 @@ export const PROJECT_SUBTAB_TO_QUERY: Record<ProjectSubtabId, ProjectViewQuery> 
   'daily-reports': 'daily-reports',
   bookings: 'bookings',
   'design-brief': 'design-brief',
-  invoices: 'invoices',
-  settings: 'settings',
 };
 
 function decodeId(value: string): string {

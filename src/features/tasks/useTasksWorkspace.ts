@@ -184,6 +184,7 @@ export function useTasksWorkspace(
     (projectId: string, status: Status) => {
       const id = allocateTaskId();
       setTasks((prev) => [...prev, createNewTaskForProjectStatus(projectId, status, id, viewerId)]);
+      return id;
     },
     [viewerId],
   );

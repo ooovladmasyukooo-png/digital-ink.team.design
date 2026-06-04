@@ -24,6 +24,8 @@ interface TaskStatusGroupSectionProps {
   onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
   onAdd: (status: Status) => void;
   onOpenTask: (id: string, subtaskPath?: string[]) => void;
+  /** Вкладка задач проєкту: усі групи видимі, порожні розгорнуті, «+» завжди на виду */
+  projectGroupMode?: boolean;
 }
 
 const STATUS_GROUP_CLASS: Record<string, string | undefined> = {
@@ -50,18 +52,28 @@ export function TaskStatusGroupSection({
   onAdd,
   onOpenTask,
   listVariant = 'default',
+  projectGroupMode = false,
 }: TaskStatusGroupSectionProps) {
-  const [collapsed, setCollapsed] = useState(status === 'done' || tasks.length === 0);
+  const [collapsed, setCollapsed] = useState(() =>
+    projectGroupMode ? status === 'done' : status === 'done' || tasks.length === 0,
+  );
   const prevTaskCount = useRef(tasks.length);
 
   useEffect(() => {
+    if (projectGroupMode) {
+      if (prevTaskCount.current === 0 && tasks.length > 0 && status !== 'done') {
+        setCollapsed(false);
+      }
+      prevTaskCount.current = tasks.length;
+      return;
+    }
     if (tasks.length === 0) {
       setCollapsed(true);
     } else if (prevTaskCount.current === 0 && status !== 'done') {
       setCollapsed(false);
     }
     prevTaskCount.current = tasks.length;
-  }, [tasks.length, status]);
+  }, [tasks.length, status, projectGroupMode]);
 
   const handleAdd = () => {
     setCollapsed(false);
@@ -79,6 +91,7 @@ export function TaskStatusGroupSection({
         styles['ts-group'],
         styles['ts-group-status'],
         toneClass,
+        projectGroupMode && styles['ts-group-project'],
         listVariant === 'withCompleted' && styles['ts-group-with-completed'],
       )}
       aria-label={label}
