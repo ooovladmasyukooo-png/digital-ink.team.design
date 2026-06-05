@@ -605,6 +605,7 @@
   font-weight: 500;
 }
 .tlp-card-column {
+  position: relative;
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -620,17 +621,39 @@
 .tlp-card-column .tlp-av :global(.av-img),
 .tlp-card-column .tlp-av .p2-project-av :global(.av),
 .tlp-card-column .tlp-av .p2-project-av :global(.av-img) {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
-  font-size: 9px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 9px;
+  box-shadow: none;
+  font-size: 10px;
 }
 .tlp-card-column .tlp-online {
-  right: -1px;
-  bottom: -1px;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--bg-1);
+}
+.tlp-card-column:hover .tlp-online {
+  border-color: var(--surface-card-hover);
+}
+.tlp-card-column .tlp-card-open-corner {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  opacity: 0.55;
+}
+.tlp-card-column:hover .tlp-card-open-corner {
+  opacity: 0.9;
+}
+.tlp-card-column .tlp-card-open-corner :global(svg) {
   width: 9px;
   height: 9px;
-  border-width: 2px;
 }
 .tlp-card-column .tlp-name {
   font-size: 12px;
@@ -661,16 +684,22 @@
 }
 .tlp-card-column .tlp-team-av :global(.av-sm),
 .tlp-card-column .tlp-team-av :global(.av-img-sm) {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-color: var(--bg-1);
+  filter: none;
+  font-size: 8px;
 }
 .tlp-card-column:hover .tlp-team-av :global(.av-sm),
 .tlp-card-column:hover .tlp-team-av :global(.av-img-sm) {
   border-color: var(--surface-card-hover);
+  filter: none;
 }
 .tlp-card-column .tlp-team-more {
+  min-width: 22px;
+  height: 22px;
   border-color: var(--bg-1);
+  font-size: 8px;
 }
 .tlp-card-column:hover .tlp-team-more {
   border-color: var(--surface-card-hover);
@@ -1119,8 +1148,13 @@
   border: 2.5px solid var(--surface-card);
   border-radius: 999px;
 }
-.tlp-online.on { background: var(--green); }
-.tlp-online.off { background: var(--txt-4); }
+.tlp-online.tone-green { background: var(--green); }
+.tlp-online.tone-gray { background: var(--txt-4); }
+.tlp-online.tone-red { background: var(--red); }
+.tlp-online.tone-amber { background: var(--amber); }
+.tlp-online.tone-orange { background: var(--orange, #fb923c); }
+.tlp-online.tone-purple { background: var(--purple); }
+.tlp-online.tone-blue { background: var(--blue); }
 .tlp-body { flex: 1; min-width: 0; overflow: visible; }
 .tlp-name-row {
   display: flex;

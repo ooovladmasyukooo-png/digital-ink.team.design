@@ -7,6 +7,7 @@ import { teamById } from '../../tasks/taskOptions';
 import { cx } from '../../../shared/styles/cx';
 import { countryFlagEmoji } from '../projectCountries';
 import { ChurnRiskChip, churnRiskToneClass, normalizeChurnRisk } from '../projectChurnRisk';
+import { normalizePipelineStatus, pipelineStatusTone } from '../projectPipelineStatus';
 import { memberTooltip, normalizeTeamAssignments, teamMemberIds } from '../projectTeam';
 import styles from '../projects2.module.css';
 import type { Project } from '../types';
@@ -16,7 +17,6 @@ const CARD_TEAM_VISIBLE = 5;
 interface ProjectCardProps {
   project: Project;
   onSelect: (id: string) => void;
-  layout?: 'grid' | 'column';
   draggable?: boolean;
   isDragging?: boolean;
   onDragStart?: (event: DragEvent<HTMLButtonElement>) => void;
@@ -26,7 +26,6 @@ interface ProjectCardProps {
 export function ProjectCard({
   project,
   onSelect,
-  layout = 'grid',
   draggable = false,
   isDragging = false,
   onDragStart,
@@ -38,11 +37,27 @@ export function ProjectCard({
   const extraMembers = memberIds.length - visibleMembers.length;
   const churnLevel = normalizeChurnRisk(project.churnRisk);
   const churnToneClass = churnRiskToneClass(churnLevel);
+  const pipelineToneClass = `tone-${pipelineStatusTone(normalizePipelineStatus(project.pipelineStatus))}`;
   const profileHref = pathForProject2Profile(project.id, 'profile');
 
   const stopCardActivation = (event: MouseEvent) => {
     event.stopPropagation();
   };
+
+  const openLink = (
+    <a
+      className={cx(styles['tlp-card-open'], styles['tlp-card-open-corner'])}
+      href={profileHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`Відкрити головну «${project.name}» у новій вкладці`}
+      onClick={stopCardActivation}
+      onMouseDown={stopCardActivation}
+    >
+      {Icons.openExternal}
+    </a>
+  );
+
   const teamAvatars =
     visibleMembers.length > 0 ? (
       <span className={cx(styles['tlp-team'], styles['tlp-team-meta'])} aria-label="Команда проєкту">
@@ -70,8 +85,8 @@ export function ProjectCard({
     <button
       className={cx(
         styles['tlp-card'],
+        styles['tlp-card-column'],
         styles[churnToneClass],
-        layout === 'column' && styles['tlp-card-column'],
         isDragging && styles['tlp-card-dragging'],
       )}
       draggable={draggable}
@@ -80,13 +95,14 @@ export function ProjectCard({
       onClick={() => onSelect(project.id)}
       type="button"
     >
+      {openLink}
       <span className={styles['tlp-av']}>
         <ProjectAvatar
           projectId={project.id}
           name={project.name}
           churnRisk={project.churnRisk}
         />
-        <span className={cx(styles['tlp-online'], project.status === 'active' ? styles.on : styles.off)} />
+        <span className={cx(styles['tlp-online'], styles[pipelineToneClass])} />
       </span>
       <span className={styles['tlp-body']}>
         <span className={styles['tlp-name-row']}>
@@ -100,17 +116,6 @@ export function ProjectCard({
               {countryFlagEmoji(project.country)}
             </span>
           </span>
-          <a
-            className={styles['tlp-card-open']}
-            href={profileHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={`Відкрити головну «${project.name}» у новій вкладці`}
-            onClick={stopCardActivation}
-            onMouseDown={stopCardActivation}
-          >
-            {Icons.openExternal}
-          </a>
         </span>
         <span className={styles['tlp-card-meta']}>
           <ChurnRiskChip level={churnLevel} size="compact" showFlag={false} />

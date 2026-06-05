@@ -151,7 +151,6 @@ export function ProjectListCrmView({
                     key={project.id}
                     project={project}
                     onSelect={onSelect}
-                    layout="column"
                     draggable={statusGrouping}
                     isDragging={draggingId === project.id}
                     onDragStart={
