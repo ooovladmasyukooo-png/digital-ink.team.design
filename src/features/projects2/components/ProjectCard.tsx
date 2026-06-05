@@ -1,5 +1,4 @@
 import type { DragEvent, MouseEvent } from 'react';
-import { Avatar } from '../../../shared/components/Avatar';
 import { Icons } from '../../../shared/components/Icon';
 import { ProjectAvatar } from './ProjectAvatar';
 import { pathForProject2Profile } from '../project2Paths';
@@ -9,6 +8,7 @@ import { countryFlagEmoji } from '../projectCountries';
 import { ChurnRiskChip, churnRiskToneClass, normalizeChurnRisk } from '../projectChurnRisk';
 import { normalizePipelineStatus, pipelineStatusTone } from '../projectPipelineStatus';
 import { memberTooltip, normalizeTeamAssignments, teamMemberIds } from '../projectTeam';
+import { ProjectTeamAvatarTip } from './ProjectTeamAvatarTip';
 import styles from '../projects2.module.css';
 import type { Project } from '../types';
 
@@ -65,16 +65,13 @@ export function ProjectCard({
           const member = teamById[memberId];
           const name = member?.name ?? '—';
           return (
-            <span
+            <ProjectTeamAvatarTip
               key={memberId}
-              className={styles['tlp-team-av']}
-              style={{ zIndex: visibleMembers.length - index }}
-            >
-              <span className={styles['tlp-team-tip']} role="tooltip">
-                {memberTooltip(memberId, assignments, name)}
-              </span>
-              <Avatar name={name} hue={member?.hue ?? 0} size="sm" />
-            </span>
+              name={name}
+              hue={member?.hue ?? 0}
+              stack={visibleMembers.length - index}
+              tip={memberTooltip(memberId, assignments, name)}
+            />
           );
         })}
         {extraMembers > 0 ? <span className={styles['tlp-team-more']}>+{extraMembers}</span> : null}

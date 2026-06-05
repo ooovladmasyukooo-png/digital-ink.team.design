@@ -665,13 +665,14 @@
 .tlp-card-column .tlp-body {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 .tlp-card-column .tlp-name-row {
   margin-bottom: 2px;
 }
 .tlp-card-column .tlp-card-meta {
   gap: 6px;
+  overflow: visible;
 }
 .tlp-card-column .tlp-card-meta .p2-metric-chip-compact :global(.chip) {
   min-height: 16px;
@@ -1256,6 +1257,7 @@
 
 .tlp-team-av {
   position: relative;
+  z-index: var(--team-stack, 1);
   display: inline-flex;
   flex-shrink: 0;
   margin-left: -6px;
@@ -1266,7 +1268,7 @@
 }
 
 .tlp-team-av:hover {
-  z-index: 4;
+  z-index: 10;
 }
 
 .tlp-team-av :global(.av-sm),
@@ -1315,6 +1317,15 @@
 .tlp-team-av:hover .tlp-team-tip {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+.tlp-team-tip-portal {
+  bottom: auto;
+  left: auto;
+  opacity: 1;
+  pointer-events: none;
+  transform: none;
+  transition: none;
 }
 
 .tlp-team-more {
