@@ -109,7 +109,7 @@ export function TaskStatusGroupSection({
         <span className={styles['ts-group-count']}>{tasks.length}</span>
         <button
           type="button"
-          className={styles['ts-group-add']}
+          className={cx(styles['ts-group-head-btn'], styles['ts-group-add'])}
           aria-label={`Нова задача: ${label}`}
           onClick={handleAdd}
         >

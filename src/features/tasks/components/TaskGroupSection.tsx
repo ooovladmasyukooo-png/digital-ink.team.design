@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icons } from '../../../shared/components/Icon';
 import { cx } from '../../../shared/styles/cx';
 import { DATE_GROUP_LABELS } from '../dateGroups';
+import { formatDateGroupTasksClipboard } from '../taskGroupClipboard';
 import styles from '../tasks.module.css';
 import type { DateGroupId, Task, TaskPatch, TaskSubtask } from '../types';
 import { TaskColumnsHeader } from './TaskColumnsHeader';
@@ -41,6 +43,18 @@ export function TaskGroupSection({
   const [collapsed, setCollapsed] = useState(
     groupId === 'week' || groupId === 'later' || groupId === 'none'
   );
+  const [copyToast, setCopyToast] = useState<string | null>(null);
+
+  const onCopyGroup = useCallback(async () => {
+    const text = formatDateGroupTasksClipboard(groupId, tasks);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopyToast('Задачі скопійовано в буфер обміну');
+    } catch {
+      setCopyToast('Не вдалося скопіювати');
+    }
+    window.setTimeout(() => setCopyToast(null), 2400);
+  }, [groupId, tasks]);
 
   if (tasks.length === 0) return null;
 
@@ -67,14 +81,25 @@ export function TaskGroupSection({
           <span className={styles['ts-group-title']}>{DATE_GROUP_LABELS[groupId]}</span>
         </button>
         <span className={styles['ts-group-count']}>{tasks.length}</span>
-        <button
-          type="button"
-          className={styles['ts-group-add']}
-          aria-label={`Нова задача: ${DATE_GROUP_LABELS[groupId]}`}
-          onClick={() => onAdd(groupId)}
-        >
-          {Icons.plus}
-        </button>
+        <span className={styles['ts-group-head-actions']}>
+          <button
+            type="button"
+            className={cx(styles['ts-group-head-btn'], styles['ts-group-dup'])}
+            aria-label={`Копіювати список задач: ${DATE_GROUP_LABELS[groupId]}`}
+            title="Копіювати список"
+            onClick={() => void onCopyGroup()}
+          >
+            {Icons.duplicate}
+          </button>
+          <button
+            type="button"
+            className={cx(styles['ts-group-head-btn'], styles['ts-group-add'])}
+            aria-label={`Нова задача: ${DATE_GROUP_LABELS[groupId]}`}
+            onClick={() => onAdd(groupId)}
+          >
+            {Icons.plus}
+          </button>
+        </span>
       </div>
 
       {!collapsed ? (
@@ -105,6 +130,15 @@ export function TaskGroupSection({
           </button>
         </>
       ) : null}
+
+      {copyToast
+        ? createPortal(
+            <div className={styles['ts-copy-toast']} role="status" aria-live="polite">
+              {copyToast}
+            </div>,
+            document.body,
+          )
+        : null}
     </section>
   );
 }
