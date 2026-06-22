@@ -8,6 +8,7 @@ import { Project2ListHeader } from './components/Project2ListHeader';
 import { ProjectListCrmView } from './components/ProjectListCrmView';
 import { ProjectListToolbar } from './components/ProjectListToolbar';
 import { PROJECT_STYLE_OPTIONS } from './roleOptions';
+import type { ProjectChurnRiskLevel } from './projectChurnRisk';
 import type { ProjectPipelineStatus } from './projectPipelineStatus';
 import {
   buildProjectListGroups,
@@ -28,9 +29,15 @@ interface Project2ListProps {
   projects: Project[];
   onSelect: (id: string) => void;
   onMoveProject: (projectId: string, status: ProjectPipelineStatus) => void;
+  onChurnRiskChange: (projectId: string, level: ProjectChurnRiskLevel) => void;
 }
 
-export function Project2List({ projects, onSelect, onMoveProject }: Project2ListProps) {
+export function Project2List({
+  projects,
+  onSelect,
+  onMoveProject,
+  onChurnRiskChange,
+}: Project2ListProps) {
   const initialView = useMemo(() => readProjectListView(), []);
   const [groupBy, setGroupBy] = useState<ProjectListGroupBy>(initialView.groupBy);
   const [filters, setFilters] = useState<ProjectListFilters>(initialView.filters);
@@ -231,6 +238,7 @@ export function Project2List({ projects, onSelect, onMoveProject }: Project2List
               directionOrder={directionOrder}
               onSelect={onSelect}
               onMoveProject={onMoveProject}
+              onChurnRiskChange={onChurnRiskChange}
             />
           ) : (
             <div className={styles['tlp-groups']}>
@@ -242,7 +250,12 @@ export function Project2List({ projects, onSelect, onMoveProject }: Project2List
                   </div>
                   <div className={styles['tlp-grid']}>
                     {group.projects.map((project) => (
-                      <ProjectCard key={project.id} project={project} onSelect={onSelect} />
+                      <ProjectCard
+                        key={project.id}
+                        project={project}
+                        onSelect={onSelect}
+                        onChurnRiskChange={(level) => onChurnRiskChange(project.id, level)}
+                      />
                     ))}
                   </div>
                 </section>

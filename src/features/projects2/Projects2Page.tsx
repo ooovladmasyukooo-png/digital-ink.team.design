@@ -126,6 +126,7 @@ export function Projects2Page({
         projects={items}
         onSelect={(id) => onNavigateProject(id)}
         onMoveProject={(projectId, status) => patchProject(projectId, { pipelineStatus: status })}
+        onChurnRiskChange={(projectId, level) => patchProject(projectId, { churnRisk: level })}
       />
     );
   }

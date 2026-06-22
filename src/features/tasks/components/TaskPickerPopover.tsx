@@ -177,7 +177,11 @@ export function TaskPickerPopover({
               role="option"
               aria-selected={item.selected}
               className={cx(styles['ts-picker-item'], item.selected && styles['ts-picker-item-on'])}
-              onClick={() => pick(item.id)}
+              onMouseDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                pick(item.id);
+              }}
             >
               <span className={styles['ts-picker-item-body']}>{item.label}</span>
               {item.selected ? (
@@ -194,7 +198,11 @@ export function TaskPickerPopover({
           <button
             type="button"
             className={cx(styles['ts-picker-clear'], clearOption.selected && styles['ts-picker-clear-on'])}
-            onClick={() => pick(clearOption.id)}
+            onMouseDown={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              pick(clearOption.id);
+            }}
           >
             {clearOption.label}
           </button>

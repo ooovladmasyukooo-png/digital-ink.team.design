@@ -6,6 +6,7 @@ import {
   normalizePipelineStatus,
   type ProjectPipelineStatus,
 } from '../projectPipelineStatus';
+import type { ProjectChurnRiskLevel } from '../projectChurnRisk';
 import { buildCrmBoardColumns, type ProjectListChurnOrder, type ProjectListGroupBy } from '../projectListView';
 import { ProjectCard } from './ProjectCard';
 import styles from '../projects2.module.css';
@@ -21,6 +22,7 @@ interface ProjectListCrmViewProps {
   directionOrder: string[];
   onSelect: (id: string) => void;
   onMoveProject: (projectId: string, status: ProjectPipelineStatus) => void;
+  onChurnRiskChange: (projectId: string, level: ProjectChurnRiskLevel) => void;
 }
 
 function readDraggedProjectId(dataTransfer: DataTransfer): string | null {
@@ -36,6 +38,7 @@ export function ProjectListCrmView({
   directionOrder,
   onSelect,
   onMoveProject,
+  onChurnRiskChange,
 }: ProjectListCrmViewProps) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dropColumnKey, setDropColumnKey] = useState<string | null>(null);
@@ -151,6 +154,7 @@ export function ProjectListCrmView({
                     key={project.id}
                     project={project}
                     onSelect={onSelect}
+                    onChurnRiskChange={(level) => onChurnRiskChange(project.id, level)}
                     draggable={statusGrouping}
                     isDragging={draggingId === project.id}
                     onDragStart={

@@ -1,11 +1,12 @@
-import type { DragEvent, MouseEvent } from 'react';
+import { useRef, type DragEvent, type KeyboardEvent, type MouseEvent } from 'react';
 import { Icons } from '../../../shared/components/Icon';
 import { ProjectAvatar } from './ProjectAvatar';
 import { pathForProject2Profile } from '../project2Paths';
 import { teamById } from '../../tasks/taskOptions';
 import { cx } from '../../../shared/styles/cx';
 import { countryFlagEmoji } from '../projectCountries';
-import { ChurnRiskChip, churnRiskToneClass, normalizeChurnRisk } from '../projectChurnRisk';
+import { churnRiskToneClass, normalizeChurnRisk, type ProjectChurnRiskLevel } from '../projectChurnRisk';
+import { ProjectCardChurnPicker } from './ProjectCardChurnPicker';
 import { normalizePipelineStatus, pipelineStatusTone } from '../projectPipelineStatus';
 import { memberTooltip, normalizeTeamAssignments, teamMemberIds } from '../projectTeam';
 import { ProjectTeamAvatarTip } from './ProjectTeamAvatarTip';
@@ -17,15 +18,17 @@ const CARD_TEAM_VISIBLE = 5;
 interface ProjectCardProps {
   project: Project;
   onSelect: (id: string) => void;
+  onChurnRiskChange?: (level: ProjectChurnRiskLevel) => void;
   draggable?: boolean;
   isDragging?: boolean;
-  onDragStart?: (event: DragEvent<HTMLButtonElement>) => void;
+  onDragStart?: (event: DragEvent<HTMLDivElement>) => void;
   onDragEnd?: () => void;
 }
 
 export function ProjectCard({
   project,
   onSelect,
+  onChurnRiskChange,
   draggable = false,
   isDragging = false,
   onDragStart,
@@ -39,6 +42,7 @@ export function ProjectCard({
   const churnToneClass = churnRiskToneClass(churnLevel);
   const pipelineToneClass = `tone-${pipelineStatusTone(normalizePipelineStatus(project.pipelineStatus))}`;
   const profileHref = pathForProject2Profile(project.id, 'profile');
+  const ignoreCardClickRef = useRef(false);
 
   const stopCardActivation = (event: MouseEvent) => {
     event.stopPropagation();
@@ -78,8 +82,15 @@ export function ProjectCard({
       </span>
     ) : null;
 
+  const openProject = () => {
+    if (ignoreCardClickRef.current) return;
+    onSelect(project.id);
+  };
+
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       className={cx(
         styles['tlp-card'],
         styles['tlp-card-column'],
@@ -89,8 +100,13 @@ export function ProjectCard({
       draggable={draggable}
       onDragStart={onDragStart}
       onDragEnd={onDragEnd}
-      onClick={() => onSelect(project.id)}
-      type="button"
+      onClick={openProject}
+      onKeyDown={(event: KeyboardEvent<HTMLDivElement>) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openProject();
+        }
+      }}
     >
       {openLink}
       <span className={styles['tlp-av']}>
@@ -115,10 +131,21 @@ export function ProjectCard({
           </span>
         </span>
         <span className={styles['tlp-card-meta']}>
-          <ChurnRiskChip level={churnLevel} size="compact" showFlag={false} />
+          {onChurnRiskChange ? (
+            <ProjectCardChurnPicker
+              churnRisk={project.churnRisk}
+              onChange={(level) => {
+                ignoreCardClickRef.current = true;
+                onChurnRiskChange(level);
+                window.setTimeout(() => {
+                  ignoreCardClickRef.current = false;
+                }, 0);
+              }}
+            />
+          ) : null}
           {teamAvatars}
         </span>
       </span>
-    </button>
+    </div>
   );
 }

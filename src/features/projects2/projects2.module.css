@@ -1195,6 +1195,27 @@
 .tlp-team-meta {
   margin-left: auto;
 }
+.tlp-card-churn-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.tlp-card-churn-btn:hover :global(.chip),
+.tlp-card-churn-btn-on :global(.chip) {
+  filter: brightness(1.08);
+}
+
+.tlp-card-churn-btn:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--amber) 45%, transparent);
+  outline-offset: 2px;
+}
+
 .tlp-card-meta .p2-metric-chip-compact {
   flex-shrink: 0;
 }
