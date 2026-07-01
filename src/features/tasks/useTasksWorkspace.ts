@@ -7,11 +7,13 @@ import {
   createNewTaskForPersonalStatus,
   createNewTaskForProject,
   createNewTaskForProjectStatus,
+  createNewTaskForSprint,
   TASK_CREATOR_ASSIGNEE_ID,
 } from './constants';
 import { DATE_GROUP_ORDER, groupTasksByDate } from './dateGroups';
 import { buildProjectGroups } from './projectGroups';
 import { allocateTaskId, getTasks, setTasks, subscribeTasks } from './tasksStore';
+import { getSprints, subscribeSprints, updateSprint, deleteSprint, type SprintPatch } from './sprintsStore';
 import { appendTaskActivity } from './taskActivity';
 import {
   collectArchiveItemsForViewer,
@@ -26,6 +28,7 @@ import {
   getSubtaskAtPath,
   removeSubtaskAtPath,
   taskFromSubtask,
+  taskToSubtask,
 } from './subtaskTask';
 import { duplicateTaskTarget } from './taskDuplicate';
 import { collapseTreeBranch, expandTreeBranch, treeRowKey } from './taskTree';
@@ -36,8 +39,10 @@ export function useTasksWorkspace(
   sortField: TasksSortField = 'priority',
 ) {
   const tasks = useSyncExternalStore(subscribeTasks, getTasks, getTasks);
+  const sprints = useSyncExternalStore(subscribeSprints, getSprints, getSprints);
   const [armedDeleteId, setArmedDeleteId] = useState<string | null>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [selectedSprintId, setSelectedSprintId] = useState<string | null>(null);
   const [subtaskPath, setSubtaskPath] = useState<string[]>([]);
   const [expandedTreeKeys, setExpandedTreeKeys] = useState<Set<string>>(() => new Set());
 
@@ -57,6 +62,14 @@ export function useTasksWorkspace(
   const closeDetail = useCallback(() => {
     setSelectedTaskId(null);
     setSubtaskPath([]);
+  }, []);
+
+  const closeSprint = useCallback(() => {
+    setSelectedSprintId(null);
+  }, []);
+
+  const openSprint = useCallback((sprintId: string) => {
+    setSelectedSprintId(sprintId);
   }, []);
 
   const toggleTreeExpand = useCallback((rootId: string, path: string[]) => {
@@ -205,6 +218,68 @@ export function useTasksWorkspace(
     [viewerId],
   );
 
+  const addTaskForSprint = useCallback(
+    (sprintId: string) => {
+      const id = allocateTaskId();
+      setTasks((prev) => [...prev, createNewTaskForSprint(sprintId, id, viewerId)]);
+      return id;
+    },
+    [viewerId],
+  );
+
+  const updateSprintFields = useCallback((sprintId: string, patch: SprintPatch) => {
+    updateSprint(sprintId, patch);
+  }, []);
+
+  const deleteSprintById = useCallback(
+    (sprintId: string) => {
+      deleteSprint(sprintId);
+      setTasks((prev) =>
+        prev.map((task) => (task.sprintId === sprintId ? { ...task, sprintId: null } : task)),
+      );
+      if (selectedSprintId === sprintId) {
+        closeSprint();
+      }
+      setArmedDeleteId(null);
+    },
+    [closeSprint, selectedSprintId],
+  );
+
+  const assignTaskToSprint = useCallback((taskId: string, sprintId: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === taskId ? { ...task, sprintId } : task)),
+    );
+  }, []);
+
+  const removeTaskFromSprint = useCallback((taskId: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === taskId ? { ...task, sprintId: null } : task)),
+    );
+  }, []);
+
+  const nestTaskAsSubtask = useCallback((taskId: string, rootId: string, parentPath: string[]) => {
+    if (taskId === rootId) return;
+    setTasks((prev) => {
+      const source = prev.find((t) => t.id === taskId);
+      if (!source) return prev;
+      const subtask = taskToSubtask(source);
+      return prev
+        .filter((t) => t.id !== taskId)
+        .map((t) => {
+          if (t.id !== rootId) return t;
+          const subtasks = appendSubtaskAtPath(t.subtasks, parentPath, subtask);
+          return appendTaskActivity({ ...t, subtasks }, t, { subtasks });
+        });
+    });
+  }, []);
+
+  const assignTaskToSprintAsSubtask = useCallback(
+    (taskId: string, rootId: string, parentPath: string[]) => {
+      nestTaskAsSubtask(taskId, rootId, parentPath);
+    },
+    [nestTaskAsSubtask],
+  );
+
   const addTaskForMember = useCallback((memberId: string, status: Status) => {
     const id = allocateTaskId();
     setTasks((prev) => [...prev, createNewTaskForMemberStatus(status, id, memberId)]);
@@ -223,6 +298,7 @@ export function useTasksWorkspace(
   const panelSubtask = selectedTask && subtaskPath.length > 0 ? getSubtaskAtPath(selectedTask, subtaskPath) : null;
   const panelTask =
     selectedTask && panelSubtask ? taskFromSubtask(panelSubtask, selectedTask) : selectedTask;
+  const panelSprint = selectedSprintId ? sprints.find((s) => s.id === selectedSprintId) ?? null : null;
   const parentLink = selectedTask ? getParentTaskLink(selectedTask, subtaskPath) : null;
 
   const updateDetail = useCallback(
@@ -270,14 +346,17 @@ export function useTasksWorkspace(
     viewerId,
     sortField,
     tasks,
+    sprints,
     grouped,
     projectGroups,
     archiveGrouped,
     armedDeleteId,
     expandedTreeKeys,
     selectedTaskId,
+    selectedSprintId,
     subtaskPath,
     panelTask,
+    panelSprint,
     parentLink,
     hasAnyByDate,
     hasAnyByArea,
@@ -285,6 +364,7 @@ export function useTasksWorkspace(
     setArmedDeleteId,
     toggleTreeExpand,
     openTask,
+    openSprint,
     updateTask,
     updateSubtaskAtPath,
     updateArchiveItem,
@@ -296,9 +376,17 @@ export function useTasksWorkspace(
     addTaskForProjectStatus,
     addTaskForPersonal,
     addTaskForDelegated,
+    addTaskForSprint,
+    updateSprintFields,
+    deleteSprint: deleteSprintById,
+    assignTaskToSprint,
+    assignTaskToSprintAsSubtask,
+    removeTaskFromSprint,
+    nestTaskAsSubtask,
     addTaskForMember,
     createTask,
     closeDetail,
+    closeSprint,
     updateDetail,
     setSubtaskPath,
   };

@@ -10,7 +10,7 @@ interface TaskDeleteButtonProps {
   armedId: string | null;
   onArm: (id: string | null) => void;
   onDelete: (id: string) => void;
-  itemLabel?: 'task' | 'subtask';
+  itemLabel?: 'task' | 'subtask' | 'sprint';
 }
 
 export function TaskDeleteButton({
@@ -47,7 +47,9 @@ export function TaskDeleteButton({
           ? 'Підтвердити видалення'
           : itemLabel === 'subtask'
             ? 'Видалити підзадачу'
-            : 'Видалити задачу'
+            : itemLabel === 'sprint'
+              ? 'Видалити спринт'
+              : 'Видалити задачу'
       }
       onClick={handleClick}
     >

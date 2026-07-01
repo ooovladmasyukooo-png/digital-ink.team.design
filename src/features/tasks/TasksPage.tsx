@@ -3,13 +3,16 @@ import { ARCHIVE_GROUP_ORDER } from './archiveGroups';
 import { DATE_GROUP_ORDER } from './dateGroups';
 import { buildDelegatedGroups } from './delegatedGroups';
 import { buildPersonalGroups } from './personalGroups';
+import { buildSprintPhaseGroups } from './sprintGroups';
 import { TasksArchiveView } from './components/TasksArchiveView';
 import { TasksByAreaView } from './components/TasksByAreaView';
 import { TasksByDateView } from './components/TasksByDateView';
 import { TasksDelegatedView } from './components/TasksDelegatedView';
 import { TaskDetailLayer } from './components/TaskDetailLayer';
+import { SprintDetailPanel } from './components/SprintDetailPanel';
 import { TasksPageHeader } from './components/TasksPageHeader';
 import { TasksPersonalView } from './components/TasksPersonalView';
+import { TasksSprintsView } from './components/TasksSprintsView';
 import {
   buildTasksSearch,
   parseTasksSearch,
@@ -55,9 +58,25 @@ export function TasksPage() {
   const workspace = useTasksWorkspace(viewerId, sortField);
   const {
     panelTask,
+    panelSprint,
     selectedTaskId,
     openTask,
+    openSprint,
     closeDetail,
+    closeSprint,
+    assignTaskToSprint,
+    assignTaskToSprintAsSubtask,
+    addTaskForSprint,
+    updateSprintFields,
+    armedDeleteId,
+    expandedTreeKeys,
+    setArmedDeleteId,
+    toggleTreeExpand,
+    updateTask,
+    updateSubtaskAtPath,
+    addSubtaskAtPath,
+    deleteTask,
+    duplicateTask,
     grouped,
     projectGroups,
     archiveGrouped,
@@ -82,22 +101,45 @@ export function TasksPage() {
         );
       case 'archive':
         return ARCHIVE_GROUP_ORDER.reduce((sum, groupId) => sum + archiveGrouped[groupId].length, 0);
+      case 'sprints':
+        return buildSprintPhaseGroups(workspace.sprints, tasks, viewerId, sortField).reduce(
+          (sum, group) => sum + group.taskCount,
+          0,
+        );
       default:
         return 0;
     }
-  }, [activeTab, archiveGrouped, grouped, projectGroups, sortField, tasks, viewerId]);
+  }, [activeTab, archiveGrouped, grouped, projectGroups, sortField, tasks, viewerId, workspace.sprints]);
+
+  const sprintPanelTasks = useMemo(() => {
+    if (!panelSprint) return [];
+    return tasks.filter((task) => task.sprintId === panelSprint.id && task.status !== 'archive');
+  }, [panelSprint, tasks]);
+
+  const sprintSearchTasks = useMemo(() => {
+    if (!panelSprint) return [];
+    return tasks.filter((task) => task.sprintId !== panelSprint.id && task.status !== 'archive');
+  }, [panelSprint, tasks]);
 
   const parsed = parseTasksSearch(urlSearch);
   const taskFull = parsed.full;
 
   const pushTasksUrl = useCallback(
-    (opts: { view?: TasksViewQuery; task?: string | null; full?: boolean; replace?: boolean }) => {
+    (opts: {
+      view?: TasksViewQuery;
+      task?: string | null;
+      sprint?: string | null;
+      full?: boolean;
+      replace?: boolean;
+    }) => {
       const current = parseTasksSearch(urlSearch);
       const view = opts.view ?? current.view;
       const task =
         opts.task !== undefined ? (opts.task ?? undefined) : (current.taskId ?? undefined);
+      const sprint =
+        opts.sprint !== undefined ? (opts.sprint ?? undefined) : (current.sprintId ?? undefined);
       const full = opts.full ?? false;
-      const next = buildTasksSearch(view, { task, full });
+      const next = buildTasksSearch(view, { task, sprint, full });
       setUrlSearch(next);
       if (opts.replace) {
         window.history.replaceState({}, '', `/tasks${next}`);
@@ -124,7 +166,7 @@ export function TasksPage() {
     const path = window.location.pathname.replace(/\/$/, '') || '/';
     if (path !== '/tasks') return;
 
-    const { view, taskId, full } = parseTasksSearch(window.location.search);
+    const { view, taskId, sprintId, full } = parseTasksSearch(window.location.search);
     if (!window.location.search) {
       window.history.replaceState({}, '', `/tasks${buildTasksSearch('day')}`);
       setUrlSearch('?day');
@@ -137,6 +179,7 @@ export function TasksPage() {
     setActiveTab(tab);
     setSortField(readTasksSortForTab(tab));
     if (taskId) openTask(taskId, []);
+    if (sprintId) openSprint(sprintId);
     const root = workspace.tasks.find((t) => t.id === taskId);
     if (full && taskId && root) {
       document.title = taskDocumentTitle(root.title, taskId);
@@ -150,12 +193,14 @@ export function TasksPage() {
     const onPop = () => {
       const search = window.location.search;
       setUrlSearch(search);
-      const { view, taskId, full } = parseTasksSearch(search);
+      const { view, taskId, sprintId, full } = parseTasksSearch(search);
       const tab = QUERY_TO_TAB_ID[view] ?? 'by-date';
       setActiveTab(tab);
       setSortField(readTasksSortForTab(tab));
       if (taskId) openTask(taskId, []);
       else closeDetail();
+      if (sprintId) openSprint(sprintId);
+      else closeSprint();
       const root = workspace.tasks.find((t) => t.id === taskId);
       if (full && taskId && root) {
         document.title = taskDocumentTitle(root.title, taskId);
@@ -165,7 +210,7 @@ export function TasksPage() {
     };
     window.addEventListener('popstate', onPop);
     return () => window.removeEventListener('popstate', onPop);
-  }, [closeDetail, openTask, workspace.tasks]);
+  }, [closeDetail, closeSprint, openSprint, openTask, workspace.tasks]);
 
   const onSortChange = useCallback(
     (field: TasksSortField) => {
@@ -189,9 +234,9 @@ export function TasksPage() {
     (tabId: TasksViewTabId) => {
       setActiveTab(tabId);
       setSortField(readTasksSortForTab(tabId));
-      const { taskId, full } = parseTasksSearch(urlSearch);
+      const { taskId, sprintId, full } = parseTasksSearch(urlSearch);
       const view = TAB_ID_TO_QUERY[tabId];
-      pushTasksUrl({ view, task: taskId, full });
+      pushTasksUrl({ view, task: taskId, sprint: sprintId, full });
       syncTitle(tabId, panelTask?.title, taskId);
     },
     [panelTask?.title, pushTasksUrl, syncTitle, urlSearch],
@@ -200,9 +245,18 @@ export function TasksPage() {
   const closeTaskDetail = useCallback(() => {
     closeDetail();
     const view = TAB_ID_TO_QUERY[activeTab];
-    pushTasksUrl({ view, task: null, full: false });
+    const { sprintId } = parseTasksSearch(urlSearch);
+    pushTasksUrl({ view, task: null, sprint: sprintId, full: false });
     syncTitle(activeTab);
-  }, [activeTab, closeDetail, pushTasksUrl, syncTitle]);
+  }, [activeTab, closeDetail, pushTasksUrl, syncTitle, urlSearch]);
+
+  const closeSprintDetail = useCallback(() => {
+    closeSprint();
+    const view = TAB_ID_TO_QUERY[activeTab];
+    const { taskId } = parseTasksSearch(urlSearch);
+    pushTasksUrl({ view, task: taskId, sprint: null, full: false });
+    syncTitle(activeTab, panelTask?.title, taskId);
+  }, [activeTab, closeSprint, panelTask?.title, pushTasksUrl, syncTitle, urlSearch]);
 
   const expandTask = useCallback(() => {
     const id = selectedTaskId ?? panelTask?.id ?? parseTasksSearch(urlSearch).taskId;
@@ -223,9 +277,20 @@ export function TasksPage() {
     (taskId: string, path: string[] = []) => {
       openTask(taskId, path);
       const view = TAB_ID_TO_QUERY[activeTab];
-      pushTasksUrl({ view, task: taskId, full: false });
+      const { sprintId } = parseTasksSearch(urlSearch);
+      pushTasksUrl({ view, task: taskId, sprint: sprintId, full: false });
     },
-    [activeTab, openTask, pushTasksUrl],
+    [activeTab, openTask, pushTasksUrl, urlSearch],
+  );
+
+  const wrapOpenSprint = useCallback(
+    (sprintId: string) => {
+      openSprint(sprintId);
+      const view = TAB_ID_TO_QUERY[activeTab];
+      const { taskId } = parseTasksSearch(urlSearch);
+      pushTasksUrl({ view, sprint: sprintId, task: taskId ?? undefined, full: false });
+    },
+    [activeTab, openSprint, pushTasksUrl, urlSearch],
   );
 
   const onCreateTask = useCallback(() => {
@@ -244,7 +309,7 @@ export function TasksPage() {
     }
   }, [urlSearch, workspace.tasks]);
 
-  const workspaceWithNav = { ...workspace, openTask: wrapOpenTask };
+  const workspaceWithNav = { ...workspace, openTask: wrapOpenTask, openSprint: wrapOpenSprint };
 
   if (taskFull && panelTask) {
     return (
@@ -283,6 +348,8 @@ export function TasksPage() {
           <TasksDelegatedView workspace={workspaceWithNav} />
         ) : activeTab === 'archive' ? (
           <TasksArchiveView workspace={workspaceWithNav} />
+        ) : activeTab === 'sprints' ? (
+          <TasksSprintsView workspace={workspaceWithNav} />
         ) : null}
       </div>
       <TaskDetailLayer
@@ -292,6 +359,34 @@ export function TasksPage() {
         onCollapse={collapseTask}
         onClose={closeTaskDetail}
       />
+      {activeTab === 'sprints' && panelSprint ? (
+        <SprintDetailPanel
+          sprint={panelSprint}
+          sprintTasks={sprintPanelTasks}
+          searchTasks={sprintSearchTasks}
+          armedDeleteId={armedDeleteId}
+          expandedTreeKeys={expandedTreeKeys}
+          onClose={closeSprintDetail}
+          onUpdate={(patch) => updateSprintFields(panelSprint.id, patch)}
+          onOpenTask={wrapOpenTask}
+          onAssignTask={(taskId) => assignTaskToSprint(taskId, panelSprint.id)}
+          onAssignTaskAsSubtask={(taskId, rootId, parentPath) =>
+            assignTaskToSprintAsSubtask(taskId, rootId, parentPath)
+          }
+          onToggleTreeExpand={toggleTreeExpand}
+          onArmDelete={setArmedDeleteId}
+          onDeleteTask={deleteTask}
+          onDuplicateTask={duplicateTask}
+          onUpdateTask={updateTask}
+          onUpdateSubtask={updateSubtaskAtPath}
+          onAddSubtask={addSubtaskAtPath}
+          onCreateTask={() => {
+            const id = addTaskForSprint(panelSprint.id);
+            wrapOpenTask(id);
+          }}
+          sortField={sortField}
+        />
+      ) : null}
     </div>
   );
 }

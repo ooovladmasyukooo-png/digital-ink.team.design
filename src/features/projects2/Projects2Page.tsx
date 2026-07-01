@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { projects as projectCatalog } from './data';
+import { normalizeClientArticleShares } from './projectClientArticles';
+import { normalizeClientContacts } from './projectClientContacts';
 import { normalizeLinkOrder } from './projectLinks';
 import { normalizeTeamAssignments } from './projectTeam';
 import { Project2Detail } from './Project2Detail';
@@ -48,6 +50,9 @@ export function Projects2Page({
       return {
         ...merged,
         teamAssignments: normalizeTeamAssignments(merged),
+        clientContacts: normalizeClientContacts(merged),
+        clientArticleShares: normalizeClientArticleShares(merged.clientArticleShares),
+        referralCode: merged.referralCode ?? '',
         settingExtras: merged.settingExtras ?? [],
         customLinks: merged.customLinks ?? [],
         linkOrder: normalizeLinkOrder(merged.linkOrder, merged.customLinks ?? []),

@@ -9,7 +9,7 @@ export const FEATURE_IDS: FeatureId[] = [
   'crm',
   'projects2',
   'analytics',
-  'finance',
+  'tz-designer',
   'team',
   'tasks',
   'design-brief',
@@ -51,6 +51,7 @@ export function pathForFeature(feature: FeatureId): string {
   if (feature === 'projects2') return '/projects';
   if (feature === 'tasks') return '/tasks?day';
   if (feature === 'design-brief') return '/design-brief';
+  if (feature === 'tz-designer') return '/tz-designer';
   return `/${feature}`;
 }
 
@@ -156,6 +157,16 @@ export function parseLocation(pathname: string, search: string): ParsedLocation 
   }
 
   const seg = parts[0];
+  if (seg === 'finance') {
+    return {
+      feature: 'tz-designer',
+      teamProfileId: null,
+      teamSubtab: 'profile',
+      project2ProfileId: null,
+      project2Subtab: 'profile',
+    };
+  }
+
   if (seg && FEATURE_IDS.includes(seg as FeatureId)) {
     return {
       feature: seg as FeatureId,

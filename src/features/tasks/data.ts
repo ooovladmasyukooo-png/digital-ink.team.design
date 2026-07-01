@@ -5,10 +5,11 @@ type SeedSubtask = Omit<TaskSubtask, 'tagIds' | 'customTags' | 'subtasks'> & {
   customTags?: string[];
   subtasks: SeedSubtask[];
 };
-type SeedTask = Omit<Task, 'tagIds' | 'customTags' | 'subtasks' | 'published'> & {
+type SeedTask = Omit<Task, 'tagIds' | 'customTags' | 'subtasks' | 'published' | 'sprintId'> & {
   tagIds?: TaskTagId[];
   customTags?: string[];
   published?: boolean;
+  sprintId?: string | null;
   subtasks: SeedSubtask[];
 };
 
@@ -26,6 +27,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: 'black-ritual',
+    sprintId: 'spr-queue-1',
     description: '',
     checkItems: [],
     subtasks: [],
@@ -44,6 +46,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: 'vlad-ink',
+    sprintId: 'spr-queue-1',
     description: '',
     checkItems: [],
     subtasks: [],
@@ -62,6 +65,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: 'maya-lines',
+    sprintId: 'spr-active-1',
     description:
       'Зібрати метрики з Meta Ads і Google, порівняти з Q3, додати висновки для клієнта. Фінальний PDF — до пʼятниці.',
     checkItems: [
@@ -113,6 +117,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: 'old-sailor',
+    sprintId: 'spr-active-1',
     description: 'Надіслати 3 варіанти банерів у Telegram, зафіксувати правки письмово.',
     checkItems: [{ id: 'c4', label: 'Зібрати фідбек у чаті', done: false }],
     subtasks: [
@@ -178,6 +183,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: 'black-ritual',
+    sprintId: 'spr-queue-1',
     description: '',
     checkItems: [],
     subtasks: [],
@@ -196,6 +202,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: 'vlad-ink',
+    sprintId: 'spr-active-2',
     description: '',
     checkItems: [],
     subtasks: [
@@ -256,6 +263,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: null,
+    sprintId: 'spr-queue-1',
     description: '',
     checkItems: [],
     subtasks: [],
@@ -274,6 +282,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: null,
+    sprintId: 'spr-active-2',
     description: 'Задачі без проєкту для поточного користувача.',
     checkItems: [
       { id: 't10c1', label: 'Відкрити вкладку «Особисті»', done: false },
@@ -298,6 +307,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'andrii',
     createdAt: atOffsetHours(96),
     projectId: null,
+    sprintId: 'spr-done-1',
     description: '',
     checkItems: [],
     subtasks: [],
@@ -316,6 +326,7 @@ export const initialTasks: SeedTask[] = [
     creatorId: 'daria',
     createdAt: atOffsetHours(120),
     projectId: 'maya-lines',
+    sprintId: 'spr-done-1',
     description: '',
     checkItems: [],
     subtasks: [],

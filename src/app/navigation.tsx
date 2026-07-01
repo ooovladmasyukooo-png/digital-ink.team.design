@@ -11,5 +11,5 @@ export const sidebarNavigation: SidebarNavEntry[] = [
   { kind: 'link', id: 'design-brief', label: 'ТЗ дизайнеру', icon: Icons.description },
   { kind: 'divider', id: 'after-tasks' },
   { kind: 'link', id: 'team', label: 'Команда', icon: Icons.team },
-  { kind: 'link', id: 'finance', label: 'Фінанси', icon: Icons.finance },
+  { kind: 'link', id: 'tz-designer', label: 'TZ Designer', icon: Icons.link },
 ];

@@ -24,6 +24,7 @@ export const TAB_DEFAULT_SORT: Record<TasksViewTabId, TasksSortField> = {
   personal: 'deadline',
   delegated: 'deadline',
   archive: 'deadline',
+  sprints: 'priority',
 };
 
 const NO_PRIORITY_RANK = 99;

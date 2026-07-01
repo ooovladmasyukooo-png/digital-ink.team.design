@@ -696,6 +696,953 @@
   border-left-color: color-mix(in oklab, #34d399 45%, transparent);
 }
 
+.ts-group-sprint-phase .ts-group-head {
+  margin-bottom: 4px;
+}
+
+.ts-sprint-phase-body {
+  --ts-sprint-grid: 24px minmax(180px, 1fr) 168px 58px 68px 112px 56px;
+  display: grid;
+  grid-template-columns: var(--ts-sprint-grid);
+  column-gap: 4px;
+  padding: 0 8px 8px;
+}
+
+.ts-sprint-phase-body > .ts-cols-sprint {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  padding: 0 0 2px;
+}
+
+.ts-sprint-phase-body .ts-sprint-group {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+}
+
+.ts-sprint-phase-body .ts-sprint-group > .ts-row-sprint {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;
+  padding: 3px 8px;
+}
+
+.ts-sprint-phase-body .ts-sprint-group > .ts-sprint-tasks {
+  grid-column: 1 / -1;
+}
+
+.ts-sprint-group {
+  border-bottom: 1px solid var(--ts-line);
+}
+
+.ts-sprint-group:last-child {
+  border-bottom: 0;
+}
+
+.ts-sprint-group:has(.ts-sprint-tasks) {
+  margin-bottom: 8px;
+}
+
+/* Спринти — окрема сітка тільки для рядка/заголовка спринта */
+.ts-cols-sprint,
+.ts-row-sprint {
+  --ts-grid: var(--ts-sprint-grid, 24px minmax(180px, 1fr) 168px 58px 68px 112px 56px);
+  grid-template-columns: var(--ts-grid);
+}
+
+.ts-row-sprint {
+  min-height: calc(var(--ts-row-inner) + 6px);
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--ts-line);
+  background: color-mix(in oklab, var(--bg-2) 38%, transparent);
+  cursor: pointer;
+}
+
+.ts-row-sprint:hover {
+  background: color-mix(in oklab, var(--bg-2) 75%, transparent);
+}
+
+.ts-row-sprint .ts-title-t {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.ts-row-sprint .ts-cell-lead {
+  align-items: center;
+  min-height: var(--ts-row-inner);
+}
+
+.ts-row-sprint .ts-cell-lead .ts-title-btn {
+  flex: 1;
+  min-width: 0;
+  justify-content: flex-start;
+}
+
+.ts-row-sprint .ts-cell-tree {
+  width: 24px;
+  min-width: 24px;
+  padding-left: 0;
+}
+
+.ts-row-sprint .ts-cell-sprint-progress,
+.ts-row-sprint .ts-cell-priority,
+.ts-row-sprint .ts-cell-sprint-assignee,
+.ts-row-sprint .ts-cell-sprint-dates,
+.ts-row-sprint .ts-row-actions {
+  justify-self: stretch;
+}
+
+.ts-sprint-phase-inline {
+  flex-shrink: 0;
+}
+
+.ts-row-sprint:hover .ts-row-dup,
+.ts-row-sprint:hover .ts-row-del {
+  opacity: 1;
+}
+
+.ts-row-sprint .ts-row-actions .ts-row-dup,
+.ts-row-sprint .ts-row-actions .ts-row-del {
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.ts-row-sprint .ts-row-actions .ts-row-del-armed {
+  opacity: 1;
+}
+
+.ts-sprint-status-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  border-radius: 999px;
+  transition: background 0.12s ease, box-shadow 0.12s ease;
+}
+
+.ts-sprint-status-btn:hover,
+.ts-sprint-status-btn-open {
+  background: color-mix(in oklab, var(--bg-3) 70%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--line-2) 65%, transparent);
+}
+
+.ts-sprint-status-chev {
+  display: inline-flex;
+  margin-right: 2px;
+  color: var(--txt-4);
+  opacity: 0.75;
+  line-height: 0;
+}
+
+.ts-sprint-status-chev :global(svg) {
+  width: 9px;
+  height: 9px;
+}
+
+.ts-cell-sprint-assignee {
+  justify-content: center;
+}
+
+.ts-cell-sprint-assignee :global(.av-sm),
+.ts-cell-sprint-assignee :global(.av-img-sm) {
+  width: 20px;
+  height: 20px;
+  font-size: 7px;
+}
+
+.ts-cell-sprint-dates {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0;
+  cursor: default;
+}
+
+.ts-sprint-term {
+  display: inline-flex;
+  min-width: 0;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.ts-sprint-term-range {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ts-sprint-term-date {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt-2);
+  cursor: pointer;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+}
+
+.ts-sprint-term-date:hover {
+  color: var(--txt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ts-sprint-term-sep {
+  flex-shrink: 0;
+  color: var(--txt-4);
+  font-size: 10px;
+  opacity: 0.45;
+}
+
+.ts-sprint-date-btn {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.ts-sprint-date-btn:hover .ts-deadline-t {
+  color: var(--txt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ts-col-sprint-dates {
+  min-width: 0;
+}
+
+.ts-sprint-duration-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 0;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--bg-3) 72%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--line) 55%, transparent);
+  color: var(--txt-4);
+  font-size: 8px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0.55;
+}
+
+.ts-cell-sprint-end .ts-deadline-t {
+  color: var(--txt-3);
+}
+
+.ts-cell-sprint-progress {
+  justify-content: flex-end;
+  min-width: 0;
+  padding: 0;
+  cursor: default;
+}
+
+.ts-col-sprint-progress {
+  min-width: 0;
+}
+
+.ts-sprint-progress-row {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+}
+
+.ts-sprint-progress-row .ts-sprint-progress-main {
+  gap: 8px;
+  width: 100%;
+}
+
+.ts-sprint-progress-row .ts-sprint-progress-track {
+  height: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-sprint-progress-row .ts-sprint-progress-meta {
+  flex-shrink: 0;
+  min-width: 54px;
+  justify-content: flex-end;
+  font-size: 10px;
+}
+
+.ts-sprint-progress-row .ts-sprint-progress-pct {
+  font-size: 9px;
+}
+
+.ts-sprint-group > .ts-row-sprint.ts-row-expanded {
+  border-bottom: 0;
+  background: color-mix(in oklab, var(--bg-2) 42%, transparent);
+}
+
+.ts-sprint-tasks {
+  /* Задачі всередині спринту — без колонки «Проєкт» */
+  --ts-grid: minmax(20px, max-content) minmax(0, 1fr) 48px 58px 96px 72px 56px;
+  margin: 0;
+  padding: 0 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.ts-sprint-tasks .ts-cols.ts-cols-in-group {
+  position: static;
+  z-index: auto;
+  min-height: 22px;
+  margin: 0;
+  padding: 4px 8px 3px;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 55%, transparent);
+  background: transparent;
+  color: var(--txt-2);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.ts-sprint-tasks .ts-cols.ts-cols-in-group .ts-col-i {
+  color: var(--txt-3);
+  opacity: 1;
+}
+
+.ts-sprint-tasks .ts-cols.ts-cols-in-group .ts-col-label {
+  color: var(--txt-2);
+}
+
+.ts-sprint-tasks .ts-rows {
+  padding-top: 1px;
+}
+
+.ts-sprint-tasks .ts-rows .ts-row {
+  background: transparent;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.ts-sprint-tasks .ts-rows .ts-row:hover {
+  background: color-mix(in oklab, var(--bg-3) 45%, transparent);
+}
+
+.ts-sprint-tasks .ts-group-empty {
+  padding: 6px 8px 4px;
+  color: var(--txt-4);
+}
+
+.ts-sprint-tasks .ts-new-row {
+  margin-top: 2px;
+  padding: 6px 8px 4px;
+}
+
+.ts-sprint-tasks .ts-cols-in-group .ts-col-lead {
+  gap: 6px;
+}
+
+/* Заголовки спринтів — вирівнювання колонок під дані рядка */
+.ts-cols-sprint .ts-col-lead {
+  gap: 6px;
+}
+
+.ts-cols-sprint .ts-col-meta.ts-col-sprint-progress,
+.ts-cols-sprint .ts-col-meta.ts-col-sprint-dates {
+  justify-content: center;
+}
+
+.ts-cols-sprint .ts-col-tree {
+  width: 24px;
+  min-width: 24px;
+}
+
+.ts-sprint-drawer-backdrop {
+  z-index: 230;
+}
+
+.ts-sprint-drawer {
+  --ts-drawer-x: 6px;
+  z-index: 235;
+}
+
+.ts-sprint-drawer-head {
+  gap: 10px;
+}
+
+.ts-sprint-drawer-head-start {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+}
+
+.ts-sprint-drawer .ts-detail-top-meta {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 8px 0 0;
+}
+
+.ts-sprint-progress {
+  min-width: 0;
+}
+
+.ts-sprint-progress-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ts-sprint-progress-track {
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--line) 35%, transparent);
+  overflow: hidden;
+}
+
+.ts-sprint-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--green);
+  transition: width 0.15s ease;
+}
+
+.ts-sprint-progress-meta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--txt-3);
+  font-size: 10px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ts-sprint-progress-pct {
+  color: var(--txt-4);
+  font-size: 9px;
+}
+
+.ts-sprint-progress-header {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.ts-sprint-progress-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--bg) 88%, transparent);
+}
+
+.ts-sprint-progress-summary .ts-sprint-progress-label {
+  flex-shrink: 0;
+  color: var(--txt-3);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.ts-sprint-progress-summary .ts-sprint-progress-main {
+  flex: 1;
+}
+
+.ts-sprint-progress-summary .ts-sprint-progress-track {
+  height: 5px;
+}
+
+.ts-sprint-drawer-block .ts-picker-search {
+  margin-bottom: 8px;
+}
+
+.ts-sprint-drawer-add-block .ts-drawer-block-body {
+  padding-top: 0;
+}
+
+.ts-sprint-drawer-add-block .ts-picker-search {
+  margin-bottom: 0;
+}
+
+.ts-sprint-drawer-tasks-block {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.ts-sprint-drawer-tasks-block .ts-drawer-block-body {
+  padding-inline: 0;
+}
+
+.ts-sprint-drawer-tasks-block .ts-drawer-block-head {
+  align-items: center;
+  margin-bottom: 6px;
+  min-height: 24px;
+}
+
+.ts-sprint-drawer-tasks-block .ts-drawer-block-head-actions {
+  gap: 6px;
+}
+
+.ts-sprint-drawer-search {
+  margin-bottom: 8px;
+}
+
+.ts-sprint-drawer-search .ts-picker-search {
+  margin-bottom: 6px;
+}
+
+.ts-sprint-drawer-tasks {
+  --ts-grid: minmax(100px, 1fr) 26px 20px 60px 54px;
+  --ts-row-inner: 28px;
+  --ts-row-pad-y: 0;
+  overflow: hidden;
+  padding: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-cols,
+.ts-sprint-drawer-tasks .ts-row,
+.ts-sprint-drawer-tasks .ts-rows,
+.ts-sprint-drawer-tasks .ts-new-subtask-row {
+  width: 100%;
+  min-width: 0;
+  column-gap: 6px;
+}
+
+.ts-sprint-drawer-cols {
+  min-height: 16px;
+  margin-bottom: 0;
+  padding: 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 40%, transparent);
+  opacity: 0.55;
+}
+
+.ts-sprint-drawer-cols > * {
+  min-width: 0;
+  justify-self: stretch;
+}
+
+.ts-sprint-drawer-cols .ts-col {
+  min-height: 0;
+  padding: 0;
+}
+
+.ts-sprint-drawer-cols .ts-col-lead {
+  min-height: 0;
+}
+
+.ts-sprint-drawer-col-meta {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 0;
+}
+
+.ts-sprint-drawer-cols .ts-col-i {
+  width: 11px;
+  height: 11px;
+  opacity: 0.85;
+}
+
+.ts-sprint-drawer-tasks .ts-cols-in-group {
+  margin-bottom: 0;
+  padding: 0;
+  border-bottom: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-row {
+  padding: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-row > * {
+  min-width: 0;
+  justify-self: stretch;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-lead {
+  justify-self: stretch;
+}
+
+.ts-sprint-drawer-tasks .ts-col-i :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-lead {
+  gap: 3px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.ts-sprint-drawer-tasks .ts-title-btn,
+.ts-sprint-drawer-tasks .ts-title-inner,
+.ts-sprint-drawer-tasks .ts-title-t {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-sprint-drawer-tasks .ts-status-inline {
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.ts-sprint-drawer-tasks .ts-status-t {
+  display: none;
+}
+
+.ts-sprint-drawer-tasks .ts-status-sm {
+  padding: 0;
+  gap: 0;
+  border: 0;
+  background: transparent;
+}
+
+.ts-sprint-drawer-tasks .ts-status-sm .ts-status-i {
+  width: 20px;
+  height: 20px;
+}
+
+.ts-sprint-drawer-tasks .ts-status-sm .ts-status-i :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-sprint-drawer-tasks .ts-title-btn {
+  min-width: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-title-t {
+  font-size: 12.5px;
+  line-height: 1.25;
+}
+
+.ts-sprint-drawer-tasks .ts-title-badges {
+  display: none;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-tags {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.ts-sprint-drawer-tasks .ts-row > .ts-cell-tags,
+.ts-sprint-drawer-tasks .ts-row > .ts-cell-btn {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-tags .ts-cell-btn,
+.ts-sprint-drawer-tasks .ts-cell-priority,
+.ts-sprint-drawer-tasks .ts-cell-deadline,
+.ts-sprint-drawer-tasks .ts-cell-assignee {
+  justify-content: center;
+  padding: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-deadline .ts-cell-btn {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-deadline-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-assignee .ts-cell-btn {
+  justify-content: center;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-assignee .ts-assignees {
+  justify-content: center;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-priority :global(.chip) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: 0;
+  line-height: 0;
+  gap: 0;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-priority .ts-pri-flag {
+  display: inline-flex;
+  font-size: 11px;
+  line-height: 1;
+  color: inherit;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-priority .ts-pri-flag :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-sprint-drawer-tasks .ts-deadline-t {
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ts-sprint-drawer-tasks .ts-empty {
+  font-size: 11px;
+  width: 100%;
+  justify-content: center;
+}
+
+.ts-sprint-drawer-tasks .ts-recur-mark :global(svg) {
+  width: 10px;
+  height: 10px;
+}
+
+.ts-sprint-drawer-tasks .ts-cell-assignee :global(.av-sm),
+.ts-sprint-drawer-tasks .ts-cell-assignee :global(.av-img-sm) {
+  width: 20px;
+  height: 20px;
+  font-size: 7px;
+}
+
+.ts-sprint-drawer-tasks .ts-assignees-av {
+  margin-left: -4px;
+}
+
+.ts-sprint-drawer-tasks .ts-assignees-more {
+  font-size: 8px;
+}
+
+.ts-sprint-drawer-tasks .ts-assignees-av:first-child {
+  margin-left: 0;
+}
+
+.ts-sprint-drawer-tasks-done {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px dashed color-mix(in oklab, var(--line) 55%, transparent);
+}
+
+.ts-sprint-drawer-tasks-done .ts-row {
+  opacity: 0.72;
+}
+
+.ts-sprint-drawer-tasks-done .ts-row:hover {
+  opacity: 1;
+}
+
+.ts-sprint-drawer-task-actions {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.ts-sprint-drawer-task-subtask {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+}
+
+.ts-sprint-drawer-task-subtask:hover {
+  border-color: var(--line-2);
+  color: var(--txt);
+}
+
+.ts-sprint-drawer-task-subtask :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-sprint-drawer-add-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ts-sprint-drawer-add-btn:hover {
+  border-color: var(--line-2);
+  color: var(--txt);
+}
+
+.ts-sprint-drawer-add-btn :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-sprint-drawer-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.ts-sprint-drawer-icon-btn:hover,
+.ts-sprint-drawer-icon-btn-on {
+  border-color: var(--line-2);
+  color: var(--txt);
+}
+
+.ts-sprint-drawer-icon-btn-on {
+  background: color-mix(in oklab, var(--bg-2) 55%, var(--bg));
+}
+
+.ts-sprint-drawer-icon-btn :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.ts-sprint-drawer-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ts-sprint-drawer-task-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 2px 0;
+  border-bottom: 1px solid color-mix(in oklab, var(--line) 35%, transparent);
+}
+
+.ts-sprint-drawer-task-item:last-child {
+  border-bottom: 0;
+}
+
+.ts-sprint-drawer-task-open {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt);
+  cursor: pointer;
+  text-align: left;
+}
+
+.ts-sprint-drawer-task-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ts-sprint-drawer-task-deadline {
+  margin-left: auto;
+  color: var(--txt-4);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.ts-sprint-drawer-task-remove,
+.ts-sprint-drawer-task-add {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.ts-sprint-drawer-task-remove {
+  width: 24px;
+  height: 24px;
+  justify-content: center;
+  padding: 0;
+  border-radius: 6px;
+}
+
+.ts-sprint-drawer-task-remove:hover,
+.ts-sprint-drawer-task-add:hover {
+  border-color: var(--line-2);
+  color: var(--txt);
+}
+
+.ts-sprint-drawer-task-remove :global(svg),
+.ts-sprint-drawer-task-add :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
 .ts-cols,
 .ts-row {
   display: grid;

@@ -2,10 +2,11 @@ import { initialTasks } from './data';
 import { normalizeCustomTags, normalizeTaskTagIds } from './taskTags';
 import type { Task, TaskSubtask, TaskTagId } from './types';
 
-type TaskSeed = Omit<Task, 'tagIds' | 'customTags' | 'subtasks' | 'published'> & {
+type TaskSeed = Omit<Task, 'tagIds' | 'customTags' | 'subtasks' | 'published' | 'sprintId'> & {
   tagIds?: TaskTagId[];
   customTags?: string[];
   published?: boolean;
+  sprintId?: string | null;
   subtasks: TaskSubtaskSeed[];
 };
 
@@ -28,6 +29,7 @@ function hydrateTask(task: TaskSeed): Task {
   return {
     ...task,
     published: task.published ?? false,
+    sprintId: task.sprintId ?? null,
     tagIds: normalizeTaskTagIds(task.tagIds),
     customTags: normalizeCustomTags(task.customTags),
     subtasks: task.subtasks.map(hydrateSubtask),

@@ -2,6 +2,7 @@ import { Icon, Icons } from '../../../shared/components/Icon';
 import { CHAT_TYPE_OPTIONS, PROJECT_NICHE_OPTIONS } from '../profileFieldOptions';
 import { EditableField } from './EditableField';
 import { ProfileSelectField } from './ProfileSelectField';
+import { ProjectClientContactsEditor } from './ProjectClientContactsEditor';
 import { ProjectSettingsLinksEditor } from './ProjectSettingsLinksEditor';
 import type { Project, ProjectPatch } from '../types';
 import styles from '../projects2.module.css';
@@ -32,15 +33,7 @@ export function ProjectSettingsEditor({ project, onSave, onPatch }: ProjectSetti
           fieldKey="city"
           onSave={onSave}
         />
-        <EditableField label="Email" value={project.email} fieldKey="email" onSave={onSave} icon={Icons.mail} />
-        <EditableField
-          label="Телефон"
-          value={project.phone}
-          fieldKey="phone"
-          onSave={onSave}
-          icon={Icons.call}
-          dial
-        />
+        <ProjectClientContactsEditor project={project} onPatch={onPatch} />
       </section>
 
       <section className={styles['p2-settings-sect']}>

@@ -314,7 +314,24 @@
 .p2-settings-pop-panel .p2-settings-sect :global(.p2-field) {
   grid-template-columns: 128px minmax(0, 1fr);
   gap: 12px;
-  padding: 4px 0;
+  padding: 3px 0;
+}
+
+.p2-settings-pop-panel .p2-settings-contacts :global(.p2-field) {
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 12px;
+  padding: 3px 0;
+}
+
+.p2-settings-pop-panel .p2-settings-contacts :global(.p2-field .field-in),
+.p2-settings-pop-panel .p2-settings-contacts :global(.p2-field .field-select) {
+  min-height: 30px;
+  font-size: 12px;
+}
+
+.p2-settings-pop-panel .p2-settings-add-btn {
+  margin-top: 2px;
+  margin-left: 140px;
 }
 
 .p2-settings-pop-panel .p2-settings-link-row {
@@ -3072,6 +3089,345 @@
 .p2-settings-add-btn {
   align-self: flex-start;
   margin-top: 4px;
+}
+
+.p2-settings-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0;
+}
+
+.p2-settings-contact-extra {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 3px 0;
+}
+
+.p2-settings-contact-extra-k {
+  padding-left: 32px;
+  color: var(--txt-4);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.p2-settings-contact-extra-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 28px;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+}
+
+.p2-settings-contact-extra-in {
+  width: 100%;
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--txt);
+  font-size: 11.5px;
+}
+
+.p2-settings-contact-extra-in:focus {
+  border-color: var(--line-2);
+  outline: none;
+}
+
+.p2-settings-contact-extra-in::placeholder {
+  color: var(--txt-4);
+}
+
+.p2-settings-contact-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  width: fit-content;
+  margin: 2px 0 2px 140px;
+  padding: 2px 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt-3);
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.p2-settings-contact-add:hover {
+  color: var(--txt);
+}
+
+.p2-settings-contact-add :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.p2-settings-referral-field {
+  margin-top: 2px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.p2-settings-referral-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.p2-settings-referral-in {
+  cursor: default;
+  color: var(--txt-2);
+}
+
+.p2-settings-referral-in:hover,
+.p2-settings-referral-in:focus {
+  border-color: var(--line);
+  background: var(--bg-2);
+}
+
+.p2-settings-referral-copy {
+  display: inline-grid;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--txt-3);
+  cursor: pointer;
+}
+
+.p2-settings-referral-copy:hover:not(:disabled) {
+  border-color: var(--line-2);
+  background: var(--bg-3);
+  color: var(--txt);
+}
+
+.p2-settings-referral-copy:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.p2-settings-referral-copy :global(svg) {
+  width: 13px;
+  height: 13px;
+}
+
+.p2-settings-pop-panel .p2-settings-articles {
+  margin-top: 2px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.p2-settings-articles {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.p2-settings-articles-hint {
+  margin: 0;
+  padding: 2px 0;
+  color: var(--txt-4);
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.p2-settings-pop-panel .p2-settings-articles .p2-settings-contact-add {
+  margin-left: 0;
+}
+
+.p2-settings-article-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 1px 0;
+}
+
+.p2-settings-article-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: var(--txt);
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 26px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.p2-settings-article-actions {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.p2-settings-article-date.field-date-root-compact {
+  width: 58px;
+  flex-shrink: 0;
+}
+
+.field-date-root-compact .field-date-shell {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 26px;
+  padding: 0 4px;
+  gap: 0;
+}
+
+.field-date-root-compact .field-date-trigger {
+  width: 100%;
+  font-size: 10.5px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: center;
+}
+
+.field-date-root-compact .field-date-shell:focus-within,
+.field-date-root-compact .field-date-shell:hover {
+  border-color: var(--line-2);
+}
+
+.p2-settings-article-date .field-date-trigger {
+  color: var(--green);
+}
+
+.p2-settings-article-date-empty .field-date-trigger {
+  color: var(--txt-4);
+  font-weight: 500;
+}
+
+.p2-settings-article-comment-btn,
+.p2-settings-article-copy,
+.p2-settings-article-remove {
+  position: relative;
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--bg-2);
+  color: var(--txt-4);
+  cursor: pointer;
+}
+
+.p2-settings-article-comment-btn:hover,
+.p2-settings-article-copy:hover:not(:disabled),
+.p2-settings-article-remove:hover {
+  border-color: var(--line-2);
+  background: var(--bg-3);
+  color: var(--txt-3);
+}
+
+.p2-settings-article-remove:hover {
+  color: var(--red);
+}
+
+.p2-settings-article-comment-btn-on {
+  border-color: color-mix(in oklab, var(--blue) 40%, var(--line));
+  background: color-mix(in oklab, var(--blue) 10%, var(--bg-2));
+  color: var(--blue);
+}
+
+.p2-settings-article-comment-btn-on::after {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: currentColor;
+  content: '';
+}
+
+.p2-settings-article-comment-btn :global(svg),
+.p2-settings-article-copy :global(svg),
+.p2-settings-article-remove :global(svg) {
+  width: 11px;
+  height: 11px;
+}
+
+.p2-settings-article-copy:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.p2-settings-article-comment-pop {
+  box-sizing: border-box;
+  width: min(240px, calc(100vw - 16px));
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--bg-1);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 32%);
+}
+
+.p2-settings-article-comment-area {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 72px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg-2);
+  color: var(--txt);
+  font: inherit;
+  font-size: 11.5px;
+  line-height: 1.4;
+  resize: vertical;
+  outline: none;
+}
+
+.p2-settings-article-comment-area:focus {
+  border-color: var(--line-2);
+}
+
+.p2-settings-article-comment-area::placeholder {
+  color: var(--txt-4);
+}
+
+.p2-settings-copy-toast {
+  position: fixed;
+  z-index: 360;
+  bottom: 22px;
+  left: 50%;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-3);
+  box-shadow: 0 10px 28px rgb(0 0 0 / 28%);
+  color: var(--txt-2);
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: p2-settings-copy-toast-in 0.16s ease;
+}
+
+@keyframes p2-settings-copy-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 .p2-profile-main-tag {

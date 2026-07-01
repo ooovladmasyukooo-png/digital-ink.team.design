@@ -5,7 +5,7 @@ export type FeatureId =
   | 'crm'
   | 'projects2'
   | 'analytics'
-  | 'finance'
+  | 'tz-designer'
   | 'team'
   | 'tasks'
   | 'design-brief';

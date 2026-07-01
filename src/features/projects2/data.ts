@@ -142,6 +142,32 @@ function buildProject(index: number): Project {
     hobby: 'Креатив, соцмережі',
     email: `${slug}@digitalink.team`,
     phone: `+380 ${50 + (index % 40)} ${100 + index} ${10 + index} ${index}`,
+    clientContacts: [
+      {
+        id: `contact-${slug}`,
+        label: '',
+        email: `${slug}@digitalink.team`,
+        phone: `+380 ${50 + (index % 40)} ${100 + index} ${10 + index} ${index}`,
+      },
+    ],
+    referralCode: `INK${String(n).padStart(4, '0')}`,
+    clientArticleShares:
+      n === 30
+        ? [
+            {
+              id: 'share-demo-1',
+              articleId: 'art-onboarding',
+              comment: 'Надіслав на старті співпраці',
+              sentAt: '15.04.2026',
+            },
+            {
+              id: 'share-demo-2',
+              articleId: 'art-facebook-ads',
+              comment: '',
+              sentAt: '',
+            },
+          ]
+        : [],
     telegram: `@${slug.replace(/-/g, '_')}`,
     telegramId: `${500000000 + index}`,
     comments: `Seed #${n} для Kanban / фільтрів.`,

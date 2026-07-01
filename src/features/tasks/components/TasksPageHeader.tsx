@@ -13,6 +13,7 @@ const TASK_TABS: { id: TasksViewTabId; label: string; icon: ReactNode }[] = [
   { id: 'personal', label: 'Особисті', icon: Icons.spark },
   { id: 'delegated', label: 'Делеговані', icon: Icons.team },
   { id: 'archive', label: 'Архів', icon: Icons.inbox },
+  { id: 'sprints', label: 'Спринти', icon: Icons.repeat },
 ];
 
 interface TasksPageHeaderProps {

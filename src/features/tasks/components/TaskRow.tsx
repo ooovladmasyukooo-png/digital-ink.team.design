@@ -62,6 +62,10 @@ interface TaskRowProps {
   onDuplicate?: (id: string) => void;
   deleteTaskId?: string;
   duplicateTaskId?: string;
+  onDetach?: () => void;
+  detachAriaLabel?: string;
+  hideTreeColumn?: boolean;
+  hideRowActions?: boolean;
 }
 
 export function TaskRow({
@@ -94,6 +98,10 @@ export function TaskRow({
   onDuplicate,
   deleteTaskId,
   duplicateTaskId,
+  onDetach,
+  detachAriaLabel,
+  hideTreeColumn = false,
+  hideRowActions = false,
 }: TaskRowProps) {
   const tagIds = normalizeTaskTagIds(tagIdsProp);
   const customTags = normalizeCustomTags(customTagsProp);
@@ -161,6 +169,7 @@ export function TaskRow({
       )}
       style={indentStyle}
     >
+      {hideTreeColumn ? null : (
       <div className={styles['ts-cell-tree']} style={indentStyle}>
         {isArchive && isSubtask && parentTaskTitle ? (
           <button
@@ -196,6 +205,7 @@ export function TaskRow({
           </button>
         )}
       </div>
+      )}
 
       <div className={styles['ts-cell-lead']} style={indentStyle}>
         <button
@@ -337,7 +347,21 @@ export function TaskRow({
         </div>
       ) : null}
 
+      {hideRowActions ? null : (
       <div className={styles['ts-row-actions']}>
+        {onDetach ? (
+          <button
+            type="button"
+            className={styles['ts-row-dup']}
+            aria-label={detachAriaLabel ?? 'Прибрати зі спринту'}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDetach();
+            }}
+          >
+            {Icons.close}
+          </button>
+        ) : null}
         {showDuplicate ? (
           <button
             type="button"
@@ -361,6 +385,7 @@ export function TaskRow({
           />
         ) : null}
       </div>
+      )}
 
       {!isArchive && picker === 'deadline' ? (
         <TaskDeadlinePicker

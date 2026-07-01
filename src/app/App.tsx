@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { AnalyticsPage } from '../features/analytics/AnalyticsPage';
 import { CrmPage } from '../features/crm/CrmPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
-import { FinancePage } from '../features/finance/FinancePage';
+import { TzDesignerPage } from '../features/tz-designer/TzDesignerPage';
 import type { ProjectSubtabId } from '../features/projects2/types';
 import { DocumentPublicPage } from '../features/projects2/components/DocumentPublicPage';
 import { isDocumentPublicPath } from '../features/projects2/documents/documentPaths';
@@ -29,20 +29,19 @@ const SIDEBAR_TITLE_UK: Record<FeatureId, string> = {
   crm: 'CRM',
   projects2: 'Проєкти',
   analytics: 'Аналітика',
-  finance: 'Фінанси',
+  'tz-designer': 'TZ Designer',
   team: 'Команда',
   tasks: 'Задачі',
   'design-brief': 'ТЗ дизайнеру',
 };
 
 const featurePages: Record<
-  Exclude<FeatureId, 'team' | 'tasks' | 'projects2' | 'design-brief'>,
+  Exclude<FeatureId, 'team' | 'tasks' | 'projects2' | 'design-brief' | 'tz-designer'>,
   ReactNode
 > = {
   dashboard: <DashboardPage />,
   crm: <CrmPage />,
   analytics: <AnalyticsPage />,
-  finance: <FinancePage />,
 };
 
 export function App() {
@@ -79,7 +78,7 @@ export function App() {
   }, [syncFromWindow]);
 
   useEffect(() => {
-    if (active === 'team' || active === 'projects2' || active === 'tasks' || active === 'design-brief') return;
+    if (active === 'team' || active === 'projects2' || active === 'tasks' || active === 'design-brief' || active === 'tz-designer') return;
     document.title = `${SIDEBAR_TITLE_UK[active]} · Aurora CRM`;
   }, [active]);
 
@@ -170,6 +169,8 @@ export function App() {
         <TasksPage />
       ) : active === 'design-brief' ? (
         <DesignBriefPage />
+      ) : active === 'tz-designer' ? (
+        <TzDesignerPage />
       ) : (
         featurePages[active]
       )}

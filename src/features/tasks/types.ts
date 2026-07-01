@@ -1,4 +1,6 @@
-export type TasksViewTabId = 'by-date' | 'by-area' | 'personal' | 'delegated' | 'archive';
+export type TasksViewTabId = 'by-date' | 'by-area' | 'personal' | 'delegated' | 'archive' | 'sprints';
+
+export type SprintPhaseId = 'active' | 'queued' | 'completed';
 
 export type TasksSortField = 'deadline' | 'status' | 'priority';
 
@@ -97,6 +99,7 @@ export interface Task {
   /** ISO datetime — коли задачу створено */
   createdAt: string;
   projectId: string | null;
+  sprintId: string | null;
   description: string;
   checkItems: TaskCheckItem[];
   subtasks: TaskSubtask[];
@@ -121,6 +124,7 @@ export type TaskPatch = Partial<
     | 'creatorId'
     | 'createdAt'
     | 'projectId'
+    | 'sprintId'
     | 'description'
     | 'checkItems'
     | 'subtasks'

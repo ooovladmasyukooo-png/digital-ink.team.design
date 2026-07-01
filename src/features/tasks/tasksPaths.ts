@@ -2,9 +2,9 @@ import type { TasksViewTabId } from './types';
 import { formatTaskRef } from './taskRef';
 
 /** Ключі в URL списку: /tasks?day, /tasks?project, … */
-export type TasksViewQuery = 'day' | 'project' | 'my' | 'team' | 'done';
+export type TasksViewQuery = 'day' | 'project' | 'my' | 'team' | 'done' | 'sprint';
 
-export const TASKS_VIEW_QUERIES: TasksViewQuery[] = ['day', 'project', 'my', 'team', 'done'];
+export const TASKS_VIEW_QUERIES: TasksViewQuery[] = ['day', 'project', 'my', 'team', 'done', 'sprint'];
 
 export const QUERY_TO_TAB_ID: Record<TasksViewQuery, TasksViewTabId> = {
   day: 'by-date',
@@ -12,6 +12,7 @@ export const QUERY_TO_TAB_ID: Record<TasksViewQuery, TasksViewTabId> = {
   my: 'personal',
   team: 'delegated',
   done: 'archive',
+  sprint: 'sprints',
 };
 
 export const TAB_ID_TO_QUERY: Record<TasksViewTabId, TasksViewQuery> = {
@@ -20,6 +21,7 @@ export const TAB_ID_TO_QUERY: Record<TasksViewTabId, TasksViewQuery> = {
   personal: 'my',
   delegated: 'team',
   archive: 'done',
+  sprints: 'sprint',
 };
 
 const TAB_DOC_TITLE: Record<TasksViewTabId, string> = {
@@ -28,6 +30,7 @@ const TAB_DOC_TITLE: Record<TasksViewTabId, string> = {
   personal: 'Особисті',
   delegated: 'Делеговані',
   archive: 'Архів',
+  sprints: 'Спринти',
 };
 
 export function tasksDocumentTitle(tabId: TasksViewTabId): string {
@@ -37,6 +40,7 @@ export function tasksDocumentTitle(tabId: TasksViewTabId): string {
 export type ParsedTasksSearch = {
   view: TasksViewQuery;
   taskId: string | null;
+  sprintId: string | null;
   /** Повна сторінка: /tasks?id=… без ключа вкладки */
   full: boolean;
 };
@@ -51,12 +55,13 @@ function decodeId(value: string): string {
 
 export function parseTasksSearch(search: string): ParsedTasksSearch {
   if (!search || search === '?') {
-    return { view: 'day', taskId: null, full: false };
+    return { view: 'day', taskId: null, sprintId: null, full: false };
   }
 
   const raw = search.startsWith('?') ? search.slice(1) : search;
   let view: TasksViewQuery = 'day';
   let taskId: string | null = null;
+  let sprintId: string | null = null;
   let hasViewKey = false;
   let full = false;
 
@@ -76,6 +81,10 @@ export function parseTasksSearch(search: string): ParsedTasksSearch {
     }
     if ((key === 'id' || key === 'task') && value.trim()) {
       taskId = decodeId(value);
+      continue;
+    }
+    if (key === 'sid' && value.trim()) {
+      sprintId = decodeId(value);
     }
   }
 
@@ -83,7 +92,7 @@ export function parseTasksSearch(search: string): ParsedTasksSearch {
     full = true;
   }
 
-  return { view, taskId, full };
+  return { view, taskId, sprintId, full };
 }
 
 export function tabIdFromSearch(search: string): TasksViewTabId {
@@ -92,6 +101,7 @@ export function tabIdFromSearch(search: string): TasksViewTabId {
 
 export type BuildTasksSearchOpts = {
   task?: string | null;
+  sprint?: string | null;
   full?: boolean;
 };
 
@@ -127,6 +137,9 @@ export function buildTasksSearch(view: TasksViewQuery, opts?: BuildTasksSearchOp
   let q = `?${view}`;
   if (opts?.task) {
     q += `&id=${encodeURIComponent(opts.task)}`;
+  }
+  if (opts?.sprint) {
+    q += `&sid=${encodeURIComponent(opts.sprint)}`;
   }
   return q;
 }

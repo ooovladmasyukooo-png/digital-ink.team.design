@@ -108,13 +108,23 @@ function computeDatePopPosition(shell: HTMLElement, pop: HTMLElement): CSSProper
   return style;
 }
 
+function toShortDisplay(display: string): string {
+  const trimmed = display.trim();
+  if (!trimmed) return '';
+  const [day, month] = trimmed.split('.');
+  if (!day || !month) return trimmed;
+  return `${day}.${month}`;
+}
+
 interface ProjectDatePickerProps {
   id: string;
   value: string;
   onSelect: (display: string) => void;
+  compact?: boolean;
+  className?: string;
 }
 
-export function ProjectDatePicker({ id, value, onSelect }: ProjectDatePickerProps) {
+export function ProjectDatePicker({ id, value, onSelect, compact, className }: ProjectDatePickerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -195,14 +205,19 @@ export function ProjectDatePicker({ id, value, onSelect }: ProjectDatePickerProp
   const today = new Date();
 
   return (
-    <div ref={rootRef} className={styles['field-date-root']}>
+    <div
+      ref={rootRef}
+      className={cx(styles['field-date-root'], compact && styles['field-date-root-compact'], className)}
+    >
       <div ref={triggerRef} className={styles['field-date-shell']}>
         <button id={id} type="button" className={styles['field-date-trigger']} onClick={() => setOpen((o) => !o)}>
-          {value.trim() ? value : '—'}
+          {value.trim() ? (compact ? toShortDisplay(value) : value) : '—'}
         </button>
-        <span className={styles['field-date-cal']} aria-hidden>
-          {Icons.calendar}
-        </span>
+        {!compact ? (
+          <span className={styles['field-date-cal']} aria-hidden>
+            {Icons.calendar}
+          </span>
+        ) : null}
       </div>
       {open ? (
         <div

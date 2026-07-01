@@ -1,5 +1,6 @@
 import type { DateGroupId, Priority, Status, Task, TaskRecurrenceKind } from './types';
 import { defaultDeadlineForGroup } from './dateGroups';
+import { getSprintById } from './sprintsStore';
 
 /** Демо: відповідає поточному користувачу в UI (Андрій Мельник). */
 export const TASK_CREATOR_ASSIGNEE_ID = 'andrii';
@@ -93,6 +94,22 @@ export function createNewTaskForDelegatedStatus(
   };
 }
 
+export function createNewTaskForSprint(
+  sprintId: string,
+  id: string,
+  assigneeId = TASK_CREATOR_ASSIGNEE_ID,
+): Task {
+  const sprint = getSprintById(sprintId);
+  const phase = sprint?.phase ?? 'active';
+  const status: Status =
+    phase === 'completed' ? 'done' : phase === 'queued' ? 'inbox' : 'new';
+  return {
+    ...createNewTaskForProject(null, id, assigneeId),
+    sprintId,
+    status,
+  };
+}
+
 export function createNewTaskForProject(
   projectId: string | null,
   id: string,
@@ -113,6 +130,7 @@ export function createNewTaskForProject(
     creatorId,
     createdAt: new Date().toISOString(),
     projectId,
+    sprintId: null,
     description: '',
     checkItems: [],
     subtasks: [],

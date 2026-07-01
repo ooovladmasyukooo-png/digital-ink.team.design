@@ -7,6 +7,22 @@ export type ProjectSubtabId =
   | 'bookings'
   | 'design-brief';
 
+export interface ProjectClientContact {
+  id: string;
+  label: string;
+  email: string;
+  phone: string;
+}
+
+/** Стаття з каталогу, надіслана клієнту з його реф. кодом у посиланні. */
+export interface ProjectClientArticleShare {
+  id: string;
+  articleId: string;
+  comment: string;
+  /** DD.MM.YYYY — коли надіслали клієнту; порожньо, якщо ще ні */
+  sentAt: string;
+}
+
 export interface ProjectQuickLinks {
   instagram: string;
   facebookAds: string;
@@ -74,6 +90,9 @@ export interface Project {
   hobby: string;
   email: string;
   phone: string;
+  clientContacts: ProjectClientContact[];
+  referralCode: string;
+  clientArticleShares: ProjectClientArticleShare[];
   telegram: string;
   telegramId: string;
   comments: string;

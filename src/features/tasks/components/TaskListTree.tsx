@@ -31,6 +31,9 @@ interface TaskListTreeProps {
   onUpdateSubtask: (rootId: string, path: string[], patch: TaskPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
   onOpen: (rootId: string, subtaskPath: string[]) => void;
+  onDetachFromSprint?: (rootId: string) => void;
+  hideTreeColumn?: boolean;
+  hideRowActions?: boolean;
 }
 
 interface SubtaskBranchProps {
@@ -49,9 +52,19 @@ interface SubtaskBranchProps {
   onUpdateSubtask: (rootId: string, path: string[], patch: TaskPatch) => void;
   onAddSubtask: (rootId: string, parentPath: string[], subtask: TaskSubtask) => void;
   onOpen: (rootId: string, subtaskPath: string[]) => void;
+  hideTreeColumn?: boolean;
+  hideRowActions?: boolean;
 }
 
-function TreeAddSubtaskRow({ depth, onAdd }: { depth: number; onAdd: () => void }) {
+function TreeAddSubtaskRow({
+  depth,
+  onAdd,
+  hideTreeColumn = false,
+}: {
+  depth: number;
+  onAdd: () => void;
+  hideTreeColumn?: boolean;
+}) {
   const indentStyle = { ['--ts-tree-depth' as string]: String(depth) };
   return (
     <button
@@ -60,7 +73,7 @@ function TreeAddSubtaskRow({ depth, onAdd }: { depth: number; onAdd: () => void 
       style={indentStyle}
       onClick={onAdd}
     >
-      <span className={styles['ts-cell-tree']} style={indentStyle} aria-hidden />
+      {hideTreeColumn ? null : <span className={styles['ts-cell-tree']} style={indentStyle} aria-hidden />}
       <span className={cx(styles['ts-cell-lead'], styles['ts-new-subtask-label'])} style={indentStyle}>
         {Icons.plus}
         <span>Нова підзадача</span>
@@ -85,6 +98,8 @@ function SubtaskBranch({
   onUpdateSubtask,
   onAddSubtask,
   onOpen,
+  hideTreeColumn = false,
+  hideRowActions = false,
 }: SubtaskBranchProps) {
   const key = treeRowKey(rootTask.id, subtaskPath);
   const hasChildren = subtask.subtasks.length > 0;
@@ -113,6 +128,8 @@ function SubtaskBranch({
         expanded={expanded}
         onToggleExpand={() => onToggleExpand(rootTask.id, subtaskPath)}
         onOpen={() => onOpen(rootTask.id, subtaskPath)}
+        hideTreeColumn={hideTreeColumn}
+        hideRowActions={hideRowActions}
         onUpdate={(patch) => onUpdateSubtask(rootTask.id, subtaskPath, patch)}
         armedDeleteId={armedDeleteId}
         onArmDelete={onArmDelete}
@@ -141,10 +158,13 @@ function SubtaskBranch({
               onUpdateSubtask={onUpdateSubtask}
               onAddSubtask={onAddSubtask}
               onOpen={onOpen}
+              hideTreeColumn={hideTreeColumn}
+              hideRowActions={hideRowActions}
             />
           ))}
           <TreeAddSubtaskRow
             depth={depth + 1}
+            hideTreeColumn={hideTreeColumn}
             onAdd={() =>
               onAddSubtask(rootTask.id, subtaskPath, createNewSubtask(projectId))
             }
@@ -168,6 +188,9 @@ export function TaskListTree({
   onUpdateSubtask,
   onAddSubtask,
   onOpen,
+  onDetachFromSprint,
+  hideTreeColumn = false,
+  hideRowActions = false,
 }: TaskListTreeProps) {
   const rootKey = treeRowKey(task.id, []);
   const hasChildren = task.subtasks.length > 0;
@@ -204,6 +227,14 @@ export function TaskListTree({
         onDuplicate={onDuplicate}
         deleteTaskId={task.id}
         duplicateTaskId={task.id}
+        onDetach={
+          onDetachFromSprint
+            ? () => onDetachFromSprint(task.id)
+            : undefined
+        }
+        detachAriaLabel={`Прибрати зі спринту: ${task.title}`}
+        hideTreeColumn={hideTreeColumn}
+        hideRowActions={hideRowActions}
       />
       {expanded ? (
         <>
@@ -225,10 +256,13 @@ export function TaskListTree({
               onUpdateSubtask={onUpdateSubtask}
               onAddSubtask={onAddSubtask}
               onOpen={onOpen}
+              hideTreeColumn={hideTreeColumn}
+              hideRowActions={hideRowActions}
             />
           ))}
           <TreeAddSubtaskRow
             depth={1}
+            hideTreeColumn={hideTreeColumn}
             onAdd={() => onAddSubtask(task.id, [], createNewSubtask(task.projectId))}
           />
         </>

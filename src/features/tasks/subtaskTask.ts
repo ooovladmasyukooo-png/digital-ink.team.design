@@ -36,6 +36,7 @@ export function taskFromSubtask(subtask: TaskSubtask, root: Task): Task {
     createdAt: root.createdAt,
     recurrenceRule: null,
     projectId: subtask.projectId ?? root.projectId,
+    sprintId: root.sprintId,
     description: subtask.description,
     checkItems: subtask.checkItems,
     subtasks: subtask.subtasks,
@@ -95,6 +96,24 @@ export function resolveSubtaskProjectId(
   rootProjectId: string | null,
 ): string | null {
   return subtask.projectId ?? rootProjectId;
+}
+
+export function taskToSubtask(task: Task): TaskSubtask {
+  return {
+    id: task.id,
+    title: task.title,
+    status: task.status,
+    priority: task.priority,
+    tagIds: task.tagIds ?? [],
+    customTags: task.customTags ?? [],
+    assigneeIds: task.assigneeIds,
+    projectId: task.projectId,
+    deadline: task.deadline,
+    completedAt: task.completedAt,
+    description: task.description,
+    checkItems: task.checkItems,
+    subtasks: task.subtasks,
+  };
 }
 
 export function createNewSubtask(projectId: string | null, id?: string): TaskSubtask {
