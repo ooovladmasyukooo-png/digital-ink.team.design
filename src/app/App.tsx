@@ -29,7 +29,7 @@ const SIDEBAR_TITLE_UK: Record<FeatureId, string> = {
   crm: 'CRM',
   projects2: 'Проєкти',
   analytics: 'Аналітика',
-  'tz-designer': 'TZ Designer',
+  'tz-designer': 'Рефералка',
   team: 'Команда',
   tasks: 'Задачі',
   'design-brief': 'ТЗ дизайнеру',

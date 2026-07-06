@@ -1,36 +1,65 @@
-import { useEffect, useState } from 'react';
-import { Chip } from '../../shared/components/Chip';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Icons } from '../../shared/components/Icon';
 import { cx } from '../../shared/styles/cx';
-import { buildClientReferralLink } from '../projects2/projectClientContacts';
 import dbStyles from '../designBrief/designBrief.module.css';
-import { designerReferral, referralTransactions } from './data';
+import { MaterialDetailPanel } from './components/MaterialDetailPanel';
+import { ReferralLinkDetailPanel } from './components/ReferralLinkDetailPanel';
+import { ReferralLinksView } from './components/ReferralLinksView';
+import { ReferralMaterialsView } from './components/ReferralMaterialsView';
+import { referralLinks, referralMaterials as seedMaterials } from './data';
+import { createReferralMaterialId, EMPTY_REFERRAL_MATERIAL_STATS } from './materialOptions';
 import styles from './tzDesigner.module.css';
+import type { ReferralMaterial, ReferralMaterialPatch, ReferralTabId } from './types';
 
-const formatCurrency = (value: number) => `₴${value.toLocaleString('uk-UA')}`;
+const REFERRAL_TABS: { id: ReferralTabId; label: string; icon: ReactNode }[] = [
+  { id: 'referral', label: 'Рефералка', icon: Icons.link },
+  { id: 'materials', label: 'Матеріали', icon: Icons.description },
+];
 
 export function TzDesignerPage() {
-  const referralLink = buildClientReferralLink(designerReferral.code);
-  const [copyToast, setCopyToast] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ReferralTabId>('referral');
+  const [materials, setMaterials] = useState<ReferralMaterial[]>(() => seedMaterials);
+  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const [selectedReferralLinkId, setSelectedReferralLinkId] = useState<string | null>(null);
+
+  const selectedMaterial = useMemo(
+    () => materials.find((material) => material.id === selectedMaterialId) ?? null,
+    [materials, selectedMaterialId],
+  );
+
+  const selectedReferralLink = useMemo(
+    () => referralLinks.find((link) => link.id === selectedReferralLinkId) ?? null,
+    [selectedReferralLinkId],
+  );
+
+  const headerCount = activeTab === 'materials' ? materials.length : referralLinks.length;
 
   useEffect(() => {
-    document.title = 'TZ Designer · Aurora CRM';
+    document.title = 'Рефералка · Aurora CRM';
   }, []);
 
-  useEffect(() => {
-    if (!copyToast) return;
-    const timer = window.setTimeout(() => setCopyToast(null), 2200);
-    return () => window.clearTimeout(timer);
-  }, [copyToast]);
+  const addMaterial = () => {
+    const material: ReferralMaterial = {
+      id: createReferralMaterialId(),
+      title: 'Новий матеріал',
+      description: '',
+      html: '',
+      status: 'draft',
+      stats: { ...EMPTY_REFERRAL_MATERIAL_STATS },
+      updatedAt: new Date().toISOString(),
+    };
+    setMaterials((prev) => [material, ...prev]);
+    setSelectedMaterialId(material.id);
+    setActiveTab('materials');
+  };
 
-  const copyReferralLink = async () => {
-    if (!referralLink) return;
-    try {
-      await navigator.clipboard.writeText(referralLink);
-      setCopyToast('Посилання скопійовано');
-    } catch {
-      setCopyToast('Не вдалося скопіювати');
-    }
+  const updateMaterial = (id: string, patch: ReferralMaterialPatch) => {
+    setMaterials((prev) => prev.map((material) => (material.id === id ? { ...material, ...patch } : material)));
+  };
+
+  const deleteMaterial = (id: string) => {
+    setMaterials((prev) => prev.filter((material) => material.id !== id));
+    setSelectedMaterialId((current) => (current === id ? null : current));
   };
 
   return (
@@ -41,115 +70,62 @@ export function TzDesignerPage() {
             <div className={dbStyles['db-design-brief-header']}>
               <div className={dbStyles['db-design-brief-header-main']}>
                 <div className={dbStyles['db-design-brief-header-title-row']}>
-                  <h1 className={dbStyles['db-design-brief-header-title']}>TZ Designer</h1>
-                  <span className={dbStyles['db-design-brief-header-count']}>{referralTransactions.length}</span>
+                  <h1 className={dbStyles['db-design-brief-header-title']}>Рефералка</h1>
+                  <span className={dbStyles['db-design-brief-header-count']}>{headerCount}</span>
                 </div>
               </div>
+              {activeTab === 'materials' ? (
+                <div className={dbStyles['db-design-brief-header-action']}>
+                  <button className="red-out-btn" type="button" onClick={addMaterial}>
+                    {Icons.plus} Новий матеріал
+                  </button>
+                </div>
+              ) : null}
             </div>
             <div className={dbStyles['db-stacked-tabs-bar']}>
-              <nav className={dbStyles['db-stacked-tabs']} aria-label="TZ Designer">
-                <button type="button" className={cx(dbStyles['db-tab'], dbStyles.on)} aria-current="page">
-                  <span className={dbStyles['db-tab-i']}>{Icons.link}</span>
-                  <span>Рефералка</span>
-                </button>
+              <nav className={dbStyles['db-stacked-tabs']} aria-label="Рефералка">
+                {REFERRAL_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    className={cx(dbStyles['db-tab'], activeTab === tab.id && dbStyles.on)}
+                    aria-current={activeTab === tab.id ? 'page' : undefined}
+                    onClick={() => setActiveTab(tab.id)}
+                  >
+                    <span className={dbStyles['db-tab-i']}>{tab.icon}</span>
+                    <span>{tab.label}</span>
+                  </button>
+                ))}
               </nav>
             </div>
           </header>
 
           <div className={styles['tz-content']}>
-            <div className={styles['referral-card']}>
-              <div className={styles['referral-main']}>
-                <div className={styles['referral-k']}>Ваше реферальне посилання</div>
-                <div className={styles['referral-link-row']}>
-                  <input
-                    className={styles['referral-link-in']}
-                    type="text"
-                    readOnly
-                    tabIndex={-1}
-                    value={referralLink}
-                    aria-readonly="true"
-                  />
-                  <button
-                    type="button"
-                    className={styles['referral-copy']}
-                    aria-label="Копіювати реферальне посилання"
-                    title="Копіювати посилання"
-                    onClick={copyReferralLink}
-                  >
-                    {Icons.duplicate}
-                  </button>
-                </div>
-                <div className={styles['referral-meta']}>
-                  <span>
-                    Код: <span className={styles['referral-code']}>{designerReferral.code}</span>
-                  </span>
-                  <span className="muted">{designerReferral.activeClients} активних клієнтів</span>
-                </div>
-              </div>
-              <div className={styles['referral-stats']}>
-                <div className={styles['referral-stat']}>
-                  <div className={styles['referral-stat-k']}>Нараховано</div>
-                  <div className={cx(styles['referral-stat-v'], styles.pos)}>{formatCurrency(designerReferral.totalEarned)}</div>
-                </div>
-                <div className={styles['referral-stat']}>
-                  <div className={styles['referral-stat-k']}>В обробці</div>
-                  <div className={styles['referral-stat-v']}>{formatCurrency(designerReferral.pending)}</div>
-                </div>
-                <div className={styles['referral-stat']}>
-                  <div className={styles['referral-stat-k']}>Транзакції</div>
-                  <div className={styles['referral-stat-v']}>{referralTransactions.length}</div>
-                </div>
-              </div>
-            </div>
-
-            <div className={styles['tx-card']}>
-              <div className={styles['tx-card-head']}>
-                <div>
-                  <h2 className={styles['tx-card-title']}>Реферальні транзакції</h2>
-                  <p className={styles['tx-card-sub']}>комісії за підключених клієнтів</p>
-                </div>
-                <div className={styles['tx-card-actions']}>
-                  <button className="ghost-btn sm" type="button">
-                    {Icons.filter} Фільтр
-                  </button>
-                  <button className="ghost-btn sm" type="button">
-                    {Icons.download} CSV
-                  </button>
-                </div>
-              </div>
-              <div className={cx('tbl', styles['tbl-ref'])}>
-                <div className="tbl-h">
-                  <div>ID</div>
-                  <div>Проєкт</div>
-                  <div>Реф. код</div>
-                  <div>Статус</div>
-                  <div className="num">Комісія</div>
-                  <div>Дата</div>
-                </div>
-                {referralTransactions.map((tx) => (
-                  <div key={tx.id} className="tbl-r">
-                    <div className="mono muted">{tx.id}</div>
-                    <div>{tx.project}</div>
-                    <div className="mono">{tx.refCode}</div>
-                    <div>
-                      <Chip tone={tx.status === 'cleared' ? 'green' : 'amber'} dot>
-                        {tx.status === 'cleared' ? 'Нараховано' : 'В обробці'}
-                      </Chip>
-                    </div>
-                    <div className="num mono pos">+{formatCurrency(tx.amount)}</div>
-                    <div className="muted mono">{tx.date}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            {activeTab === 'referral' ? (
+              <ReferralLinksView links={referralLinks} onOpen={setSelectedReferralLinkId} />
+            ) : (
+              <ReferralMaterialsView
+                materials={materials}
+                onOpen={setSelectedMaterialId}
+                onUpdate={updateMaterial}
+                onAdd={addMaterial}
+              />
+            )}
           </div>
         </div>
       </div>
 
-      {copyToast ? (
-        <div className={styles['copy-toast']} role="status" aria-live="polite">
-          {copyToast}
-        </div>
+      {selectedReferralLink ? (
+        <ReferralLinkDetailPanel link={selectedReferralLink} onClose={() => setSelectedReferralLinkId(null)} />
+      ) : null}
+
+      {selectedMaterial ? (
+        <MaterialDetailPanel
+          material={selectedMaterial}
+          onClose={() => setSelectedMaterialId(null)}
+          onUpdate={updateMaterial}
+          onDelete={deleteMaterial}
+        />
       ) : null}
     </div>
   );

@@ -32,7 +32,7 @@
   text-transform: uppercase;
 }
 
-.referral-link-row {
+.referral-link-input-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 34px;
   gap: 8px;
@@ -180,6 +180,501 @@
   font-weight: 500;
   pointer-events: none;
   transform: translateX(-50%);
+}
+
+.materials-ts-shell {
+  --ts-grid: minmax(20px, max-content) minmax(200px, 1fr) 58px 58px 58px 58px 52px 88px 56px;
+  padding: 0;
+  max-width: none;
+}
+
+.referrals-ts-shell {
+  --referrals-grid:
+    14px
+    minmax(0, 1.25fr)
+    minmax(28px, 0.34fr)
+    minmax(28px, 0.34fr)
+    minmax(28px, 0.34fr)
+    minmax(32px, 0.38fr)
+    minmax(32px, 0.38fr)
+    minmax(36px, 0.42fr)
+    minmax(36px, 0.42fr)
+    minmax(36px, 0.42fr)
+    minmax(44px, 0.52fr);
+  --ts-grid: var(--referrals-grid);
+  --ts-row-inner: 22px;
+  --ts-row-pad-y: 0px;
+  padding: 0;
+  max-width: none;
+}
+
+.referrals-grid-row {
+  display: grid;
+  width: 100%;
+  grid-template-columns: var(--referrals-grid);
+  align-items: center;
+  column-gap: 3px;
+}
+
+/* Beat tasks `.ts-row` / `.ts-cols` grid (8 cols) so all 11 referral columns stay on one line */
+.referrals-ts-shell .referrals-grid-row {
+  grid-template-columns: var(--referrals-grid);
+}
+
+.referrals-ts-shell :global(.ts-col-label),
+.referrals-ts-shell :global(.ts-deadline-t) {
+  font-size: 9px;
+  line-height: 1.1;
+}
+
+.referrals-ts-shell :global(.ts-cols-in-group) {
+  min-height: 20px;
+  padding-bottom: 1px;
+}
+
+.referrals-ts-shell .referral-link-row-compact {
+  --ts-row-inner: 20px;
+  --ts-row-pad-y: 0px;
+  box-sizing: border-box;
+  grid-template-columns: var(--referrals-grid);
+  min-height: 22px;
+  height: 22px;
+  max-height: 22px;
+  padding: 0 8px;
+  overflow: hidden;
+}
+
+.referrals-ts-shell .referral-row-tree {
+  height: 20px;
+  min-height: 20px;
+  max-height: 20px;
+}
+
+.referrals-ts-shell .referral-list-lead {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 20px;
+  height: 20px;
+  max-height: 20px;
+  overflow: hidden;
+}
+
+.referrals-ts-shell .referral-row-status {
+  min-height: 18px;
+  height: 18px;
+  max-height: 18px;
+}
+
+.referral-status-badge-compact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.referral-status-icon-compact {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.referral-status-icon-compact :global(svg) {
+  display: block;
+  width: 9px;
+  height: 9px;
+}
+
+.referrals-ts-shell .referral-link-title-btn {
+  min-height: 20px;
+  height: 20px;
+  max-height: 20px;
+}
+
+.referrals-ts-shell .referral-link-line {
+  display: block;
+  overflow: hidden;
+  min-width: 0;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.referrals-ts-shell .referral-link-project {
+  color: var(--txt-3);
+  font-weight: 400;
+}
+
+.referrals-ts-shell .referral-link-meta {
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.referrals-ts-shell .referrals-stat-cell {
+  min-height: 20px;
+  height: 20px;
+  max-height: 20px;
+  padding: 0;
+}
+
+.referral-links-view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.referral-summary {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.referral-summary-item {
+  padding: 8px 10px;
+  border: 1px solid color-mix(in oklab, var(--line) 40%, transparent);
+  border-radius: 8px;
+  background: color-mix(in oklab, var(--bg-1) 80%, transparent);
+}
+
+.referral-summary-k {
+  color: var(--txt-4);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.referral-summary-v {
+  margin-top: 2px;
+  color: var(--txt);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.referral-summary-v-pos {
+  color: #34d399;
+}
+
+.referrals-stat-cell :global(.ts-deadline-t) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.materials-stat-cell,
+.referrals-stat-cell {
+  display: flex;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--ts-row-inner, 28px);
+  align-items: center;
+  justify-content: center;
+  padding: 0 1px;
+}
+
+.referrals-ts-shell .referrals-stat-cell {
+  min-height: 20px;
+}
+
+.material-row-title-inner {
+  align-items: flex-start;
+  max-width: 100%;
+}
+
+.material-row-title-stack {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+}
+
+.material-row-desc {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  color: var(--txt-3);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition:
+    max-height 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.material-row-has-desc:hover .material-row-desc,
+.material-row-has-desc:focus-within .material-row-desc {
+  max-height: 1.35em;
+  opacity: 1;
+}
+
+.material-row-has-desc:hover .material-row-title-btn,
+.material-row-has-desc:focus-within .material-row-title-btn {
+  height: auto;
+}
+
+.referral-drawer-title {
+  margin: 0 0 12px;
+  color: var(--txt);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.referral-drawer-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.referral-drawer-conv {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  color: var(--txt-3);
+  font-size: 12px;
+}
+
+.materials-empty-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--txt-3);
+  cursor: pointer;
+  font: inherit;
+}
+
+.materials-empty-link:hover {
+  color: var(--txt);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.materials-empty-link :global(svg) {
+  width: 12px;
+  height: 12px;
+}
+
+.materials-status {
+  display: inline-flex;
+  padding: 3px 9px;
+  border: 1px solid color-mix(in oklab, var(--line) 45%, transparent);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--bg-2) 70%, transparent);
+  color: var(--txt-3);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.materials-status-draft {
+  border-color: color-mix(in oklab, var(--amber) 28%, var(--line));
+  background: color-mix(in oklab, var(--amber) 10%, var(--bg-2));
+  color: color-mix(in oklab, var(--amber) 78%, var(--txt-2));
+}
+
+.materials-status-available {
+  border-color: color-mix(in oklab, var(--green) 28%, var(--line));
+  background: color-mix(in oklab, var(--green) 10%, var(--bg-2));
+  color: color-mix(in oklab, var(--green) 72%, var(--txt-2));
+}
+
+.materials-status-closed {
+  border-color: color-mix(in oklab, var(--line-2) 55%, var(--line));
+  background: color-mix(in oklab, var(--bg-3) 55%, var(--bg-2));
+  color: var(--txt-4);
+}
+
+.material-drawer-head-main {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 8px;
+}
+
+.material-drawer-head-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.material-drawer-k {
+  color: var(--txt-3);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.material-drawer-updated {
+  font-size: 11px;
+}
+
+.material-stats {
+  margin: 14px 0 4px;
+  padding: 14px 0 0;
+  border-top: 1px dashed color-mix(in oklab, var(--line) 58%, transparent);
+}
+
+.material-stats-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.material-stats-title {
+  color: var(--txt-3);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.material-stats-conv {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.material-stats-conv-k {
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.material-stats-conv-v {
+  color: var(--green);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.material-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.material-stat {
+  padding: 10px 12px;
+  border: 1px solid color-mix(in oklab, var(--line) 35%, transparent);
+  border-radius: 10px;
+  background: color-mix(in oklab, var(--bg-2) 45%, transparent);
+}
+
+.material-stat-k {
+  display: block;
+  color: var(--txt-4);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.material-stat-v {
+  display: block;
+  margin-top: 4px;
+  color: var(--txt);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.material-status-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.material-status-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-2);
+  color: var(--txt-3);
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.material-status-btn:hover {
+  border-color: var(--line-2);
+  color: var(--txt-2);
+}
+
+.material-status-btn-on {
+  color: var(--txt);
+}
+
+.material-status-btn-on.material-status-btn-draft {
+  border-color: color-mix(in oklab, var(--amber) 45%, var(--line));
+  background: color-mix(in oklab, var(--amber) 12%, var(--bg-2));
+}
+
+.material-status-btn-on.material-status-btn-available {
+  border-color: color-mix(in oklab, var(--green) 45%, var(--line));
+  background: color-mix(in oklab, var(--green) 12%, var(--bg-2));
+}
+
+.material-status-btn-on.material-status-btn-closed {
+  border-color: color-mix(in oklab, var(--line-2) 75%, var(--line));
+  background: color-mix(in oklab, var(--bg-3) 60%, var(--bg-2));
+}
+
+.material-html-field {
+  min-height: 180px;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre;
+}
+
+.material-drawer-foot {
+  display: flex;
+  flex-shrink: 0;
+  justify-content: flex-start;
+  padding: 10px var(--db-drawer-x, 24px) 16px;
+  border-top: 1px dashed color-mix(in oklab, var(--line) 58%, transparent);
+}
+
+.material-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--txt-4);
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.material-delete-btn:hover {
+  background: color-mix(in oklab, var(--red) 10%, transparent);
+  color: var(--red);
+}
+
+.material-delete-btn :global(svg) {
+  width: 13px;
+  height: 13px;
 }
 
 @media (max-width: 900px) {
